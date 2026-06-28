@@ -39,18 +39,26 @@ function PlayerIcon(): JSX.Element {
 
 function BrandMark(): JSX.Element {
   return (
-    <svg viewBox="0 0 88 32" aria-hidden="true">
+    <svg viewBox="8 12 84 60" aria-hidden="true">
+      <path
+        d="M14 46 L50 18 L86 46"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
       <g fill="currentColor">
-        <rect x="2" y="12" width="3" height="8" rx="1" opacity="0.4" />
-        <rect x="10" y="7" width="3" height="18" rx="1" opacity="0.6" />
-        <rect x="18" y="10" width="3" height="12" rx="1" opacity="0.8" />
-        <rect x="26" y="5" width="3" height="22" rx="1" />
-        <rect x="38" y="3" width="4" height="26" rx="1" />
-        <rect x="50" y="5" width="3" height="22" rx="1" />
-        <rect x="58" y="9" width="3" height="14" rx="1" opacity="0.9" />
-        <rect x="66" y="6" width="3" height="20" rx="1" opacity="0.8" />
-        <rect x="74" y="11" width="3" height="10" rx="1" opacity="0.7" />
-        <rect x="82" y="13" width="3" height="6" rx="1" opacity="0.6" />
+        <rect x="20" y="63.1" width="2.17" height="5.78" rx="1.08" opacity="0.4" />
+        <rect x="25.78" y="59.5" width="2.17" height="13.01" rx="1.08" opacity="0.6" />
+        <rect x="31.57" y="61.66" width="2.17" height="8.67" rx="1.08" opacity="0.8" />
+        <rect x="37.35" y="58.05" width="2.17" height="15.9" rx="1.08" />
+        <rect x="46.03" y="56.6" width="2.89" height="18.8" rx="1.45" />
+        <rect x="54.69" y="58.05" width="2.17" height="15.9" rx="1.08" />
+        <rect x="60.48" y="60.94" width="2.17" height="10.12" rx="1.08" opacity="0.9" />
+        <rect x="66.26" y="58.77" width="2.17" height="14.46" rx="1.08" opacity="0.8" />
+        <rect x="72.05" y="62.38" width="2.17" height="7.23" rx="1.08" opacity="0.7" />
+        <rect x="77.83" y="63.83" width="2.17" height="4.34" rx="1.08" opacity="0.6" />
       </g>
     </svg>
   );

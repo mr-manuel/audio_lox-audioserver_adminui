@@ -543,8 +543,8 @@
     }
   },
   "hero": {
-    "appTitle": "lox-audioserver",
-    "tagline": "Eine Open-Source-Implementierung des Loxone Audio Server in TypeScript. Gleiches Protokoll, deine Hardware.",
+    "appTitle": "sonn core",
+    "tagline": "Ein vollwertiger Multiroom-Audioserver. Funktioniert eigenständig, voll kompatibel mit Loxone.",
     "status": {
       "unavailable": "Nicht verfügbar",
       "connecting": "Verbinde…",

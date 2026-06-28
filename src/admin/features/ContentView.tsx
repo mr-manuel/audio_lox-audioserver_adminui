@@ -3381,12 +3381,12 @@ export default function ContentView(): JSX.Element {
                 <div className="content-spec-table">
                   <div className="content-spec-row">
                     <span className="content-spec-label">{t('content.spotify.spec.appName')}</span>
-                    <span className="content-spec-value">lox-audioserver</span>
+                    <span className="content-spec-value">sonn-core</span>
                     <button
                       type="button"
                       className="content-spec-copy"
                       title={t('content.spotify.spec.copy')}
-                      onClick={() => void navigator.clipboard?.writeText('lox-audioserver')}
+                      onClick={() => void navigator.clipboard?.writeText('sonn-core')}
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <rect x="9" y="9" width="11" height="11" rx="2" />

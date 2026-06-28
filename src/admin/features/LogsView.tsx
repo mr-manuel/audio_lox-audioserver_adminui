@@ -304,7 +304,7 @@ export default function LogsView(): JSX.Element {
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
     const anchor = document.createElement('a');
     anchor.href = url;
-    anchor.download = `lox-audioserver-logs-${stamp}.txt`;
+    anchor.download = `sonn-core-logs-${stamp}.txt`;
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);

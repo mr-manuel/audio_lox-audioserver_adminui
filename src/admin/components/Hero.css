@@ -102,6 +102,17 @@ body.is-unpaired .hero-mark {
   transform-box: fill-box;
 }
 
+/* The "roof" chevron draws itself on, like the player intro (iRoof). */
+.hero-mark-peak {
+  stroke-dasharray: 96;
+  stroke-dashoffset: 96;
+  animation: hero-peak-draw 0.85s var(--spring) 0.55s both;
+}
+
+@keyframes hero-peak-draw {
+  to { stroke-dashoffset: 0; }
+}
+
 .hero-mark svg g rect:nth-child(1)  { animation: bar-dance-a 1.5s var(--spring) backwards; animation-delay: 0.55s; }
 .hero-mark svg g rect:nth-child(2)  { animation: bar-dance-b 1.5s var(--spring) backwards; animation-delay: 0.48s; }
 .hero-mark svg g rect:nth-child(3)  { animation: bar-dance-c 1.5s var(--spring) backwards; animation-delay: 0.40s; }
@@ -170,6 +181,16 @@ body.is-unpaired .hero-mark {
   transition: font-size 0.6s var(--spring), margin 0.6s var(--spring);
   animation: hero-fade-up 0.6s var(--spring) backwards;
   animation-delay: 1.7s;
+}
+
+/* Two-tone wordmark: bright "sonn", muted "core" (matches the brand lockup). */
+.hero-wordmark__sonn {
+  color: var(--text);
+}
+
+.hero-wordmark__core {
+  color: var(--text-muted);
+  margin-left: 0.32em;
 }
 
 body.is-workspace .hero-wordmark {
@@ -389,6 +410,10 @@ body:not(.is-workspace) .diag-item + .diag-item::before {
   .hero-tagline,
   .diag-strip {
     animation: none !important;
+  }
+  .hero-mark-peak {
+    animation: none !important;
+    stroke-dashoffset: 0;
   }
   .pulse-dot,
   .pulse-dot--warn,
