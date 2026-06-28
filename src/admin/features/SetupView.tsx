@@ -271,6 +271,7 @@ export default function SetupView(): JSX.Element {
   }, [data?.config, ttsDirty]);
 
   const isPaired = Boolean(status?.paired);
+  const standalone = data?.config?.system?.audioserver?.mode === 'standalone';
 
   const globalCrossfadeSec = data?.config?.system?.audioserver?.crossfadeSec;
 
@@ -333,7 +334,6 @@ export default function SetupView(): JSX.Element {
   const authEnabled = audioserver.authEnabled !== false;
   const airplayEnabled = Boolean(inputsConfig.airplay?.enabled ?? false);
   const spotifyEnabled = Boolean(inputsConfig.spotify?.enabled ?? false);
-  const bluetoothEnabled = Boolean(inputsConfig.bluetooth?.enabled ?? false);
   const lineInCount = Array.isArray(inputsConfig.lineIn?.inputs) ? inputsConfig.lineIn.inputs.length : 0;
   const spotifyAccountsCount = Array.isArray(contentConfig.spotify?.accounts) ? contentConfig.spotify.accounts.length : 0;
   const spotifyBridgesCount = Array.isArray(contentConfig.spotify?.bridges) ? contentConfig.spotify.bridges.length : 0;
@@ -961,41 +961,93 @@ export default function SetupView(): JSX.Element {
 
       {displayedSetupTab === 'config' ? (
         <>
-          {/* ===== Pairing ===== */}
+          <div className="setup-grid">
+          {/* ===== Diagnostics (build & runtime) ===== */}
           <section className="setup-section">
             <header className="setup-section__head">
               <div className="setup-section__head-main">
-                <span
-                  className={`setup-section__eyebrow${isPaired ? '' : ' setup-section__eyebrow--warn'}`}
-                >
-                  {t('setup.pairing.eyebrow')}
-                </span>
-                <h2 className="setup-section__title">{t('setup.pairing.title')}</h2>
+                <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('setup.diagnostics.eyebrow')}</span>
+                <h2 className="setup-section__title">{t('setup.diagnostics.title')}</h2>
                 <p className="setup-section__desc">
-                  {isPaired
-                    ? t('setup.pairing.descPaired')
-                    : t('setup.pairing.descUnpaired')}
+                  {t('setup.diagnostics.desc')}
                 </p>
               </div>
             </header>
 
             <div className="setup-info-card">
               <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.pairing.rowStatus')}</span>
-                <span
-                  className={`setup-info-value setup-info-value--status${
-                    isPaired ? '' : ' setup-info-value--status-warn'
-                  }`}
-                >
-                  {isPaired ? t('setup.pairing.statusPaired') : t('setup.pairing.statusAwaiting')}
-                </span>
+                <span className="setup-info-label">{t('setup.diagnostics.server')}</span>
+                <span className="setup-info-value">{versionLabel !== '—' ? `v${versionLabel}` : '—'}</span>
               </div>
               <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.pairing.rowMiniserver')}</span>
-                <span className="setup-info-value">
-                  {miniserverIp} · {miniserverSerial}
-                </span>
+                <span className="setup-info-label">{t('setup.diagnostics.adminUi')}</span>
+                <span className="setup-info-value">v{__APP_VERSION__}</span>
               </div>
+              <div className="setup-info-row">
+                <span className="setup-info-label">{t('setup.diagnostics.runtime')}</span>
+                <span className="setup-info-value">{runtimeLabel}</span>
+              </div>
+              <div className="setup-info-row">
+                <span className="setup-info-label">{t('setup.diagnostics.uptime')}</span>
+                <span className="setup-info-value">{uptimeLabel || '—'}</span>
+              </div>
+              <div className="setup-info-row">
+                <span className="setup-info-label">{t('setup.diagnostics.configCrc')}</span>
+                <span className="setup-info-value">{configCrc ?? '—'}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* ===== Pairing ===== */}
+          <section className="setup-section">
+            <header className="setup-section__head">
+              <div className="setup-section__head-main">
+                <span
+                  className={`setup-section__eyebrow${!standalone && !isPaired ? ' setup-section__eyebrow--warn' : ''}`}
+                >
+                  {standalone ? t('setup.server.eyebrow') : t('setup.pairing.eyebrow')}
+                </span>
+                <h2 className="setup-section__title">
+                  {standalone ? t('setup.server.title') : t('setup.pairing.title')}
+                </h2>
+                <p className="setup-section__desc">
+                  {standalone
+                    ? t('setup.server.desc')
+                    : isPaired
+                      ? t('setup.pairing.descPaired')
+                      : t('setup.pairing.descUnpaired')}
+                </p>
+              </div>
+            </header>
+
+            <div className="setup-info-card">
+              {standalone ? (
+                <div className="setup-info-row">
+                  <span className="setup-info-label">{t('setup.pairing.rowStatus')}</span>
+                  <span className="setup-info-value setup-info-value--status">
+                    {t('setup.server.statusStandalone')}
+                  </span>
+                </div>
+              ) : (
+                <>
+                  <div className="setup-info-row">
+                    <span className="setup-info-label">{t('setup.pairing.rowStatus')}</span>
+                    <span
+                      className={`setup-info-value setup-info-value--status${
+                        isPaired ? '' : ' setup-info-value--status-warn'
+                      }`}
+                    >
+                      {isPaired ? t('setup.pairing.statusPaired') : t('setup.pairing.statusAwaiting')}
+                    </span>
+                  </div>
+                  <div className="setup-info-row">
+                    <span className="setup-info-label">{t('setup.pairing.rowMiniserver')}</span>
+                    <span className="setup-info-value">
+                      {miniserverIp} · {miniserverSerial}
+                    </span>
+                  </div>
+                </>
+              )}
               <div className="setup-info-row">
                 <span className="setup-info-label">{t('setup.pairing.rowSerial')}</span>
                 <span className="setup-info-value">{configuredMacId || '—'}</span>
@@ -1004,21 +1056,25 @@ export default function SetupView(): JSX.Element {
                 <span className="setup-info-label">{t('setup.pairing.rowHost')}</span>
                 <span className="setup-info-value">{audioServerIp}</span>
               </div>
-              <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.pairing.rowLastSync')}</span>
-                <span className="setup-info-value">{lastUpdated ?? t('setup.pairing.notAvailable')}</span>
-              </div>
+              {!standalone ? (
+                <div className="setup-info-row">
+                  <span className="setup-info-label">{t('setup.pairing.rowLastSync')}</span>
+                  <span className="setup-info-value">{lastUpdated ?? t('setup.pairing.notAvailable')}</span>
+                </div>
+              ) : null}
             </div>
 
             <div className="setup-actions">
-              <button
-                type="button"
-                className="setup-btn"
-                onClick={() => void refreshConfig()}
-                disabled={loading}
-              >
-                {t('setup.pairing.forceResync')}
-              </button>
+              {!standalone ? (
+                <button
+                  type="button"
+                  className="setup-btn"
+                  onClick={() => void refreshConfig()}
+                  disabled={loading}
+                >
+                  {t('setup.pairing.forceResync')}
+                </button>
+              ) : null}
               <button
                 type="button"
                 className="setup-btn setup-btn--warn"
@@ -1027,13 +1083,15 @@ export default function SetupView(): JSX.Element {
               >
                 {restarting ? t('setup.pairing.restarting') : t('setup.pairing.restart')}
               </button>
-              <button
-                type="button"
-                className="setup-btn setup-btn--danger"
-                onClick={() => void handleClearConfig()}
-              >
-                {t('setup.pairing.unpair')}
-              </button>
+              {!standalone ? (
+                <button
+                  type="button"
+                  className="setup-btn setup-btn--danger"
+                  onClick={() => void handleClearConfig()}
+                >
+                  {t('setup.pairing.unpair')}
+                </button>
+              ) : null}
             </div>
           </section>
 
@@ -1076,38 +1134,40 @@ export default function SetupView(): JSX.Element {
             </div>
           </section>
 
-          {/* ===== Authentication ===== */}
-          <section className="setup-section">
-            <header className="setup-section__head">
-              <div className="setup-section__head-main">
-                <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('setup.auth.eyebrow')}</span>
-                <h2 className="setup-section__title">{t('setup.auth.title')}</h2>
-                <p className="setup-section__desc">
-                  {t('setup.auth.desc')}
-                </p>
-              </div>
-            </header>
+          {/* ===== Authentication (Loxone only — auth runs via the Miniserver) ===== */}
+          {!standalone ? (
+            <section className="setup-section">
+              <header className="setup-section__head">
+                <div className="setup-section__head-main">
+                  <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('setup.auth.eyebrow')}</span>
+                  <h2 className="setup-section__title">{t('setup.auth.title')}</h2>
+                  <p className="setup-section__desc">
+                    {t('setup.auth.desc')}
+                  </p>
+                </div>
+              </header>
 
-            <div className="setup-rows">
-              <div className="setup-row">
-                <div className="setup-row__info">
-                  <div className="setup-row__label">{t('setup.auth.rowLabel')}</div>
-                  <div className="setup-row__desc">
-                    {t('setup.auth.rowDesc')}
+              <div className="setup-rows">
+                <div className="setup-row">
+                  <div className="setup-row__info">
+                    <div className="setup-row__label">{t('setup.auth.rowLabel')}</div>
+                    <div className="setup-row__desc">
+                      {t('setup.auth.rowDesc')}
+                    </div>
+                  </div>
+                  <div className="setup-row__control">
+                    <button
+                      type="button"
+                      className={`setup-toggle${authEnabled ? ' is-on' : ''}`}
+                      aria-label={t('setup.auth.rowLabel')}
+                      disabled={authSaving}
+                      onClick={() => void toggleAuth(!authEnabled)}
+                    />
                   </div>
                 </div>
-                <div className="setup-row__control">
-                  <button
-                    type="button"
-                    className={`setup-toggle${authEnabled ? ' is-on' : ''}`}
-                    aria-label={t('setup.auth.rowLabel')}
-                    disabled={authSaving}
-                    onClick={() => void toggleAuth(!authEnabled)}
-                  />
-                </div>
               </div>
-            </div>
-          </section>
+            </section>
+          ) : null}
 
           {/* ===== Inputs ===== */}
           <section className="setup-section">
@@ -1158,23 +1218,6 @@ export default function SetupView(): JSX.Element {
                 </div>
               </div>
 
-              <div className="setup-row">
-                <div className="setup-row__info">
-                  <div className="setup-row__label">{t('setup.inputs.bluetoothLabel')}</div>
-                  <div className="setup-row__desc">
-                    {t('setup.inputs.bluetoothDesc')}
-                  </div>
-                </div>
-                <div className="setup-row__control">
-                  <button
-                    type="button"
-                    className={`setup-toggle${bluetoothEnabled ? ' is-on' : ''}`}
-                    aria-label={t('setup.inputs.bluetoothLabel')}
-                    disabled={inputsSaving}
-                    onClick={() => void toggleInput('bluetooth', !bluetoothEnabled)}
-                  />
-                </div>
-              </div>
             </div>
           </section>
 
@@ -1251,41 +1294,7 @@ export default function SetupView(): JSX.Element {
             </div>
           </section>
 
-          {/* ===== Diagnostics ===== */}
-          <section className="setup-section">
-            <header className="setup-section__head">
-              <div className="setup-section__head-main">
-                <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('setup.diagnostics.eyebrow')}</span>
-                <h2 className="setup-section__title">{t('setup.diagnostics.title')}</h2>
-                <p className="setup-section__desc">
-                  {t('setup.diagnostics.desc')}
-                </p>
-              </div>
-            </header>
-
-            <div className="setup-info-card">
-              <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.diagnostics.server')}</span>
-                <span className="setup-info-value">{versionLabel !== '—' ? `v${versionLabel}` : '—'}</span>
-              </div>
-              <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.diagnostics.adminUi')}</span>
-                <span className="setup-info-value">v{__APP_VERSION__}</span>
-              </div>
-              <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.diagnostics.runtime')}</span>
-                <span className="setup-info-value">{runtimeLabel}</span>
-              </div>
-              <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.diagnostics.uptime')}</span>
-                <span className="setup-info-value">{uptimeLabel || '—'}</span>
-              </div>
-              <div className="setup-info-row">
-                <span className="setup-info-label">{t('setup.diagnostics.configCrc')}</span>
-                <span className="setup-info-value">{configCrc ?? '—'}</span>
-              </div>
-            </div>
-          </section>
+          </div>
         </>
       ) : null}
 

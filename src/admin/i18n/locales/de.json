@@ -558,7 +558,9 @@
       "uptime": "Laufzeit",
       "zones": "Zonen",
       "fw": "FW",
-      "api": "API"
+      "api": "API",
+      "core": "Core",
+      "ui": "UI"
     }
   },
   "inlineForm": {
@@ -676,6 +678,12 @@
     },
     "checkForUpdates": "Auf Updates prüfen",
     "checking": "Prüfen…",
+    "server": {
+      "eyebrow": "Server",
+      "title": "Server",
+      "desc": "Dieser Server läuft eigenständig — kein Miniserver nötig. Zonen, Eingänge und Verhalten verwaltest du hier.",
+      "statusStandalone": "Eigenständig"
+    },
     "pairing": {
       "eyebrow": "Kopplung",
       "title": "Miniserver-Verbindung",

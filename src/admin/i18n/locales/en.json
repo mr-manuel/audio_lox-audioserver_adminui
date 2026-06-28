@@ -558,7 +558,9 @@
       "uptime": "Uptime",
       "zones": "Zones",
       "fw": "FW",
-      "api": "API"
+      "api": "API",
+      "core": "Core",
+      "ui": "UI"
     }
   },
   "inlineForm": {
@@ -676,6 +678,12 @@
     },
     "checkForUpdates": "Check for updates",
     "checking": "Checking…",
+    "server": {
+      "eyebrow": "Server",
+      "title": "Server",
+      "desc": "This server runs standalone — no Miniserver required. Manage zones, inputs and behaviour from here.",
+      "statusStandalone": "Standalone"
+    },
     "pairing": {
       "eyebrow": "Pairing",
       "title": "Miniserver connection",

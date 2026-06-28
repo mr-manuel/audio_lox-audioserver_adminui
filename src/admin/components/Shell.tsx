@@ -92,6 +92,11 @@ export default function Shell({
   const systemInitial = systemName.charAt(0).toUpperCase() || 'A';
   const userLabel = currentUserName?.trim() || 'Admin';
   const userInitial = userLabel.charAt(0).toUpperCase() || 'A';
+  // The account menu (theme, language, server switcher, player link) is available
+  // throughout the admin shell — `tabs` is only passed in shell mode. Sign-out and
+  // the user identity header are gated separately on `onSignOut` (auth present);
+  // standalone runs without authentication but still needs the menu.
+  const menuOpenable = Boolean(tabs);
 
   return (
     <div className="shell">
@@ -104,9 +109,6 @@ export default function Shell({
             </div>
             <div className="system-id__name">{systemName}</div>
           </div>
-          {apiStatus?.version ? (
-            <span className="top-strip__version">v{apiStatus.version}</span>
-          ) : null}
         </div>
         <div className="top-strip__actions">
           {onTabChange && hasUpdates ? (
@@ -138,16 +140,16 @@ export default function Shell({
           </a>
           <div
             ref={accountRef}
-            className={`user-pill${onSignOut ? ' is-in' : ''}${accountMenuOpen ? ' is-open' : ''}`}
+            className={`user-pill${menuOpenable ? ' is-in' : ''}${accountMenuOpen ? ' is-open' : ''}`}
           >
             <button
               type="button"
               className="user-pill__trigger"
-              onClick={() => onSignOut && setAccountMenuOpen((prev) => !prev)}
-              aria-haspopup={onSignOut ? 'menu' : undefined}
-              aria-expanded={onSignOut ? accountMenuOpen : undefined}
-              aria-label={onSignOut ? 'Account menu' : 'Not signed in'}
-              disabled={!onSignOut}
+              onClick={() => menuOpenable && setAccountMenuOpen((prev) => !prev)}
+              aria-haspopup={menuOpenable ? 'menu' : undefined}
+              aria-expanded={menuOpenable ? accountMenuOpen : undefined}
+              aria-label={menuOpenable ? 'Account menu' : 'Not signed in'}
+              disabled={!menuOpenable}
             >
               <span className="user-pill__avatar" aria-hidden="true">
                 <span className="user-pill__avatar-glyph">
@@ -177,16 +179,20 @@ export default function Shell({
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
-            {onSignOut ? (
+            {menuOpenable ? (
               <div className="user-menu" role="menu" aria-hidden={!accountMenuOpen}>
-                <div className="user-menu__head">
-                  <span className="user-menu__head-avatar" aria-hidden="true">{userInitial}</span>
-                  <div className="user-menu__head-id">
-                    <div className="user-menu__name">{userLabel}</div>
-                    <div className="user-menu__role">{t('shell.menu.role')}</div>
-                  </div>
-                </div>
-                <div className="user-menu__divider" />
+                {onSignOut ? (
+                  <>
+                    <div className="user-menu__head">
+                      <span className="user-menu__head-avatar" aria-hidden="true">{userInitial}</span>
+                      <div className="user-menu__head-id">
+                        <div className="user-menu__name">{userLabel}</div>
+                        <div className="user-menu__role">{t('shell.menu.role')}</div>
+                      </div>
+                    </div>
+                    <div className="user-menu__divider" />
+                  </>
+                ) : null}
                 <div className="user-menu__label">{t('shell.menu.appearance')}</div>
                 <div className="user-menu__theme" role="radiogroup" aria-label={t('shell.menu.appearance')}>
                   <button
@@ -268,22 +274,24 @@ export default function Shell({
                     <polyline points="7 7 17 7 17 17" />
                   </svg>
                 </a>
-                <button
-                  type="button"
-                  className="user-menu__item user-menu__item--danger"
-                  role="menuitem"
-                  onClick={() => {
-                    setAccountMenuOpen(false);
-                    onSignOut();
-                  }}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                    <polyline points="16 17 21 12 16 7" />
-                    <line x1="21" y1="12" x2="9" y2="12" />
-                  </svg>
-                  {t('shell.menu.signOut')}
-                </button>
+                {onSignOut ? (
+                  <button
+                    type="button"
+                    className="user-menu__item user-menu__item--danger"
+                    role="menuitem"
+                    onClick={() => {
+                      setAccountMenuOpen(false);
+                      onSignOut();
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                      <polyline points="16 17 21 12 16 7" />
+                      <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    {t('shell.menu.signOut')}
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -298,20 +306,6 @@ export default function Shell({
       </header>
 
       <main id="app">{children}</main>
-
-      <footer className="shell-foot">
-        <div className="shell-foot__left">
-          <span>admin-ui v{__APP_VERSION__}</span>
-          <span className="shell-foot__sep">·</span>
-          <a href={`${REPO_URL}/releases`} target="_blank" rel="noreferrer">
-            Release notes
-          </a>
-          <span className="shell-foot__sep">·</span>
-          <a href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer">
-            License (MIT)
-          </a>
-        </div>
-      </footer>
     </div>
   );
 }

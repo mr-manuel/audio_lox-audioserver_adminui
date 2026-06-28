@@ -11,6 +11,7 @@ export type AudioServerConfig = {
   uuid?: string;
   macId?: string;
   paired?: boolean;
+  mode?: 'loxone' | 'standalone';
   authEnabled?: boolean;
   extensions?: AudioServerExtension[];
   crossfadeSec?: number;

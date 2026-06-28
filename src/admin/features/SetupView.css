@@ -65,6 +65,25 @@
   margin-bottom: 24px;
 }
 
+/* Config tab: lay the section cards in a responsive two-column grid so the page
+   isn't one long scroll. Cards keep their natural height (align to top). */
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+}
+
+.setup-grid > .setup-section {
+  margin-bottom: 0;
+}
+
+@media (max-width: 880px) {
+  .setup-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .setup-section__head {
   display: flex;
   align-items: flex-start;

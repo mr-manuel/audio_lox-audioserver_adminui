@@ -52,14 +52,7 @@ export default function Hero(): JSX.Element {
 
   const uptime = formatUptime(info?.uptime);
   const zoneCount = typeof info?.zones === 'number' ? info.zones : null;
-  const firmwareVersion = info?.firmwareVersion ?? '';
-  const firmwareDisplay = firmwareVersion.includes('LWSS V ')
-    ? firmwareVersion.split('LWSS V ')[1].trim()
-    : firmwareVersion;
-  const apiVersionRaw = info?.apiVersion ?? '';
-  const apiDisplay = apiVersionRaw.includes('API:')
-    ? apiVersionRaw.split('API:')[1].replace(/[^0-9.]/g, '')
-    : apiVersionRaw.replace(/[^0-9.]/g, '');
+  const coreVersion = info?.version ?? '';
 
   return (
     <section className="hero-content">
@@ -112,18 +105,16 @@ export default function Hero(): JSX.Element {
             <span className="diag-value">{zoneCount}</span>
           </div>
         ) : null}
-        {firmwareDisplay ? (
+        {coreVersion ? (
           <div className="diag-item">
-            <span className="diag-label">{t('hero.labels.fw')}</span>
-            <span className="diag-value">{firmwareDisplay}</span>
+            <span className="diag-label">{t('hero.labels.core')}</span>
+            <span className="diag-value">{coreVersion}</span>
           </div>
         ) : null}
-        {apiDisplay ? (
-          <div className="diag-item">
-            <span className="diag-label">{t('hero.labels.api')}</span>
-            <span className="diag-value">{apiDisplay}</span>
-          </div>
-        ) : null}
+        <div className="diag-item">
+          <span className="diag-label">{t('hero.labels.ui')}</span>
+          <span className="diag-value">{__APP_VERSION__}</span>
+        </div>
       </div>
     </section>
   );
