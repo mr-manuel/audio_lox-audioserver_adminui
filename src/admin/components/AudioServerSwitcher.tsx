@@ -39,14 +39,14 @@ export default function AudioServerSwitcher({ variant = 'menu', onSwitch }: Audi
         if (cancelled) return;
         // The Miniserver's config also lists real Loxone audioservers, which share the protocol
         // (so the player works with them) but run no admin. The backend flags ours via mDNS
-        // (isLoxAudioserver) — keep only those. The active/origin server is always kept as a safety
+        // (isSonnCore) — keep only those. The active/origin server is always kept as a safety
         // net so a flaky mDNS view can never strand the UI without a way back.
         const keep = new Set(
           [typeof window !== 'undefined' ? window.location.hostname : null, activeApiHost()].filter(
             Boolean,
           ) as string[],
         );
-        setServers(res.servers.filter((s) => s.isLoxAudioserver || (s.host != null && keep.has(s.host))));
+        setServers(res.servers.filter((s) => s.isSonnCore || (s.host != null && keep.has(s.host))));
       })
       .catch(() => {
         if (cancelled) return;

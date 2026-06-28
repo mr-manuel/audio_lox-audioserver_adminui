@@ -11,7 +11,7 @@ export type AudioServerEntry = {
   // Real Loxone audioservers share the protocol but lack the service → false; the admin switcher
   // filters on this so it never offers a server it can't actually administer. (The player ignores
   // it and lists everything.)
-  isLoxAudioserver: boolean;
+  isSonnCore: boolean;
 };
 
 export type AudioServersResponse = {
