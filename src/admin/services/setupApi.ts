@@ -51,6 +51,15 @@ export async function updateAudioServerIp(ip: string): Promise<void> {
   });
 }
 
+export async function setDeploymentMode(mode: 'loxone' | 'standalone'): Promise<void> {
+  await requestOk(`${API_BASE}/config/system`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ audioserver: { mode } }),
+    errorMessage: 'Failed to set deployment mode',
+  });
+}
+
 export async function updateAuthEnabled(authEnabled: boolean): Promise<void> {
   await requestOk(`${API_BASE}/config/system`, {
     method: 'POST',

@@ -7,14 +7,16 @@ import { UpdateCheckProvider } from './components/UpdateCheckContext';
 import LoginView from './features/LoginView';
 import InterfaceChooserView from './features/InterfaceChooserView';
 import PairingView from './features/PairingView';
+import WelcomeView from './features/WelcomeView';
 import { ADMIN_TABS } from './tabsConfig';
 import { fetchAdminSession, getLastAdminUsername, loginAdmin, logoutAdmin } from './services/auth';
 import type { AdminSession } from './services/auth';
 import { fetchStatus } from './services/statusApi';
+import { setDeploymentMode } from './services/setupApi';
 import { setApiBase } from './config/apiConfig';
 import type { StatusResponse } from './types/api';
 
-type Mode = 'pairing' | 'login' | 'chooser' | 'shell';
+type Mode = 'welcome' | 'pairing' | 'login' | 'chooser' | 'shell';
 
 const TAB_STORAGE_KEY = 'lox.admin.activeTab';
 
@@ -134,6 +136,14 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
     setShowChooser(false);
   }, []);
 
+  const chooseMode = React.useCallback(
+    async (mode: 'loxone' | 'standalone') => {
+      await setDeploymentMode(mode);
+      await refreshApiStatus();
+    },
+    [refreshApiStatus],
+  );
+
   const handleLogin = React.useCallback(async ({ username, password }: { username: string; password: string }) => {
     setAuthError(null);
     setAuthSubmitting(true);
@@ -182,7 +192,12 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   ).current;
 
   const computedMode: Mode = (() => {
-    if (apiStatus?.paired === false) return 'pairing';
+    // First-run, unconfigured server: no deployment mode chosen yet → welcome.
+    if (apiStatus?.paired === false && apiStatus.mode == null) return 'welcome';
+    // Loxone-integrated but not yet paired → the Miniserver pairing flow.
+    if (apiStatus?.paired === false && apiStatus.mode === 'loxone') return 'pairing';
+    // Standalone (paired === false, mode === 'standalone') falls through to the
+    // normal shell/login handling below.
     // Boot: apiStatus not yet loaded. Default to login so admin panels don't
     // flash for unauthenticated users on refresh. If we know the previous tick
     // was workspace (sessionStorage flag), assume shell instead so an authed
@@ -250,7 +265,9 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   const shellOnTabChange = mode === 'shell' ? handleTabChange : undefined;
   const shellOnSignOut = mode === 'shell' && isAuthenticated ? handleSignOut : undefined;
 
-  if (mode === 'pairing') {
+  if (mode === 'welcome') {
+    mainContent = <WelcomeView onChoose={chooseMode} isLeaving={isLeaving} />;
+  } else if (mode === 'pairing') {
     mainContent = <PairingView status={apiStatus} />;
   } else if (mode === 'login') {
     mainContent = (

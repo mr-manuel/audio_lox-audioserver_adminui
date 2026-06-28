@@ -1,0 +1,196 @@
+/* ============================================================
+   Welcome — first-run deployment mode selection (standalone vs
+   Loxone-integrated). Shown on an unconfigured server before any
+   mode has been chosen. Mirrors the interface-chooser card style.
+   ============================================================ */
+
+.welcome-root {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 8px 24px 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: opacity 0.7s ease, filter 0.7s ease, transform 0.8s var(--spring);
+}
+
+.welcome-root.is-leaving,
+.welcome-root.is-committing {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(0.94);
+  pointer-events: none;
+}
+
+.welcome-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+  margin: 0 0 10px;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 0.2s;
+}
+
+.welcome-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 0 10px;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 0.25s;
+}
+
+.welcome-intro {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 460px;
+  line-height: 1.5;
+  margin: 0 0 30px;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 0.3s;
+}
+
+@keyframes welcome-fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  width: 100%;
+}
+
+.welcome-choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  text-align: left;
+  color: inherit;
+  padding: 28px 26px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--bg-card);
+  cursor: pointer;
+  overflow: hidden;
+  font: inherit;
+  transition:
+    border-color 0.2s,
+    transform 0.2s var(--spring),
+    box-shadow 0.25s;
+  animation: welcome-card-in 0.6s var(--spring) both;
+}
+
+.welcome-choice:nth-child(1) { animation-delay: 0.4s; }
+.welcome-choice:nth-child(2) { animation-delay: 0.5s; }
+
+@keyframes welcome-card-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Accent bar that grows on hover (matches the chooser cards). */
+.welcome-choice::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.25s var(--spring);
+}
+
+.welcome-choice:hover:not(:disabled),
+.welcome-choice:focus-visible {
+  border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -20px rgba(74, 222, 128, 0.5);
+  outline: none;
+}
+
+.welcome-choice:hover:not(:disabled)::before,
+.welcome-choice:focus-visible::before {
+  transform: scaleY(1);
+}
+
+.welcome-choice:disabled {
+  cursor: default;
+}
+
+.welcome-root.is-committing .welcome-choice:not(.is-pending) {
+  opacity: 0.4;
+}
+
+.welcome-choice__go {
+  position: absolute;
+  top: 22px;
+  right: 22px;
+  color: var(--text-dim);
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s, transform 0.2s var(--spring), color 0.2s;
+}
+
+.welcome-choice:hover:not(:disabled) .welcome-choice__go,
+.welcome-choice.is-pending .welcome-choice__go {
+  opacity: 1;
+  transform: translateX(0);
+  color: var(--accent);
+}
+
+.welcome-choice__icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+}
+
+.welcome-choice__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.welcome-choice__desc {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.welcome-foot {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 26px 0 0;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 0.6s;
+}
+
+@media (max-width: 560px) {
+  .welcome-choices {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-eyebrow,
+  .welcome-title,
+  .welcome-intro,
+  .welcome-choice,
+  .welcome-foot {
+    animation: none !important;
+  }
+}

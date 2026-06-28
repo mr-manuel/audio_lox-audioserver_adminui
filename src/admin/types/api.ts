@@ -10,6 +10,8 @@ export type StatusResponse = {
   zones?: number;
   activeAdapters?: number;
   paired?: boolean;
+  /** Deployment mode chosen at first-run setup. Absent = not yet chosen (show welcome). */
+  mode?: 'loxone' | 'standalone';
   authEnabled?: boolean;
   containerized?: boolean;
   // Whether a server-core update will auto-restart (containerized or supervised).

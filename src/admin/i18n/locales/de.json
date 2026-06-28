@@ -550,6 +550,8 @@
       "connecting": "Verbinde…",
       "paired": "Gekoppelt",
       "unpaired": "Nicht gekoppelt",
+      "standalone": "Eigenständig",
+      "setup": "Einrichtung",
       "errorTitle": "Statusfehler"
     },
     "labels": {
@@ -613,6 +615,20 @@
     "download": "Herunterladen",
     "clear": "Leeren",
     "jumpToBottom": "Zum Ende ↓"
+  },
+  "welcome": {
+    "eyebrow": "Willkommen",
+    "title": "Audio-Server einrichten",
+    "intro": "Wähle, wie dieser Server läuft. Er kann eigenständig arbeiten oder sich in einen Loxone Miniserver integrieren.",
+    "standalone": {
+      "title": "Eigenständig",
+      "desc": "Läuft unabhängig. Zonen und Quellen konfigurierst du hier — kein Miniserver nötig."
+    },
+    "loxone": {
+      "title": "Loxone-integriert",
+      "desc": "Mit einem Loxone Miniserver koppeln. Zonen und Konfiguration kommen aus deinem Loxone-Projekt."
+    },
+    "foot": "Du kannst dies später ändern, indem du die Serverkonfiguration zurücksetzt."
   },
   "pairing": {
     "eyebrow": "Einrichtungsassistent",

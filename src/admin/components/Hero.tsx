@@ -43,6 +43,10 @@ export default function Hero(): JSX.Element {
     if (error) return { label: t('hero.status.unavailable'), tone: 'error' };
     if (!info) return { label: t('hero.status.connecting'), tone: 'warn' };
     if (info.paired) return { label: t('hero.status.paired'), tone: 'success' };
+    // Standalone runs without a Miniserver, so "unpaired" does not apply.
+    if (info.mode === 'standalone') return { label: t('hero.status.standalone'), tone: 'success' };
+    // No mode chosen yet → first-run setup (neutral, not the amber "unpaired").
+    if (info.mode == null) return { label: t('hero.status.setup'), tone: 'muted' };
     return { label: t('hero.status.unpaired'), tone: 'warn' };
   }, [error, info, t]);
 
