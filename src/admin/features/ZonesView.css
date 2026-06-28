@@ -916,6 +916,127 @@
   transform: translateY(-1px);
 }
 
+/* Destructive action in the settings footer; pushed to the far left. */
+.zones-modal__btn--danger {
+  margin-right: auto;
+  color: var(--danger);
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--border));
+}
+
+.zones-modal__btn--danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+}
+
+/* ---- Standalone: add zone ---- */
+.zones-add-btn {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  transition: background 0.15s, transform 0.15s var(--spring);
+}
+
+.zones-add-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  transform: translateY(-1px);
+}
+
+.zones-add-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.zones-empty .zones-add-btn {
+  margin-top: 16px;
+}
+
+.zones-add-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: var(--z-confirm, 6500);
+  padding: 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  animation: zones-add-fade 0.25s ease;
+}
+
+@keyframes zones-add-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.zones-add-modal {
+  width: 100%;
+  max-width: 420px;
+  padding: 26px;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
+  animation: zones-add-rise 0.35s var(--spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+@keyframes zones-add-rise {
+  from { transform: scale(0.94) translateY(12px); opacity: 0; }
+  to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.zones-add-modal__title {
+  margin: 0 0 6px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.zones-add-modal__sub {
+  margin: 0 0 18px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--text-muted);
+}
+
+.zones-add-modal__input {
+  width: 100%;
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.zones-add-modal__input:focus {
+  border-color: var(--accent);
+}
+
+.zones-add-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
 /* ---- Modal sections ---- */
 .zones-modal-section {
   padding: 18px 0;

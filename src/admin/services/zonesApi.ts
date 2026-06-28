@@ -110,6 +110,26 @@ export type ZoneStatesResponse = {
   };
 };
 
+// Standalone-only: create a new (empty) zone with just a name. The server allocates
+// the id and seeds defaults; output/inputs are configured afterwards via updateZones.
+export async function createZone(name: string): Promise<{ id: number; name: string } | null> {
+  const res = await requestJson<{ zone?: { id: number; name: string } }>(`${API_BASE}/config/zones/create`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+    errorMessage: 'Failed to create zone',
+  });
+  return res?.zone ?? null;
+}
+
+// Standalone-only: delete a config zone and rebuild the running zone set.
+export async function deleteZone(zoneId: number): Promise<void> {
+  await requestOk(`${API_BASE}/config/zones/${zoneId}`, {
+    method: 'DELETE',
+    errorMessage: 'Failed to delete zone',
+  });
+}
+
 export async function updateZones(zones: ZoneUpdatePayload[]): Promise<void> {
   await requestOk(`${API_BASE}/config/zones`, {
     method: 'POST',

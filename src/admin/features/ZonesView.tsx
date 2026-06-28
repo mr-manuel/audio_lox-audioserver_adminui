@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import './ZonesView.css';
 import { getConfig, updateGroupsConfig } from '../services/setupApi';
-import { fetchZoneStates, setZoneOutputLatency, updateZones, type ZonePlaybackState } from '../services/zonesApi';
+import { createZone, deleteZone, fetchZoneStates, setZoneOutputLatency, updateZones, type ZonePlaybackState } from '../services/zonesApi';
 import { fetchGroups, type GroupRecord } from '../services/groupsApi';
 import SubTabs from '../components/SubTabs';
 import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
@@ -78,6 +78,7 @@ type AudioServerExtension = {
 type AudioServerConfig = {
   macId?: string;
   name?: string;
+  mode?: 'loxone' | 'standalone';
   extensions?: AudioServerExtension[];
 };
 
@@ -122,6 +123,10 @@ export default function ZonesView(): JSX.Element {
   const { t } = useTranslation();
   const [zoneGroups, setZoneGroups] = React.useState<ZoneGroup[]>([]);
   const [baseSerial, setBaseSerial] = React.useState<string>('');
+  const [standalone, setStandalone] = React.useState(false);
+  const [addZoneOpen, setAddZoneOpen] = React.useState(false);
+  const [newZoneName, setNewZoneName] = React.useState('');
+  const [addingZone, setAddingZone] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [extensionPlaceholders, setExtensionPlaceholders] = React.useState<ExtensionPlaceholder[]>([]);
@@ -172,6 +177,7 @@ export default function ZonesView(): JSX.Element {
         ? data.config?.content?.spotify?.accounts
         : [];
       const base = (data.config?.system?.audioserver?.macId ?? '').toUpperCase();
+      setStandalone(data.config?.system?.audioserver?.mode === 'standalone');
       const hasAccounts = spotifyAccounts.length > 0;
       const inputs = data.config?.inputs ?? {};
       setHasSpotifyAccounts(hasAccounts);
@@ -235,6 +241,42 @@ export default function ZonesView(): JSX.Element {
       clearInterval(timer);
     };
   }, []);
+
+  const handleCreateZone = React.useCallback(async (): Promise<void> => {
+    const name = newZoneName.trim();
+    if (!name || addingZone) return;
+    setAddingZone(true);
+    try {
+      await createZone(name);
+      setAddZoneOpen(false);
+      setNewZoneName('');
+      await refreshZones();
+    } catch (err) {
+      pushAlert({ tone: 'error', title: t('zones.add.errorTitle'), message: String(err) });
+    } finally {
+      setAddingZone(false);
+    }
+  }, [newZoneName, addingZone, refreshZones, pushAlert, t]);
+
+  const handleDeleteZone = React.useCallback(
+    async (zone: Zone): Promise<void> => {
+      const ok = await confirm({
+        title: t('zones.delete.title', { name: zone.name }),
+        message: t('zones.delete.message'),
+        confirmLabel: t('zones.delete.confirm'),
+        tone: 'danger',
+      });
+      if (!ok) return;
+      try {
+        await deleteZone(zone.id);
+        closeZoneModal();
+        await refreshZones();
+      } catch (err) {
+        pushAlert({ tone: 'error', title: t('zones.delete.errorTitle'), message: String(err) });
+      }
+    },
+    [confirm, t, closeZoneModal, refreshZones, pushAlert],
+  );
 
   function handleTileOutputLatencyChange(zoneId: number, value: string): void {
     setTileOutputLatencyDrafts((prev) => ({ ...prev, [zoneId]: value }));
@@ -363,6 +405,10 @@ export default function ZonesView(): JSX.Element {
 
   const totalZones = zoneGroups.reduce((sum, g) => sum + g.zones.length, 0);
 
+  // Standalone caps zones at 24, matching the Loxone audioserver ceiling.
+  const STANDALONE_MAX_ZONES = 24;
+  const atZoneLimit = standalone && totalZones >= STANDALONE_MAX_ZONES;
+
   const MAX_EXTENSION_COUNT = 10;
 
   const extensionCount = React.useMemo(() => {
@@ -372,7 +418,8 @@ export default function ZonesView(): JSX.Element {
     return configured + extensionPlaceholders.length;
   }, [zoneGroups, extensionPlaceholders]);
 
-  const canAddExtension = Boolean(baseSerial) && extensionCount < MAX_EXTENSION_COUNT;
+  // Extensions are a Loxone-compatibility concept (4 zones per device); standalone has no extensions.
+  const canAddExtension = !standalone && Boolean(baseSerial) && extensionCount < MAX_EXTENSION_COUNT;
 
   function extractExtensionIndex(label: string | undefined): number | null {
     if (!label) return null;
@@ -807,13 +854,39 @@ export default function ZonesView(): JSX.Element {
           ]}
         />
 
+        {standalone ? (
+          <button
+            type="button"
+            className="zones-add-btn"
+            onClick={() => {
+              setNewZoneName('');
+              setAddZoneOpen(true);
+            }}
+            disabled={atZoneLimit}
+            title={atZoneLimit ? t('zones.add.limitReached', { max: STANDALONE_MAX_ZONES }) : undefined}
+          >
+            <span aria-hidden="true">+</span> {t('zones.add.button')}
+          </button>
+        ) : null}
       </header>
 
       <SubPanel key={displayedFilter} isLeaving={filterPanelLeaving}>
       {filteredGroups.length === 0 ? (
         <div className="zones-empty">
-          <p className="zones-empty__title">{t('zones.emptyTitle')}</p>
-          <p className="zones-empty__sub">{t('zones.emptySub')}</p>
+          <p className="zones-empty__title">{standalone ? t('zones.add.emptyTitle') : t('zones.emptyTitle')}</p>
+          <p className="zones-empty__sub">{standalone ? t('zones.add.emptySub') : t('zones.emptySub')}</p>
+          {standalone ? (
+            <button
+              type="button"
+              className="zones-add-btn"
+              onClick={() => {
+                setNewZoneName('');
+                setAddZoneOpen(true);
+              }}
+            >
+              <span aria-hidden="true">+</span> {t('zones.add.button')}
+            </button>
+          ) : null}
         </div>
       ) : (
         <div className="zones-devices">
@@ -1119,8 +1192,58 @@ export default function ZonesView(): JSX.Element {
             return ok;
           }}
           describeTransport={describeTransport}
+          canDelete={standalone}
+          onDelete={() => void handleDeleteZone(modalZone)}
         />
       ) : null}
+
+      <Modal
+        open={addZoneOpen}
+        onClose={() => {
+          if (!addingZone) setAddZoneOpen(false);
+        }}
+        backdropClassName="zones-add-backdrop"
+        dialogClassName="zones-add-modal"
+        ariaLabelledBy="zones-add-title"
+        initialFocusSelector="[data-autofocus]"
+      >
+        <h3 id="zones-add-title" className="zones-add-modal__title">{t('zones.add.title')}</h3>
+        <p className="zones-add-modal__sub">{t('zones.add.sub')}</p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void handleCreateZone();
+          }}
+        >
+          <input
+            data-autofocus
+            type="text"
+            className="zones-add-modal__input"
+            placeholder={t('zones.add.placeholder')}
+            value={newZoneName}
+            maxLength={64}
+            onChange={(e) => setNewZoneName(e.target.value)}
+            disabled={addingZone}
+          />
+          <div className="zones-add-modal__actions">
+            <button
+              type="button"
+              className="zones-modal__btn"
+              onClick={() => setAddZoneOpen(false)}
+              disabled={addingZone}
+            >
+              {t('zones.add.cancel')}
+            </button>
+            <button
+              type="submit"
+              className="zones-modal__btn zones-modal__btn--primary"
+              disabled={addingZone || newZoneName.trim().length === 0}
+            >
+              {addingZone ? t('zones.add.creating') : t('zones.add.create')}
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
@@ -1147,6 +1270,8 @@ type ZoneModalProps = {
   onPlaybackChange: (config: ZonePlaybackConfig | null) => Promise<boolean>;
   onEqualizerChange: (config: ZoneEqualizerConfig | null) => Promise<boolean>;
   describeTransport: (config: ZoneTransportConfig | null) => string;
+  canDelete?: boolean;
+  onDelete?: () => void;
 };
 
 function ZoneModal({
@@ -1171,6 +1296,8 @@ function ZoneModal({
   onPlaybackChange,
   onEqualizerChange,
   describeTransport,
+  canDelete,
+  onDelete,
 }: ZoneModalProps): JSX.Element {
   const { t } = useTranslation();
   const inputs = zone.inputs ?? {};
@@ -1484,6 +1611,16 @@ function ZoneModal({
             </>
           ) : (
             <>
+              {!inSubView && canDelete && onDelete ? (
+                <button
+                  type="button"
+                  className="zones-modal__btn zones-modal__btn--danger"
+                  onClick={onDelete}
+                  disabled={saving}
+                >
+                  {t('zones.modal.deleteZone')}
+                </button>
+              ) : null}
               <button
                 type="button"
                 className="zones-modal__btn"

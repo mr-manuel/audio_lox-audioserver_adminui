@@ -924,6 +924,25 @@
     "eyebrow": "Zones",
     "title": "Zones",
     "subtitle": "Configure the audio zones connected to your AudioServer.",
+    "add": {
+      "button": "Add zone",
+      "title": "Add a zone",
+      "sub": "Give the zone a name. You can configure its output and inputs afterwards.",
+      "placeholder": "Zone name (e.g. Kitchen)",
+      "create": "Create",
+      "creating": "Creating…",
+      "cancel": "Cancel",
+      "errorTitle": "Could not create zone",
+      "emptyTitle": "No zones yet",
+      "emptySub": "Add your first zone to start configuring outputs and inputs.",
+      "limitReached": "Maximum of {{max}} zones reached."
+    },
+    "delete": {
+      "title": "Delete \"{{name}}\"?",
+      "message": "This removes the zone and its configuration. This cannot be undone.",
+      "confirm": "Delete zone",
+      "errorTitle": "Could not delete zone"
+    },
     "filter": {
       "ariaLabel": "Output filter",
       "all": "All",
@@ -992,6 +1011,7 @@
       "save": "Save",
       "apply": "Apply",
       "done": "Done",
+      "deleteZone": "Delete zone",
       "outputHint": "Changes apply instantly",
       "powerManagement": "Power management",
       "switching": "Switching",
