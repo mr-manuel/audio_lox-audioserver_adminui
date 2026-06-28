@@ -1,0 +1,27 @@
+{
+  "name": "admin-ui",
+  "private": true,
+  "version": "5.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview",
+    "audit:ui": "bash scripts/audit-ui.sh report",
+    "audit:ui:strict": "bash scripts/audit-ui.sh strict"
+  },
+  "dependencies": {
+    "i18next": "^26.3.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-i18next": "^17.0.8"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.64",
+    "@types/react-dom": "^18.2.21",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.4.5",
+    "vite": "^7.3.1"
+  }
+}

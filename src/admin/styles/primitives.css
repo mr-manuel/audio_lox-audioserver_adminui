@@ -1,0 +1,384 @@
+.panel {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--shell-radius);
+  box-shadow: var(--panel-sheen), var(--card-shadow);
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--card-sheen), var(--card-shadow);
+  padding: var(--card-pad);
+  display: flex;
+  flex-direction: column;
+  gap: var(--card-gap);
+  min-width: 0;
+}
+
+.card--pad-sm {
+  padding: var(--card-pad-sm);
+  gap: var(--card-gap-sm);
+  border-radius: var(--radius-lg);
+}
+
+.card--hover {
+  transition: border-color 160ms ease;
+}
+
+.card--hover:hover {
+  border-color: var(--border-strong);
+}
+
+.card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.card__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.15;
+}
+
+.card__subtitle {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-subtle);
+  line-height: 1.5;
+}
+
+.card__divider {
+  height: 1px;
+  width: 100%;
+  background: var(--border-faint);
+}
+
+/* Generic "list with dividers" pattern to avoid nested borders/tiles. */
+.list-dividers > * + * {
+  border-top: 1px solid var(--border-faint);
+}
+
+/* Shared list row layout for "lists in cards" across views. */
+.row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  min-width: 0;
+}
+
+.row--compact {
+  padding: var(--space-2) 0;
+}
+
+.row__leading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.row__main {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.row__title {
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.row__subtitle {
+  font-size: var(--text-sm);
+  color: var(--color-subtle);
+  word-break: break-word;
+}
+
+.row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.8rem;
+  font-size: var(--text-sm);
+  color: var(--color-subtle);
+}
+
+.row__actions {
+  flex: 0 0 auto;
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.row__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-highlight);
+  border: 1px solid var(--border-faint);
+  padding: 6px;
+  object-fit: contain;
+}
+
+.row__icon--lg {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  padding: 7px;
+}
+
+.row__name {
+  font-weight: 750;
+  color: var(--color-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.row__code {
+  display: inline-block;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+  letter-spacing: 0.01em;
+  word-break: break-all;
+}
+
+.row__subtle {
+  font-size: var(--text-sm);
+  color: var(--color-subtle);
+}
+
+@media (max-width: 720px) {
+  .row {
+    gap: var(--space-2);
+  }
+  .row__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--card-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-sheen), var(--card-shadow);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  padding: 0.5rem 1.15rem;
+  background: transparent;
+  color: var(--color-text);
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.chip--static {
+  cursor: default;
+}
+
+.chip--static:hover:not(:disabled):not(.is-active) {
+  transform: none;
+  background: transparent;
+}
+
+.chip--sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+}
+
+button.chip {
+  font-family: inherit;
+}
+
+/* Subtle, not-yet-active chip used as a toggle (e.g. "Add satellite"). */
+.chip--ghost {
+  color: var(--color-muted);
+}
+.chip--ghost:hover:not(:disabled) {
+  color: var(--color-text);
+  border-color: var(--border);
+  background: var(--surface);
+}
+
+.chip--filter {
+  /* Matches the content filter bar density. */
+  padding: 0.5rem 1.15rem;
+  font-size: 0.9rem;
+}
+
+.chip:hover:not(:disabled):not(.is-active) {
+  background: var(--color-highlight);
+}
+
+.chip.is-active {
+  background: var(--color-brand);
+  border-color: var(--color-brand);
+  color: var(--color-on-brand);
+}
+
+.chip.is-active:hover:not(:disabled) {
+  transform: none;
+  background: var(--color-brand);
+}
+
+.chip__count {
+  padding: 0.08rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-highlight);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.chip.is-active .chip__count {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Subtle "glass" treatment for big page shells (opt-in via class). */
+.tab-shell__inner .shell-glass {
+  /* Shells should not introduce a new "surface" behind tiles. */
+  background: transparent;
+  box-shadow: none;
+}
+
+@supports ((-webkit-backdrop-filter: blur(6px)) or (backdrop-filter: blur(6px))) {
+  .tab-shell__inner .shell-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* When a shell also uses `.panel`, suppress the panel border/background. */
+.tab-shell__inner .shell-glass.panel {
+  border: none;
+  background: transparent;
+}
+
+/* Label/value rows used across views for consistent data density. */
+.data-rows {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.data-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.data-row__label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-row__divider {
+  flex: 1 1 auto;
+  height: 1px;
+  /* Leader dots without gradients (avoids creating extra "surface" artifacts). */
+  border-bottom: 1px dotted var(--border-strong);
+  opacity: 0.55;
+  transform: translateY(-2px);
+}
+
+.data-row__value {
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.data-row__sub {
+  flex: 1 1 100%;
+  color: var(--color-subtle);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+  margin-top: 0.05rem;
+}
+
+/* Form hints and status labels (used across views). */
+.form-help {
+  margin: 0.05rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-subtle);
+  line-height: 1.35;
+}
+
+.form-error {
+  margin: 0.05rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  line-height: 1.35;
+}
+
+.form-status {
+  font-size: var(--text-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--color-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.form-status.is-dirty {
+  color: var(--color-muted);
+}
+
+.form-status.is-saved {
+  color: rgba(21, 128, 61, 0.7);
+}
+
+/* Simple form layout primitives (opt-in; safe to combine with view-specific classes). */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.field__hint {
+  margin: 0.05rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-subtle);
+  line-height: 1.35;
+}
+
+.field__error {
+  margin: 0.05rem 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-danger);
+  line-height: 1.35;
+}

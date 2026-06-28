@@ -1,0 +1,345 @@
+.inline-form {
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px dashed rgba(255, 255, 255, 0.14);
+  border-radius: 14px;
+  overflow: hidden;
+  animation: inline-form-in 0.35s var(--spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+@keyframes inline-form-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 1200px;
+  }
+}
+
+.inline-form__head {
+  padding: 18px 22px 6px;
+}
+
+.inline-form__eyebrow {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.8px;
+  color: var(--accent);
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.inline-form__eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(74, 222, 128, 0.5);
+}
+
+.inline-form__title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.inline-form__desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.inline-form__body {
+  padding: 14px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inline-form__fields {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inline-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inline-form__field-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.inline-form__field-optional {
+  color: #4b5563;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  margin-left: 6px;
+  font-size: 10px;
+}
+
+.inline-form input.inline-form__input,
+.inline-form__input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.15s, background 0.15s;
+  outline: none;
+  width: 100%;
+}
+
+.inline-form__input.is-mono,
+.inline-form input.inline-form__input.is-mono {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: -0.1px;
+}
+
+.inline-form__input:focus {
+  border-color: rgba(74, 222, 128, 0.3);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.inline-form__input::placeholder {
+  color: var(--text-dim);
+}
+
+.inline-form__help {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.inline-form__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.inline-form__grid--uneven {
+  grid-template-columns: 3fr 2fr;
+}
+
+/* Group section labels — quietly divide the form into Connection / Access / ... */
+.inline-form__group-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #4b5563;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 2px;
+}
+
+.inline-form__group-label:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* Access block dims when guest toggle is on (credentials irrelevant) */
+.inline-form__access {
+  transition: opacity 0.2s;
+}
+
+.inline-form__access.is-dimmed {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Toggle row — replaces a checkbox with a labeled pill switch */
+.inline-form__toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inline-form__toggle {
+  width: 36px;
+  height: 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+  border: none;
+  padding: 0;
+}
+
+.inline-form__toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.25s var(--spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.inline-form__toggle.is-on {
+  background: var(--accent);
+}
+
+.inline-form__toggle.is-on::after {
+  transform: translateX(16px);
+}
+
+.inline-form__toggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.inline-form__toggle.is-on:hover {
+  background: var(--accent-bright, #86efac);
+}
+
+.inline-form__toggle-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.inline-form__toggle-title {
+  font-size: 13px;
+  color: var(--text);
+  font-weight: 500;
+}
+
+.inline-form__toggle-sub {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+/* Advanced disclosure — collapsible section using CSS grid trick */
+.inline-form__adv-toggle {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: color 0.15s, border-color 0.15s;
+  min-height: 0;
+}
+
+.inline-form__adv-toggle:hover {
+  color: var(--text-muted);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.inline-form__adv-toggle svg {
+  transition: transform 0.25s var(--spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+.inline-form__adv-toggle.is-open {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.inline-form__adv-toggle.is-open svg {
+  transform: rotate(90deg);
+}
+
+.inline-form__adv-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s var(--spring, cubic-bezier(0.2, 0.8, 0.2, 1));
+}
+
+.inline-form__adv-panel.is-open {
+  grid-template-rows: 1fr;
+}
+
+.inline-form__adv-inner {
+  overflow: hidden;
+}
+
+.inline-form__adv-inner > div {
+  padding-top: 14px;
+}
+
+.inline-form__foot {
+  padding: 14px 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-top: 4px;
+}
+
+.inline-form__btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.inline-form__btn:hover:not(:disabled) {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+.inline-form__btn.is-primary {
+  background: var(--accent);
+  color: var(--accent-on);
+  border-color: var(--accent);
+}
+
+.inline-form__btn.is-primary:hover:not(:disabled) {
+  background: var(--accent-bright, #86efac);
+  border-color: var(--accent-bright, #86efac);
+  color: var(--accent-on);
+  transform: translateY(-1px);
+}
+
+.inline-form__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

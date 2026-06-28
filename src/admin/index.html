@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Admin console for lox-audioserver" />
+    <meta name="theme-color" content="#050505" />
+    <link rel="icon" type="image/svg+xml" href="/admin/favicon.svg" />
+    <title>Lox-AudioServer Admin</title>
+  </head>
+  <body>
+    <script>
+      // CRITICAL: runs before any CSS animation parses. If the user was in
+      // workspace on the last session-storage tick, jump straight to the final
+      // state and suppress all intro animations until React has mounted.
+      try {
+        if (sessionStorage.getItem('lox-admin-workspace') === '1') {
+          document.body.classList.add('no-intro', 'is-success', 'is-workspace');
+        }
+      } catch (_) {
+        /* sessionStorage may be unavailable in private browsing */
+      }
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,912 @@
+@font-face {
+  font-family: 'AuroraWebshop';
+  src: url('../assets/fonts/AuroraWebshop.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.icon-ws-miniserver::before,
+.icon-ws-extensions-v2::before,
+.icon-ws-audio-standing::before,
+.icon-ws-touch::before,
+.icon-ws-marketing::before {
+  font-family: 'AuroraWebshop';
+  font-weight: normal;
+  font-style: normal;
+  speak: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ws-miniserver::before { content: "\\f109"; }
+.icon-ws-extensions-v2::before { content: "\\f10e"; }
+.icon-ws-audio-standing::before { content: "\\f111"; }
+.icon-ws-touch::before { content: "\\f102"; }
+.icon-ws-marketing::before { content: "\\f10a"; }
+
+:root {
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-display: var(--font-sans);
+
+  /* --- Redesign palette (mockup baseline). Use these in new CSS. --- */
+  --bg: #0A0C10;
+  --bg-card: #15181D;
+  --bg-elev: #1B1F26;            /* menus, popovers, raised cards */
+  --bg-console: #0C0E13;         /* logs console */
+  --bg-input: #0A0C0F;
+  --surface: rgba(255, 255, 255, 0.04);   /* default control fill */
+  --surface-soft: rgba(255, 255, 255, 0.03); /* subtler fill / hover base */
+  --text: #EDEEF0;
+  --text-muted: #9CA3AF;
+  --text-dim: #6B7280;
+  --text-faint: #4B5563;
+  --accent: #4ADE80;
+  --accent-bright: #86EFAC;
+  --accent-deep: #16A34A;
+  --accent-on: #062812;
+  --accent-soft: rgba(74, 222, 128, 0.08); /* tinted accent surface */
+  --accent-glow: rgba(74, 222, 128, 0.70); /* dot/ring glows */
+  --warn: #F59E0B;
+  --warn-bright: #FBBF24;
+  --warn-deep: #B45309;
+  --warn-on: #2A1604;
+  --danger: #EF4444;
+  --danger-bright: #FCA5A5;
+  --info: #60A5FA;
+  --border-accent: rgba(74, 222, 128, 0.30);
+  --border-accent-strong: rgba(74, 222, 128, 0.55);
+  --radial: rgba(74, 222, 128, 0.05); /* ambient top glow */
+  --shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+  --modal-backdrop: rgba(10, 12, 16, 0.65); /* dialog overlay */
+  --spring: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* --- Legacy tokens (still consumed by Setup/Content/Logs/Zones until each
+         view is rewritten on the redesign palette above; aliased to the new
+         tokens so the visual baseline matches the mockup). --- */
+  --surface-0: var(--bg-card);
+  --surface-1: #1c1f25;
+  --surface-2: #232730;
+  --color-bg: var(--bg);
+  --color-surface: var(--bg-card);
+  --color-surface-muted: #1c1f25;
+  --color-surface-alt: #232730;
+  --color-text: var(--text);
+  --color-subtle: #cbd1d9;
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-dim);
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-border-strong: rgba(255, 255, 255, 0.14);
+  --color-border-soft: rgba(255, 255, 255, 0.04);
+  --border-whisper: rgba(255, 255, 255, 0.03);
+  --border-faint: rgba(255, 255, 255, 0.05);
+  --border-soft: var(--color-border-soft);
+  --border: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --border-input: rgba(255, 255, 255, 0.12);
+  --color-accent: var(--accent);
+  --color-brand: var(--accent);
+  --color-on-brand: var(--accent-on);
+  --color-highlight: rgba(74, 222, 128, 0.08);
+  --color-success: var(--accent-deep);
+  --color-warning: var(--warn);
+  --color-info: #2563eb;
+  --color-danger: var(--danger);
+  --color-on-danger: #ffffff;
+  --shadow-soft: 0 1px 0 rgba(246, 246, 246, 0.05), 0 16px 44px -36px rgba(0, 0, 0, 0.68);
+  --shadow-md: 0 1px 0 rgba(0, 0, 0, 0.04), 0 22px 54px -44px rgba(0, 0, 0, 0.24);
+  --shadow-lg: 0 1px 0 rgba(0, 0, 0, 0.05), 0 30px 70px -52px rgba(0, 0, 0, 0.28);
+  --shadow-float: 0 26px 56px -44px rgba(0, 0, 0, 0.78);
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 999px;
+  --card-radius: 12px;
+  --card-border-color: rgba(255, 255, 255, 0.06);
+  --card-shadow: var(--shadow-soft);
+  --card-bg: var(--bg-card);
+  --card-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --panel-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --page-width: min(1400px, 94vw);
+  --page-padding: clamp(1.1rem, 0.9rem + 0.8vw, 1.8rem);
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 1.75rem;
+  --space-8: 2rem;
+  --space-9: 2.5rem;
+  --space-10: 3rem;
+  --page-margin-top: 2rem;
+  --page-margin-bottom: 2.6rem;
+  --gap-shell: 1.4rem;
+  --gap-hero: 1.2rem;
+  --gap-card: 0.9rem;
+  --gap-tile: 0.75rem;
+  --card-pad: var(--space-6);
+  --card-pad-sm: var(--space-4);
+  --card-gap: var(--space-4);
+  --card-gap-sm: var(--space-3);
+  --shell-radius: 12px;
+  --shell-border: rgba(255, 255, 255, 0.06);
+  --shell-bg: var(--bg-card);
+  --shell-shadow: var(--shadow-soft);
+  --text-xs: 0.72rem;
+  --text-sm: 0.84rem;
+  --text-md: 0.98rem;
+  --text-lg: 1.1rem;
+  --control-height: 44px;
+  --control-height-compact: 30px;
+  --btn-pad-y: 0.7rem;
+  --btn-pad-x: 1.4rem;
+  --ring: 0 0 0 3px rgba(74, 222, 128, 0.18);
+  --ring-outline: 2px solid rgba(74, 222, 128, 0.5);
+  --control-bg: var(--bg-input);
+  --control-bg-top: var(--bg-input);
+  --z-header: 40;
+  --z-alert: 7000;
+  --z-version: 50;
+  --z-modal: 5000;
+  --z-sticky: 6500;
+  --z-confirm: 6500;
+}
+
+/* ============================================================
+   Light theme — toggled via <body data-theme="light"> from the
+   Account menu. Token-driven so component CSS that consumes the
+   redesign tokens flips automatically. The legacy --color-*
+   aliases are mirrored below so older panels go light too.
+   ============================================================ */
+body[data-theme='light'] {
+  color-scheme: light;
+
+  /* surfaces */
+  --bg: #EAECEF;            /* greyer page so white panels pop */
+  --bg-card: #FFFFFF;
+  --bg-elev: #FFFFFF;
+  --bg-console: #F1F3F5;
+  --bg-input: #FFFFFF;
+  --surface: rgba(17, 24, 39, 0.04);
+  --surface-soft: rgba(17, 24, 39, 0.03);
+
+  /* borders — heavier so edges read on white */
+  --border: rgba(17, 24, 39, 0.12);
+  --border-strong: rgba(17, 24, 39, 0.22);
+  --border-accent: rgba(22, 163, 74, 0.40);
+  --border-accent-strong: rgba(22, 163, 74, 0.55);
+
+  /* text */
+  --text: #15181D;
+  --text-muted: #525B66;
+  --text-dim: #7A828E;
+  --text-faint: #A6AEB8;
+
+  /* brand accent — deeper green for contrast on white */
+  --accent: #16A34A;
+  --accent-bright: #15803D;
+  --accent-deep: #166534;
+  --accent-on: #FFFFFF;
+  --accent-soft: rgba(22, 163, 74, 0.10);
+  --accent-glow: rgba(22, 163, 74, 0.45);
+
+  /* status — darker so labels stay legible on light */
+  --warn: #D97706;
+  --warn-bright: #B45309;
+  --danger: #DC2626;
+  --danger-bright: #B91C1C;
+  --info: #2563EB;
+
+  /* effects */
+  --shadow: 0 18px 48px rgba(17, 24, 39, 0.14);
+  --radial: rgba(22, 163, 74, 0.06);
+  --modal-backdrop: rgba(17, 24, 39, 0.45);
+
+  /* legacy aliases (still consumed by older panels) */
+  --surface-0: #FFFFFF;
+  --surface-1: #F8F9FB;
+  --surface-2: #EEF0F4;
+  --color-bg: var(--bg);
+  --color-surface: var(--bg-card);
+  --color-surface-muted: #F8F9FB;
+  --color-surface-alt: #EEF0F4;
+  --color-text: var(--text);
+  --color-subtle: #2D333D;
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-dim);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-border-soft: rgba(17, 24, 39, 0.06);
+  --border-whisper: rgba(17, 24, 39, 0.04);
+  --border-faint: rgba(17, 24, 39, 0.06);
+  --border-soft: var(--color-border-soft);
+  --border-input: rgba(17, 24, 39, 0.18);
+  --color-accent: var(--accent);
+  --color-brand: var(--accent);
+  --color-on-brand: var(--accent-on);
+  --color-highlight: rgba(22, 163, 74, 0.12);
+  --color-success: var(--accent);
+  --color-warning: var(--warn);
+  --color-info: var(--info);
+  --color-danger: var(--danger);
+  --color-on-danger: #FFFFFF;
+  --shadow-soft: 0 1px 0 rgba(17, 24, 39, 0.04), 0 16px 44px -36px rgba(17, 24, 39, 0.28);
+  --shadow-md: 0 1px 0 rgba(17, 24, 39, 0.04), 0 22px 54px -44px rgba(17, 24, 39, 0.18);
+  --shadow-lg: 0 1px 0 rgba(17, 24, 39, 0.05), 0 30px 70px -52px rgba(17, 24, 39, 0.22);
+  --shadow-float: 0 26px 56px -44px rgba(17, 24, 39, 0.4);
+  --card-border-color: var(--border);
+  --card-shadow: var(--shadow-soft);
+  --card-bg: var(--bg-card);
+  --card-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  --panel-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  --shell-border: var(--border);
+  --control-bg: var(--bg-input);
+  --control-bg-top: var(--bg-input);
+}
+
+/* Smooth theme transition on the document chrome. */
+html,
+body {
+  transition: background 0.35s ease, color 0.35s ease;
+}
+
+body::before {
+  transition: background 0.35s ease;
+}
+
+body[data-theme='light']::before {
+  background: radial-gradient(ellipse 70% 40% at 50% 0%, var(--radial) 0%, transparent 55%) !important;
+}
+
+/* ============================================================
+   Eyebrow brand-mark (10-bar SVG) — the data-URI has the fill
+   baked in so it can't read --accent. Re-declared per theme to
+   match the contrast curve (mint #4ADE80 on dark, deep #16A34A
+   on light).
+   ============================================================ */
+.zones-eyebrow::before,
+.logs-eyebrow::before,
+.zones-modal__eyebrow::before,
+.linein-modal__eyebrow::before,
+.bridge-modal__eyebrow::before {
+  /* default (dark) already set in each component CSS;
+     light override below swaps the fill. */
+}
+
+body[data-theme='light'] .zones-eyebrow::before,
+body[data-theme='light'] .logs-eyebrow::before,
+body[data-theme='light'] .zones-modal__eyebrow::before,
+body[data-theme='light'] .signin-eyebrow::before,
+body[data-theme='light'] .pairing-eyebrow::before,
+body[data-theme='light'] .chooser-eyebrow::before,
+body[data-theme='light'] .chooser-choice__eyebrow::before,
+body[data-theme='light'] .content-eyebrow::before,
+body[data-theme='light'] .setup-eyebrow::before,
+body[data-theme='light'] .setup-section__eyebrow::before {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 88 32'><g fill='%2316A34A'><rect x='2' y='12' width='3' height='8' rx='1' opacity='0.4'/><rect x='10' y='7' width='3' height='18' rx='1' opacity='0.6'/><rect x='18' y='10' width='3' height='12' rx='1' opacity='0.8'/><rect x='26' y='5' width='3' height='22' rx='1'/><rect x='38' y='3' width='4' height='26' rx='1'/><rect x='50' y='5' width='3' height='22' rx='1'/><rect x='58' y='9' width='3' height='14' rx='1' opacity='0.9'/><rect x='66' y='6' width='3' height='20' rx='1' opacity='0.8'/><rect x='74' y='11' width='3' height='10' rx='1' opacity='0.7'/><rect x='82' y='13' width='3' height='6' rx='1' opacity='0.6'/></g></svg>");
+}
+
+/* Linein + bridge modal eyebrows use a single dot ::before, not the bars
+   SVG — already token-driven (var(--accent)) so they switch on their own. */
+
+/* ============================================================
+   Panels on light
+   ------------------------------------------------------------
+   Dark uses faint light-on-dark tints to separate cards from
+   the page; on white that goes flat. In light we force the main
+   card classes to a real white surface + visible border + soft
+   shadow so they actually read as panels. Nested sub-panels
+   (call-outs, drill rows, kv strips) flip to a light grey fill
+   so they sit visibly inside the white card.
+   ============================================================ */
+
+/* Outer panels (white card on grey page) — uses a crispier 16% edge,
+   stronger than the page divider-border (12%) so the card outline
+   reads on light. */
+body[data-theme='light'] .source-card,
+body[data-theme='light'] .share-card,
+body[data-theme='light'] .zones-card,
+body[data-theme='light'] .zones-device,
+body[data-theme='light'] .linein-modal,
+body[data-theme='light'] .bridge-modal,
+body[data-theme='light'] .zones-modal,
+body[data-theme='light'] .content-modal,
+body[data-theme='light'] .logs-console,
+body[data-theme='light'] .setup-section,
+body[data-theme='light'] .signin-card,
+body[data-theme='light'] .chooser-choice,
+body[data-theme='light'] .inline-form,
+body[data-theme='light'] .confirm-dialog__panel {
+  background: var(--bg-card);
+  border: 1px solid rgba(17, 24, 39, 0.16);
+  box-shadow: 0 1px 2px rgba(17, 24, 39, 0.05), 0 8px 24px rgba(17, 24, 39, 0.05);
+}
+
+/* Sub-panels: nested containers inside a panel that need a distinct
+   solid-grey fill on light (the dark-mode --surface/--surface-soft tints
+   are too subtle on white). Only target genuine "sub-card" containers —
+   pills/chips/buttons keep their own --surface fill so they don't get
+   too prominent. */
+body[data-theme='light'] .bridge-modal__provider-detail,
+body[data-theme='light'] .bridge-modal__callout,
+body[data-theme='light'] .bridge-modal__wv,
+body[data-theme='light'] .bridge-modal__mode-card,
+body[data-theme='light'] .bridge-modal__wv-file,
+body[data-theme='light'] .bridge-modal__wv-details,
+body[data-theme='light'] .linein-modal__meta-grid,
+body[data-theme='light'] .zones-hub__drill,
+body[data-theme='light'] .zones-hub__input-rows,
+body[data-theme='light'] .zones-card__output,
+body[data-theme='light'] .content-empty-info,
+body[data-theme='light'] .scan-prompt,
+body[data-theme='light'] .stat-strip,
+body[data-theme='light'] .album-strip,
+body[data-theme='light'] .library-summary,
+body[data-theme='light'] .spotify-configured-strip,
+body[data-theme='light'] .content-spec-row,
+body[data-theme='light'] .logs-statusbar {
+  background: #F3F5F7;
+  border-color: rgba(17, 24, 39, 0.14);
+}
+
+/* Segmented controls + status/diag capsules: in dark they ride a faint
+   tint that vanishes on light — give them an explicit white container
+   + crisp 16% edge so the capsule pops on the grey page with its green
+   pill (or status items). */
+body[data-theme='light'] .subtabs,
+body[data-theme='light'] .user-menu__theme,
+body[data-theme='light'] .diag-strip {
+  background: var(--bg-card);
+  border: 1px solid rgba(17, 24, 39, 0.16);
+}
+
+/* ============================================================
+   Heading guard
+   ------------------------------------------------------------
+   Page/hero titles that used a dark-only gradient text-fill
+   (background-clip:text + -webkit-text-fill-color:transparent)
+   ghost out on light. The deeper fix is to drop that pattern
+   from the component CSS (preferred — already done for the
+   redesigned views below). This guard is a safety net that
+   forces any titel-class that *still* ships a gradient fill
+   to follow --text. Add new title classes to this list when
+   they appear in a refresh.
+   ============================================================ */
+.zones-title,
+.logs-title,
+.content-title,
+.setup-title,
+.signin-title,
+.pairing-title,
+.chooser-choice__title,
+.chooser-greeting__user,
+.modal-title {
+  color: var(--text);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+}
+
+:root[data-density='dense'] {
+  --page-padding: clamp(0.9rem, 0.75rem + 0.6vw, 1.35rem);
+  --page-margin-top: 1.4rem;
+  --page-margin-bottom: 2rem;
+  --gap-shell: 1rem;
+  --gap-hero: 0.9rem;
+  --gap-card: 0.7rem;
+  --gap-tile: 0.6rem;
+  --card-pad: var(--space-5);
+  --card-pad-sm: var(--space-3);
+  --card-gap: var(--space-3);
+  --card-gap-sm: var(--space-2);
+  --text-sm: 0.82rem;
+  --text-md: 0.95rem;
+  --control-height: 40px;
+  --control-height-compact: 28px;
+  --btn-pad-y: 0.6rem;
+  --btn-pad-x: 1.1rem;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  /* Always reserve gutter for the scrollbar so the viewport width is stable
+     when content grows tall enough to need scrolling (e.g. LogsView mount).
+     Without this, the magnetic tab indicator would re-anchor mid-transition
+     because the centered .ws-tabs reflows when the scrollbar appears. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  letter-spacing: 0.005em;
+  position: relative;
+  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+body h1,
+body h2,
+body h3,
+body h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.page-hero__eyebrow {
+  margin: 0 0 0.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: var(--text-xs);
+  color: var(--color-faint);
+}
+
+.page-hero__title {
+  margin: 0;
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.06;
+}
+
+.page-hero__subtitle {
+  margin: 0.35rem 0 0;
+  color: var(--color-subtle);
+  font-size: var(--text-md);
+  line-height: 1.5;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(74, 222, 128, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 20% 100%, rgba(74, 222, 128, 0.04) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(34, 197, 94, 0.03) 0%, transparent 50%);
+  z-index: 0;
+  transition: background 1s ease;
+  animation: ambient-fade-in 1.8s ease backwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes ambient-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none !important;
+  }
+}
+
+/* ============ NO-INTRO MODE ============
+   When the app restores directly into workspace (e.g. F5 on /admin), skip the
+   one-shot entry animations so the user lands instantly at the final state.
+   PERSISTENT — we never remove the class, because removing it would re-trigger
+   the animation declarations and they would fire late. The targeted list only
+   touches intro animations; modals/toasts/menus keep their normal transitions. */
+body.no-intro .hero-mark,
+body.no-intro .hero-mark svg g rect,
+body.no-intro .hero-mark::before,
+body.no-intro .hero-mark::after,
+body.no-intro .hero-wordmark,
+body.no-intro .hero-tagline,
+body.no-intro .diag-strip,
+body.no-intro .top-strip,
+body.no-intro .shell-foot,
+body.no-intro #app,
+body.no-intro .ws-tabs {
+  animation: none !important;
+}
+
+/* Skip the chooser→workspace shrink/fade transitions on restore — they only
+   make sense as an actual mode transition, not on direct-into-workspace load. */
+body.no-intro .hero-mark,
+body.no-intro .hero-wordmark,
+body.no-intro .hero-tagline,
+body.no-intro .hero-content,
+body.no-intro .ws-tabs,
+body.no-intro .diag-item,
+body.no-intro .diag-item::before {
+  transition: none !important;
+}
+
+body.is-unpaired::before {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 158, 11, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 20% 100%, rgba(245, 158, 11, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(180, 83, 9, 0.03) 0%, transparent 50%);
+}
+
+body.is-success::before {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 30%, rgba(74, 222, 128, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 20% 80%, rgba(74, 222, 128, 0.1) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 80%, rgba(34, 197, 94, 0.06) 0%, transparent 60%);
+}
+
+/* Workspace is for working — toned-down hint from above instead of the
+   three stacked gradients of the chooser/sign-in surface. Selector is more
+   specific than .is-success so it wins when both classes are present. */
+body.is-workspace::before {
+  background:
+    radial-gradient(ellipse 90% 50% at 50% 0%, rgba(74, 222, 128, 0.1) 0%, transparent 60%);
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+  opacity: 0.04;
+  z-index: 1;
+}
+
+main#app {
+  background: transparent;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+.tab-shell {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.tab-shell__inner {
+  width: 100%;
+  max-width: 1360px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  font-family: var(--font-sans);
+}
+
+.tab-shell__inner h1,
+.tab-shell__inner h2,
+.tab-shell__inner h3,
+.tab-shell__inner h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+.tab-shell__inner .setup-shell,
+.tab-shell__inner .content-shell,
+.tab-shell__inner .zones-shell,
+.tab-shell__inner .logs-shell {
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  padding: 0;
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+}
+
+.tab-shell__inner .setup-layout,
+.tab-shell__inner .content-layout,
+.tab-shell__inner .zones-layout,
+.tab-shell__inner .logs-layout {
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+}
+
+.tab-shell__inner--pulse-a,
+.tab-shell__inner--pulse-b {
+  animation: tab-fade-soft 260ms ease-out;
+}
+
+button {
+  font-family: inherit;
+}
+
+.btn,
+button.primary,
+button.secondary,
+button.danger,
+button.ghost {
+  border-radius: 8px;
+  padding: var(--btn-pad-y) var(--btn-pad-x);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border: 1px solid var(--border);
+  background: var(--surface-0);
+  color: var(--color-text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease,
+    box-shadow 0.16s ease,
+    transform 0.16s ease;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  min-height: var(--control-height);
+}
+
+.btn:not(:disabled):active,
+button.primary:not(:disabled):active,
+button.secondary:not(:disabled):active,
+button.danger:not(:disabled):active,
+button.ghost:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.btn--primary,
+button.primary {
+  background: var(--color-brand);
+  color: var(--color-on-brand);
+  border-color: var(--color-brand);
+  box-shadow: none;
+}
+
+.btn--secondary,
+button.secondary {
+  background: var(--surface-0);
+  color: var(--color-text);
+  border-color: var(--border);
+  box-shadow: none;
+}
+
+.btn--danger,
+button.danger {
+  border-color: var(--color-danger);
+  color: var(--color-on-danger);
+  background: var(--color-danger);
+}
+
+.btn--ghost,
+button.ghost {
+  background: transparent;
+  border-color: var(--border-soft);
+  color: var(--color-text);
+}
+
+.btn:disabled,
+button.primary:disabled,
+button.secondary:disabled,
+button.danger:disabled,
+button.ghost:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn:not(:disabled):hover,
+button.primary:not(:disabled):hover,
+button.secondary:not(:disabled):hover,
+button.danger:not(:disabled):hover,
+button.ghost:not(:disabled):hover {
+  transform: none;
+}
+
+:where(button, input, select, textarea):focus-visible {
+  outline: var(--ring-outline);
+  outline-offset: 2px;
+  box-shadow: var(--ring);
+}
+
+.btn--primary:not(:disabled):hover,
+button.primary:not(:disabled):hover {
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+  box-shadow: 0 8px 24px rgba(74, 222, 128, 0.35);
+}
+
+.btn--secondary:not(:disabled):hover,
+button.secondary:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.btn--danger:not(:disabled):hover,
+button.danger:not(:disabled):hover {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+
+.btn--ghost:not(:disabled):hover,
+button.ghost:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--border-strong);
+}
+
+.btn--compact {
+  border-radius: 999px;
+  padding: 0.1rem 0.6rem;
+  font-size: 0.72rem;
+  min-height: var(--control-height-compact);
+  text-transform: none;
+}
+
+.btn--compact:not(:disabled):hover {
+  transform: none;
+}
+
+.btn--danger-link {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-danger);
+}
+
+.btn--danger-link:not(:disabled):hover {
+  background: rgba(220, 38, 38, 0.06);
+  border-color: rgba(220, 38, 38, 0.18);
+}
+
+select {
+  appearance: none;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  padding: 0.55rem 2.4rem 0.55rem 0.9rem;
+  background-color: var(--control-bg);
+  background-image:
+    linear-gradient(180deg, var(--surface-0) 0%, var(--surface-1) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23e9eef6' stroke-width='1.6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat;
+  background-position: 0 0, right 0.9rem center;
+  background-size: 100% 100%, 0.9rem;
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  line-height: 1.2;
+  min-height: var(--control-height);
+  box-shadow: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, color 0.16s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: var(--ring);
+}
+
+select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background-color: var(--surface-2);
+  color: var(--color-faint);
+}
+
+/* Default styling for naked inputs (without a wrapping component). Wrapped in
+   :where() so the specificity is 0,0,0 — any component-specific rule wins
+   without needing defensive selectors. */
+:where(
+  input[type='text'],
+  input[type='number'],
+  input[type='password'],
+  input[type='search'],
+  textarea
+) {
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  padding: 0.65rem 0.8rem;
+  background: var(--control-bg);
+  font-size: 0.95rem;
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  min-height: var(--control-height);
+  box-shadow: none;
+  transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease;
+}
+
+:where(
+  input[type='text']:focus,
+  input[type='number']:focus,
+  input[type='password']:focus,
+  input[type='search']:focus,
+  textarea:focus
+) {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: var(--ring);
+}
+
+:where(
+  input[type='text']:disabled,
+  input[type='number']:disabled,
+  input[type='password']:disabled,
+  input[type='search']:disabled,
+  textarea:disabled
+) {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background-color: var(--surface-2);
+  color: var(--color-faint);
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+@keyframes shell-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-content,
+  .hero-info dl > div {
+    animation: none;
+  }
+
+  .content-shell,
+  .zones-shell,
+  .logs-shell,
+  .content-card,
+  .zone-row,
+  .logs-hero,
+  .logs-header,
+  .logs-output {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,117 @@
+.ws-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 20px;
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.4s ease, transform 0.5s var(--spring);
+  position: relative;
+}
+
+/* Magnetic underline — one 2px line that slides between tabs instead of a
+   per-tab ::after that snaps. Mirrors the SubTabs pill indicator concept.
+   Bottom math: .ws-tabs has padding-bottom: 12px + border-bottom: 1px, and the
+   old `.ws-tab.is-active::after { bottom: -1px }` sat at the tab's bottom edge.
+   That edge is 12px above .ws-tabs' padding-box bottom — so we pin the line
+   there to keep the same visual height. */
+.ws-tabs__indicator {
+  position: absolute;
+  bottom: 11px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  box-shadow: 0 0 10px rgba(74, 222, 128, 0.7), 0 0 20px rgba(74, 222, 128, 0.3);
+  transition:
+    left 0.42s cubic-bezier(0.2, 0.8, 0.2, 1),
+    width 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.ws-tabs__indicator.is-ready {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-tabs__indicator {
+    transition: none;
+  }
+}
+
+body.is-workspace .ws-tabs {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.50s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ws-tabs {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+.ws-tab {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 8px 4px 14px;
+  position: relative;
+  transition: color 0.15s;
+  min-height: 0;
+}
+
+.ws-tab:hover {
+  color: var(--text);
+}
+
+.ws-tab.is-active {
+  color: var(--text);
+}
+
+.ws-tab:focus-visible {
+  outline: 2px solid rgba(74, 222, 128, 0.3);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+@media (max-width: 880px) {
+  .ws-tabs {
+    gap: 22px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .ws-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .ws-tab {
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 640px) {
+  .ws-tabs {
+    gap: 18px;
+  }
+  .ws-tab {
+    font-size: 10px;
+    letter-spacing: 1.4px;
+    padding: 8px 4px 12px;
+  }
+}

@@ -1,0 +1,95 @@
+.search-input {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.search-input__pill {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  min-height: var(--control-height);
+}
+
+.search-input__pill:focus-within {
+  outline: var(--ring-outline);
+  outline-offset: 2px;
+  box-shadow: var(--ring);
+}
+
+.search-input__icon {
+  color: var(--color-faint);
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.search-input__icon svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.search-input__field {
+  /* Override global input styles. The wrapper provides border/padding/focus ring. */
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  min-width: 180px;
+  width: 100%;
+  padding: 0 !important;
+  min-height: 0 !important;
+  height: auto;
+}
+
+.search-input__field:focus,
+.search-input__field:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.search-input__clear {
+  border: none;
+  background: transparent;
+  color: var(--color-faint);
+  font-size: 1.35rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input__clear:hover:not(:disabled) {
+  background: var(--color-highlight);
+  color: var(--color-text);
+}
+
+.search-input__clear:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.search-input__field::-webkit-search-cancel-button,
+.search-input__field::-webkit-search-decoration,
+.search-input__field::-webkit-search-results-button,
+.search-input__field::-webkit-search-results-decoration {
+  display: none;
+}
+
+.search-input__reset {
+  white-space: nowrap;
+}

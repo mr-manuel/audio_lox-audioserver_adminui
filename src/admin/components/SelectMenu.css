@@ -1,0 +1,99 @@
+.select-menu {
+  position: relative;
+  width: 100%;
+}
+
+.select-menu__button {
+  width: 100%;
+  appearance: none;
+  border: 1px solid var(--border-input);
+  border-radius: 8px;
+  padding: 0.55rem 2.4rem 0.55rem 0.9rem;
+  background: linear-gradient(180deg, var(--surface-0) 0%, var(--surface-1) 100%);
+  font-size: 0.95rem;
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  line-height: 1.2;
+  min-height: var(--control-height);
+  box-shadow: none;
+  cursor: pointer;
+  text-align: left;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.select-menu__button:focus-visible {
+  outline: none;
+  border-color: var(--border-strong);
+  box-shadow: var(--ring);
+}
+
+.select-menu__button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  background: var(--surface-1);
+  color: var(--color-faint);
+}
+
+.select-menu__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.select-menu__chevron {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  color: var(--color-muted);
+}
+
+.select-menu__chevron svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.select-menu__popover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: calc(var(--z-modal) + 1);
+  background: var(--surface-0);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-float);
+  padding: 0.35rem;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.select-menu__option {
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 10px;
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.select-menu__option:hover {
+  background: var(--color-highlight);
+  border-color: var(--border-soft);
+}
+
+.select-menu__option.is-active {
+  background: var(--color-highlight);
+  border-color: var(--border);
+}
+
+.select-menu__option:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}

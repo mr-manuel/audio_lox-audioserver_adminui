@@ -1,0 +1,80 @@
+import type { PowerGroupConfig } from '@/domain/config/types';
+
+export type AudioServerExtension = {
+  mac?: string;
+  name?: string;
+};
+
+export type AudioServerConfig = {
+  ip?: string;
+  name?: string;
+  uuid?: string;
+  macId?: string;
+  paired?: boolean;
+  authEnabled?: boolean;
+  extensions?: AudioServerExtension[];
+  crossfadeSec?: number;
+};
+
+export type SystemConfig = {
+  miniserver?: {
+    ip?: string;
+    serial?: string;
+  };
+  audioserver?: AudioServerConfig;
+};
+
+export type ContentConfig = {
+  radio?: { tuneInUsername?: string | null };
+  spotify?: {
+    accounts?: unknown[];
+    bridges?: unknown[];
+    clientId?: string | null;
+    cacheEnabled?: boolean;
+    cacheSizeMb?: number;
+  };
+  library?: { enabled?: boolean; autoScan?: boolean };
+  tts?: TtsConfig;
+};
+
+export type TtsProviderConfig =
+  | { type: 'internal' }
+  | {
+      type: 'loxberry-tts';
+      enabled?: boolean;
+      host?: string;
+      mqttPort?: number;
+      protocol?: 'mqtt' | 'mqtts';
+      username?: string;
+      password?: string;
+      clientId?: string;
+      httpBaseUrl?: string;
+    };
+
+export type TtsConfig = {
+  provider?: TtsProviderConfig;
+  fallbackToInternal?: boolean;
+};
+
+export type InputsConfig = {
+  airplay?: { enabled?: boolean };
+  spotify?: { enabled?: boolean };
+  bluetooth?: { enabled?: boolean };
+  lineIn?: { inputs?: unknown[] | null };
+};
+
+export type RootConfig = {
+  system?: SystemConfig;
+  groups?: {
+    mixedGroupEnabled?: boolean;
+    powerGroups?: PowerGroupConfig[];
+  };
+  zones?: unknown[];
+  content?: ContentConfig;
+  inputs?: InputsConfig;
+  updatedAt?: string;
+  crc32?: string;
+  rawAudioConfig?: {
+    crc32?: string;
+  };
+};

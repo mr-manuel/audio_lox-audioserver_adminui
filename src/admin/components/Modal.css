@@ -1,0 +1,12 @@
+.modal-backdrop {
+  /* Keep scrolling functional when dialogs exceed the viewport height. */
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+.modal-dialog {
+  /* Ensure focus outlines render consistently. */
+  outline: none;
+}
+

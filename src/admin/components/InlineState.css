@@ -1,0 +1,102 @@
+/* Shared empty/loading/error presentation used across views. */
+
+.inline-state {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 0.95rem 1.05rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  background: rgba(15, 20, 27, 0.74);
+  box-shadow: inset 0 1px rgba(233, 238, 246, 0.08);
+}
+
+@supports ((-webkit-backdrop-filter: blur(6px)) or (backdrop-filter: blur(6px))) {
+  .inline-state {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+}
+
+.inline-state--compact {
+  padding: 0.7rem 0.85rem;
+  gap: 0.7rem;
+  border-radius: var(--radius-md);
+}
+
+.inline-state__icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: var(--radius-lg);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--color-highlight);
+  color: var(--color-muted);
+}
+
+.inline-state--compact .inline-state__icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+}
+
+.inline-state--error .inline-state__icon {
+  background: rgba(220, 38, 38, 0.10);
+  border-color: rgba(220, 38, 38, 0.25);
+  color: rgba(185, 28, 28, 0.95);
+}
+
+.inline-state--warn .inline-state__icon {
+  background: rgba(217, 119, 6, 0.12);
+  border-color: rgba(217, 119, 6, 0.25);
+  color: rgba(146, 64, 14, 0.95);
+}
+
+.inline-state__body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1 1 auto;
+}
+
+.inline-state__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 750;
+  color: var(--color-text);
+  line-height: 1.25;
+}
+
+.inline-state__message {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-subtle);
+  line-height: 1.45;
+}
+
+.inline-state__actions {
+  margin-top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.inline-state__spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  border-top-color: var(--color-muted);
+  animation: inline-state-spin 900ms linear infinite;
+}
+
+@keyframes inline-state-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
