@@ -4,12 +4,12 @@ import type { StatusResponse } from '../types/api';
 
 // Native node add-ons whose latest versions we poll from the npm registry.
 export const COMPONENT_PACKAGES = [
-  { name: '@lox-audioserver/node-libraop' },
-  { name: '@lox-audioserver/node-librespot' },
-  { name: '@lox-audioserver/node-sendspin' },
-  { name: '@lox-audioserver/node-slimproto' },
-  { name: '@lox-audioserver/node-snapcast' },
-  { name: '@lox-audioserver/node-sonos' },
+  { name: '@sonn-audio/node-libraop' },
+  { name: '@sonn-audio/node-librespot' },
+  { name: '@sonn-audio/node-sendspin' },
+  { name: '@sonn-audio/node-slimproto' },
+  { name: '@sonn-audio/node-snapcast' },
+  { name: '@sonn-audio/node-sonos' },
 ] as const;
 
 export type LatestVersions = {
