@@ -448,6 +448,8 @@
         "musicassistant": "Music Assistant"
       },
       "detailKicker": "Bridge setup details",
+      "nameLabel": "Display name",
+      "nameHelp": "Shown in the Loxone app. Give each account a distinct name to tell multiple logins of the same service apart.",
       "ma": {
         "desc": "Music Assistant exposes one Spotify account per configured MA account. Create dedicated MA accounts with provider filters to surface specific services in Loxone.",
         "req": "Requires Music Assistant 2.7+",

@@ -1692,6 +1692,12 @@
   animation: bridge-panel-in 0.3s var(--spring, cubic-bezier(0.2, 0.8, 0.2, 1));
 }
 
+.bridge-modal__panel--name {
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+}
+
 @keyframes bridge-panel-in {
   from {
     opacity: 0;

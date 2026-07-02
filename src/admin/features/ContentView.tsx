@@ -112,6 +112,7 @@ type CustomRadioFormState = {
 
 type BridgeFormState = {
   provider: 'musicassistant' | 'applemusic' | 'ytmusic' | 'deezer' | 'tidal' | 'youtube';
+  label: string;
   host: string;
   port: number;
   apiKey: string;
@@ -561,6 +562,7 @@ const createEmptyCustomRadioForm = (): CustomRadioFormState => ({
 
 const createEmptyBridgeForm = (): BridgeFormState => ({
   provider: 'applemusic',
+  label: '',
   host: '127.0.0.1',
   port: 8095,
   apiKey: '',
@@ -934,6 +936,7 @@ export default function ContentView(): JSX.Element {
   }, [customRadioForm]);
   const bridgeFormValid = React.useMemo(() => {
     if (!bridgeForm.provider.trim()) return false;
+    if (!bridgeForm.label.trim()) return false;
     if (bridgeForm.provider === 'musicassistant') {
       return bridgeForm.host.trim().length > 0 && bridgeForm.apiKey.trim().length > 0;
     }
@@ -1462,13 +1465,20 @@ export default function ContentView(): JSX.Element {
     setCustomRadioForm(createEmptyCustomRadioForm());
   };
 
+  // Friendly default name for a provider — matches what the service is called in
+  // the picker, and is what the source is pre-named so the field is never blank.
+  const defaultBridgeLabel = (provider: BridgeFormState['provider']): string =>
+    t(`content.bridge.providerNames.${provider}`);
+
   const openBridgeModal = (): void => {
     setBridgeWizStep(1);
+    const form = createEmptyBridgeForm();
     setSpotifyState({
       bridgeModalOpen: true,
       bridgeFeedback: null,
       bridgeEditingId: null,
       bridgeEditingLabel: null,
+      bridgeForm: { ...form, label: defaultBridgeLabel(form.provider) },
     });
   };
 
@@ -1559,6 +1569,7 @@ export default function ContentView(): JSX.Element {
       bridgeEditingLabel: bridge.label ?? bridge.id,
       bridgeForm: {
         provider: (bridge.provider?.toLowerCase() as BridgeFormState['provider']) || 'musicassistant',
+        label: bridge.label ?? '',
         host: bridge.host ?? '127.0.0.1',
         port: bridge.port ?? 8095,
         apiKey: bridge.apiKey ?? '',
@@ -1901,7 +1912,18 @@ export default function ContentView(): JSX.Element {
     setCustomRadioForm((prev) => ({ ...prev, ...patch }));
   };
   const updateBridgeForm = (patch: Partial<BridgeFormState>): void => {
-    setSpotifyState((prev) => ({ bridgeForm: { ...prev.bridgeForm, ...patch } }));
+    setSpotifyState((prev) => {
+      const next = { ...prev.bridgeForm, ...patch };
+      // Switching provider re-syncs the display name to that provider's default,
+      // unless the user has already typed a custom name.
+      if (patch.provider && patch.provider !== prev.bridgeForm.provider) {
+        const prevDefault = defaultBridgeLabel(prev.bridgeForm.provider);
+        if (!prev.bridgeForm.label.trim() || prev.bridgeForm.label === prevDefault) {
+          next.label = defaultBridgeLabel(patch.provider);
+        }
+      }
+      return { bridgeForm: next };
+    });
   };
 
   // Opens the MusicKit sign-in as an in-portal modal (iframe), not a new tab.
@@ -2001,7 +2023,13 @@ export default function ContentView(): JSX.Element {
     };
     if (bridgeEditingId) {
       payload.id = bridgeEditingId;
-      if (bridgeEditingLabel) payload.label = bridgeEditingLabel;
+    }
+    // Custom display name (falls back on the server to a per-provider default when blank).
+    const trimmedLabel = bridgeForm.label.trim();
+    if (trimmedLabel) {
+      payload.label = trimmedLabel;
+    } else if (bridgeEditingId && bridgeEditingLabel) {
+      payload.label = bridgeEditingLabel;
     }
     if (provider === 'musicassistant') {
       payload.host = bridgeForm.host.trim() || '127.0.0.1';
@@ -3801,6 +3829,25 @@ export default function ContentView(): JSX.Element {
           )}
 
           <div className="bridge-modal__body">
+            {isLast && (
+              <div className="bridge-modal__panel bridge-modal__panel--name">
+                <div className="bridge-modal__field">
+                  <label className="bridge-modal__label" htmlFor="bridge-name">
+                    {t('content.bridge.nameLabel')}
+                  </label>
+                  <input
+                    id="bridge-name"
+                    type="text"
+                    className="bridge-modal__input"
+                    value={bridgeForm.label}
+                    onChange={(e) => updateBridgeForm({ label: e.target.value })}
+                    autoComplete="off"
+                    maxLength={60}
+                  />
+                  <span className="bridge-modal__help">{t('content.bridge.nameHelp')}</span>
+                </div>
+              </div>
+            )}
             {currentStepId === 'provider' && (
               <div className="bridge-modal__panel">
                 <div className="bridge-modal__panel-title">{t('content.bridge.providerTitle')}</div>

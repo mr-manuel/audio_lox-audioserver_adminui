@@ -448,6 +448,8 @@
         "musicassistant": "Music Assistant"
       },
       "detailKicker": "Bridge-Setup-Details",
+      "nameLabel": "Anzeigename",
+      "nameHelp": "Wird in der Loxone-App angezeigt. Gib jedem Konto einen eindeutigen Namen, um mehrere Logins desselben Dienstes zu unterscheiden.",
       "ma": {
         "desc": "Music Assistant zeigt pro konfiguriertem MA-Konto ein Spotify-Konto an. Eigene MA-Konten mit Provider-Filtern anlegen, um bestimmte Dienste in Loxone verfügbar zu machen.",
         "req": "Erfordert Music Assistant 2.7+",
