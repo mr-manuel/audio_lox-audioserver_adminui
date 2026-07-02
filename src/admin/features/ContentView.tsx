@@ -3425,7 +3425,7 @@ export default function ContentView(): JSX.Element {
                   <div className="content-spec-row">
                     <span className="content-spec-label">{t('content.spotify.spec.redirectUri')}</span>
                     <span className="content-spec-value">
-                      https://lox-audioserver.github.io/core/spotify-callback/
+                      https://sonn-audio.github.io/core/spotify-callback/
                     </span>
                     <button
                       type="button"
@@ -3433,7 +3433,7 @@ export default function ContentView(): JSX.Element {
                       title={t('content.spotify.spec.copy')}
                       onClick={() =>
                         void navigator.clipboard?.writeText(
-                          'https://lox-audioserver.github.io/core/spotify-callback/',
+                          'https://sonn-audio.github.io/core/spotify-callback/',
                         )
                       }
                     >
