@@ -1557,7 +1557,7 @@ export default function SetupView(): JSX.Element {
                     <span className="setup-update__value">
                       {latestCoreRelease ? (
                         <a
-                          href={`https://github.com/lox-audioserver/core/releases/tag/v${latestCoreRelease}`}
+                          href={`https://github.com/sonn-audio/core/releases/tag/v${latestCoreRelease}`}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -1565,7 +1565,7 @@ export default function SetupView(): JSX.Element {
                         </a>
                       ) : (
                         <a
-                          href="https://github.com/lox-audioserver/core/releases"
+                          href="https://github.com/sonn-audio/core/releases"
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -1580,7 +1580,7 @@ export default function SetupView(): JSX.Element {
                       <span className="setup-update__value">
                         {latestCorePrerelease ? (
                           <a
-                            href={`https://github.com/lox-audioserver/core/releases/tag/v${latestCorePrerelease}`}
+                            href={`https://github.com/sonn-audio/core/releases/tag/v${latestCorePrerelease}`}
                             target="_blank"
                             rel="noreferrer"
                           >
@@ -1649,8 +1649,8 @@ export default function SetupView(): JSX.Element {
                     current: `v${__APP_VERSION__}`,
                     latest: latestUiRelease,
                     releasesUrl: latestUiRelease
-                      ? `https://github.com/lox-audioserver/adminui/releases/tag/v${latestUiRelease}`
-                      : 'https://github.com/lox-audioserver/adminui/releases',
+                      ? `https://github.com/sonn-audio/adminui/releases/tag/v${latestUiRelease}`
+                      : 'https://github.com/sonn-audio/adminui/releases',
                     canUpdate: Boolean(uiOutdated),
                     updating: adminUiUpdating,
                     updatedAt: adminUiUpdatedAt,
@@ -1667,8 +1667,8 @@ export default function SetupView(): JSX.Element {
                     current: playerInstalled ? `v${playerInstalled}` : '—',
                     latest: latestPlayerRelease,
                     releasesUrl: latestPlayerRelease
-                      ? `https://github.com/lox-audioserver/player/releases/tag/v${latestPlayerRelease}`
-                      : 'https://github.com/lox-audioserver/player/releases',
+                      ? `https://github.com/sonn-audio/player/releases/tag/v${latestPlayerRelease}`
+                      : 'https://github.com/sonn-audio/player/releases',
                     canUpdate: Boolean(playerOutdated || (latestPlayerRelease && !playerInstalled)),
                     updating: playerUpdating,
                     updatedAt: playerUpdatedAt,

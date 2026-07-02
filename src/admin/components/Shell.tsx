@@ -8,7 +8,7 @@ import type { StatusResponse } from '../types/api';
 import { setLanguage, type Language } from '../i18n';
 import { useUpdateCheck } from './UpdateCheckContext';
 
-const REPO_URL = 'https://github.com/lox-audioserver/core';
+const REPO_URL = 'https://github.com/sonn-audio/core';
 
 type ShellProps = {
   children: React.ReactNode;

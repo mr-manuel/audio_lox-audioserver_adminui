@@ -7,7 +7,7 @@ export type AudioServerEntry = {
   uuid: string | null;
   master: string | null;
   isSelf: boolean;
-  // True when this server advertises itself as lox-audioserver over mDNS (i.e. runs this admin).
+  // True when this server advertises itself as sonn core over mDNS (i.e. runs this admin).
   // Real Loxone audioservers share the protocol but lack the service → false; the admin switcher
   // filters on this so it never offers a server it can't actually administer. (The player ignores
   // it and lists everything.)
