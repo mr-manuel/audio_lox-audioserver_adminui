@@ -4212,6 +4212,7 @@ button.zones-hub__toggle:disabled {
 .protocol-pill__icon--sendspin     { background: #0EA5E9; }
 .protocol-pill__icon--googleCast   { background: #FFFFFF; }
 .protocol-pill__icon--sonos        { background: #1A1A1A; }
+.protocol-pill__icon--dlna         { background: #0B3D2E; }
 .protocol-pill__icon--squeezelite  { background: #DC2626; }
 .protocol-pill__icon--musicAssistant { background: #6D28D9; }
 .protocol-pill__icon--snapcast-cast { background: #1F3A5F; }

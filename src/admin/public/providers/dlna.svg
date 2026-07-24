@@ -1,0 +1,12 @@
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+  <!-- Renderer / screen -->
+  <rect x="96" y="150" width="308" height="210" rx="24" fill="#ffffff"/>
+  <rect x="188" y="374" width="124" height="26" rx="13" fill="#ffffff"/>
+  <!-- Broadcast arcs streaming into the renderer -->
+  <g stroke="#2E8B57" stroke-width="30" stroke-linecap="round">
+    <path d="M150 300a72 72 0 0 1 72-72"/>
+    <path d="M150 300a128 128 0 0 1 128-128"/>
+    <path d="M150 300a184 184 0 0 1 184-184"/>
+  </g>
+  <circle cx="150" cy="300" r="22" fill="#2E8B57"/>
+</svg>

@@ -17,6 +17,7 @@ import {
   getTransportDefinitions,
   discoverAirplayDevices,
   discoverGoogleCastDevices,
+  discoverDlnaDevices,
   discoverSonosDevices,
   discoverSendspinClients,
   discoverSnapcastClients,
@@ -26,6 +27,7 @@ import {
   getMusicAssistantBridges,
   type AirplayDevice,
   type GoogleCastDevice,
+  type DlnaDevice,
   type SonosDevice,
   type SendspinClient,
   type SnapcastClient,
@@ -1937,6 +1939,10 @@ function ZoneOutputEditor({
   const [sonosDevices, setSonosDevices] = React.useState<SonosDevice[] | null>(null);
   const [discoveringSonos, setDiscoveringSonos] = React.useState(false);
   const [sonosError, setSonosError] = React.useState<string | null>(null);
+  const [dlnaDevices, setDlnaDevices] = React.useState<DlnaDevice[] | null>(null);
+  const [discoveringDlna, setDiscoveringDlna] = React.useState(false);
+  const [dlnaError, setDlnaError] = React.useState<string | null>(null);
+  const [dlnaManualHost, setDlnaManualHost] = React.useState('');
   const [snapcastClients, setSnapcastClients] = React.useState<SnapcastClient[] | null>(null);
   const [discoveringSnapcast, setDiscoveringSnapcast] = React.useState(false);
   const [snapcastError, setSnapcastError] = React.useState<string | null>(null);
@@ -1983,6 +1989,12 @@ function ZoneOutputEditor({
     selectedId === 'sonos'
       ? fieldValues.host || (primary as any)?.host || ''
       : primary?.id === 'sonos'
+        ? (primary as any)?.host ?? ''
+        : '';
+  const activeDlnaHost =
+    selectedId === 'dlna'
+      ? fieldValues.host || (primary as any)?.host || ''
+      : primary?.id === 'dlna'
         ? (primary as any)?.host ?? ''
         : '';
   const activeSendspinCastHost =
@@ -2054,6 +2066,7 @@ function ZoneOutputEditor({
   const isSqueezelite = selectedDefinition?.id === 'squeezelite';
   const isSnapcast = selectedDefinition?.id === 'snapcast';
   const isSonos = selectedDefinition?.id === 'sonos';
+  const isDlna = selectedDefinition?.id === 'dlna';
   const isMusicAssistant = selectedDefinition?.id === 'musicassistant';
   React.useEffect(() => {
     if (!isAirplay) {
@@ -2081,6 +2094,12 @@ function ZoneOutputEditor({
       setSonosError(null);
       setDiscoveringSonos(false);
     }
+    if (!isDlna) {
+      setDlnaDevices(null);
+      setDlnaError(null);
+      setDiscoveringDlna(false);
+      setDlnaManualHost('');
+    }
     if (!isSnapcast) {
       setSnapcastClients(null);
       setSnapcastError(null);
@@ -2093,7 +2112,7 @@ function ZoneOutputEditor({
       setMaBridges(null);
       setMaSelectedBridgeId('');
     }
-  }, [isAirplay, isGoogleCast, isSendspin, isSqueezelite, isSonos, isSnapcast, isMusicAssistant]);
+  }, [isAirplay, isGoogleCast, isSendspin, isSqueezelite, isSonos, isDlna, isSnapcast, isMusicAssistant]);
 
   React.useEffect(() => {
     if (isAirplay && !airplayDevices && !discoveringAirplay) {
@@ -2130,6 +2149,12 @@ function ZoneOutputEditor({
       void handleSonosDiscovery();
     }
   }, [isSonos, sonosDevices, discoveringSonos]);
+
+  React.useEffect(() => {
+    if (isDlna && !dlnaDevices && !discoveringDlna) {
+      void handleDlnaDiscovery();
+    }
+  }, [isDlna, dlnaDevices, discoveringDlna]);
 
   React.useEffect(() => {
     if (isSnapcast && !snapcastClients && !discoveringSnapcast) {
@@ -2262,6 +2287,15 @@ function ZoneOutputEditor({
       setSonosError(null);
       setDiscoveringSonos(false);
       void handleSonosDiscovery();
+      return;
+    }
+    if (nextId === 'dlna') {
+      onChange(null);
+      setDlnaDevices(null);
+      setDlnaError(null);
+      setDiscoveringDlna(false);
+      setDlnaManualHost('');
+      void handleDlnaDiscovery();
       return;
     }
     if (nextId === 'snapcast') {
@@ -2509,6 +2543,51 @@ function ZoneOutputEditor({
       deviceName: device.name ?? device.roomName ?? '',
       householdId: device.householdId ?? '',
     });
+    onChange(payload);
+  }
+
+  async function handleDlnaDiscovery(host?: string): Promise<void> {
+    if (!isDlna || discoveringDlna) return;
+    setDiscoveringDlna(true);
+    setDlnaError(null);
+    try {
+      const target = (host ?? activeDlnaHost) || undefined;
+      const devices = await discoverDlnaDevices(target);
+      setDlnaDevices(devices);
+      if (!devices.length) {
+        setDlnaError(t('zones.output.noDlna'));
+      }
+    } catch (err) {
+      setDlnaDevices([]);
+      setDlnaError(
+        err instanceof Error ? err.message : typeof err === 'string' ? err : t('zones.output.discoveryFailed'),
+      );
+    } finally {
+      setDiscoveringDlna(false);
+    }
+  }
+
+  function applyDlnaDevice(device: DlnaDevice): void {
+    if (!selectedId) {
+      setSelectedId('dlna');
+    }
+    const deviceName = device.name ?? '';
+    const payload: ZoneTransportConfig = {
+      id: 'dlna',
+      host: device.host,
+      deviceName,
+    };
+    const values: Record<string, string> = {
+      host: device.host,
+      deviceName,
+    };
+    // Keep the discovered AVTransport endpoint so playback still works even if a
+    // later SSDP re-resolution comes up empty.
+    if (device.controlUrl) {
+      payload.controlUrl = device.controlUrl;
+      values.controlUrl = device.controlUrl;
+    }
+    setFieldValues(values);
     onChange(payload);
   }
 
@@ -2764,6 +2843,7 @@ function ZoneOutputEditor({
     sendspin: providerIcon('providers/sendspin.svg'),
     snapcast: providerIcon('providers/snapcast.svg'),
     sonos: providerIcon('providers/sonos.svg'),
+    dlna: providerIcon('providers/dlna.svg'),
     squeezelite: providerIcon('providers/squeezelite.svg'),
   };
 	  const airplayLoaded = airplayDevices !== null;
@@ -2847,6 +2927,15 @@ function ZoneOutputEditor({
     fieldValues.deviceName ||
     ((primary as any)?.deviceName as string | undefined) ||
     tailLabel(activeSonosHost);
+  const dlnaLoaded = dlnaDevices !== null;
+  const dlnaDeviceItems = dlnaDevices ?? [];
+  const activeDlnaMatch =
+    activeDlnaHost && dlnaDeviceItems.find((device) => device.host === activeDlnaHost);
+  const activeDlnaLabel =
+    (activeDlnaMatch ? activeDlnaMatch.name : undefined) ||
+    fieldValues.deviceName ||
+    ((primary as any)?.deviceName as string | undefined) ||
+    tailLabel(activeDlnaHost);
   const activeSendspinMatch =
     activeSendspinId && sendspinDeviceItems.find((client) => client.clientId === activeSendspinId);
   const activeSendspinLabel =
@@ -2921,6 +3010,20 @@ function ZoneOutputEditor({
     : activeSonosHost
       ? [{ device: activeSonosMatch, host: activeSonosHost, active: true }]
       : [];
+  const dlnaTiles = dlnaLoaded
+    ? [
+        ...dlnaDeviceItems.map((device) => ({
+          device,
+          host: device.host,
+          active: Boolean(activeDlnaHost && device.host === activeDlnaHost),
+        })),
+        ...(!activeDlnaMatch && activeDlnaHost
+          ? [{ device: activeDlnaMatch, host: activeDlnaHost, active: true }]
+          : []),
+      ]
+    : activeDlnaHost
+      ? [{ device: activeDlnaMatch, host: activeDlnaHost, active: true }]
+      : [];
 
   return (
     <div className="zone-output-config">
@@ -2965,6 +3068,7 @@ function ZoneOutputEditor({
             !isSendspin &&
             !isSqueezelite &&
             !isSnapcast &&
+            !isDlna &&
             !isMusicAssistant && (
             <div className="zone-output-fields">
               {selectedDefinition.fields.map((field) => (
@@ -3299,6 +3403,127 @@ function ZoneOutputEditor({
                   ))}
               </div>
             </div>
+          </div>
+        )}
+        {isDlna && (
+          <div className="zone-output-discovery">
+            <div className="card card--pad-sm zone-output-discovery-panel zone-output-discovery-panel--visible">
+              <div className="zone-output-discovery-panel__header">
+                <div className="zone-output-discovery-panel__title-stack">
+                  <p className="zone-output-discovery-panel__title">{t('zones.output.devices')}</p>
+                  <p className="zone-output-discovery-panel__copy">{t('zones.output.selectDevice')}</p>
+                  <p className="zone-output-discovery-panel__meta">
+                    {discoveredSummary(dlnaLoaded, discoveringDlna, dlnaDeviceItems.length)}
+                  </p>
+                  <p className="zone-output-discovery-panel__error" aria-live="polite">
+                    {dlnaError || ''}
+                  </p>
+                </div>
+                <div className="zone-output-discovery-panel__controls">
+                  <label className="zone-output-search">
+                    <span className="sr-only">{t('zones.output.filterDevices')}</span>
+                    <input
+                      type="search"
+                      placeholder={t('zones.output.filterPlaceholder')}
+                      value={deviceQuery}
+                      onChange={(event) => setDeviceQuery(event.target.value)}
+                      disabled={saving}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    className="btn btn--secondary btn--compact"
+                    onClick={() => void handleDlnaDiscovery()}
+                    disabled={saving || discoveringDlna}
+                  >
+                    {discoveringDlna ? t('zones.output.refreshing') : t('zones.output.refresh')}
+                  </button>
+                </div>
+              </div>
+              <div className="zone-device-list list-dividers">
+                {dlnaTiles.map((item, index) => {
+                  const device = item.device;
+                  if (!device) {
+                    return (
+                      <Row
+                        key={`dlna-active-${item.host || index}`}
+                        className="zone-device-row is-active zone-device-row--static"
+                        title={<span className="row__name">{activeDlnaLabel}</span>}
+                        subtitle={<span className="row__subtle">{t('zones.output.dlna')}</span>}
+                        actions={<span className="chip chip--sm chip--static is-active">{t('zones.output.active')}</span>}
+                      />
+                    );
+                  }
+                  const friendly = parseFriendlyName(device.name || device.host);
+                  const typeLabel = friendly.secondary || t('zones.output.dlna');
+                  if (!matchesDeviceQuery(friendly.primary, friendly.secondary, device.name, device.host, typeLabel)) {
+                    return null;
+                  }
+                  return (
+                    <Row
+                      key={device.id}
+                      as="button"
+                      type="button"
+                      className={`zone-device-row${item.active ? ' is-active' : ''}`}
+                      onClick={() => applyDlnaDevice(device)}
+                      disabled={saving}
+                      title={<span className="row__name">{friendly.primary}</span>}
+                      subtitle={<span className="row__subtle">{typeLabel}</span>}
+                      actions={item.active ? <span className="chip chip--sm chip--static is-active">{t('zones.output.active')}</span> : null}
+                    />
+                  );
+                })}
+                {(discoveringDlna || (!dlnaLoaded && dlnaDeviceItems.length === 0)) &&
+                  Array.from({ length: 3 }).map((_, idx) => (
+                    <Row
+                      key={`dlna-placeholder-${idx}`}
+                      className={`zone-device-row zone-device-row--placeholder${discoveringDlna ? ' zone-device-row--discovering' : ''}`}
+                      title={<span className="row__name">{t('zones.output.dlnaDevice')}</span>}
+                      subtitle={<span className="row__subtle">{t('zones.output.discovering')}</span>}
+                    />
+                  ))}
+              </div>
+            </div>
+            {(!dlnaDevices || dlnaDevices.length === 0) && !discoveringDlna && (
+              <>
+                <p className="zone-output-status">{t('zones.output.noDlna')}</p>
+                <div className="zone-output-manual">
+                  <p className="zone-output-manual__eyebrow">{t('zones.output.manualDlna')}</p>
+                  <p className="zone-output-manual__title">{t('zones.output.probeTitle')}</p>
+                  <div className="zone-output-manual__row">
+                    <label className="zone-output-manual__field">
+                      <span>{t('zones.output.dlnaIp')}</span>
+                      <input
+                        type="text"
+                        inputMode="decimal"
+                        pattern="[0-9.]*"
+                        placeholder={t('zones.output.dlnaIpPlaceholder')}
+                        value={dlnaManualHost}
+                        onChange={(event) => setDlnaManualHost(event.target.value)}
+                        onKeyDown={(event) => {
+                          if (event.key === 'Enter') {
+                            event.preventDefault();
+                            void handleDlnaDiscovery(dlnaManualHost.trim());
+                          }
+                        }}
+                        disabled={saving}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="btn btn--primary btn--compact"
+                      onClick={() => void handleDlnaDiscovery(dlnaManualHost.trim())}
+                      disabled={saving || !dlnaManualHost.trim()}
+                    >
+                      {t('zones.output.discover')}
+                    </button>
+                  </div>
+                  <p className="zone-output-manual__hint">
+                    {t('zones.output.manualHint')}
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         )}
         {isMusicAssistant && (() => {
