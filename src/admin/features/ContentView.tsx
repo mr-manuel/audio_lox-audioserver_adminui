@@ -111,7 +111,7 @@ type CustomRadioFormState = {
 };
 
 type BridgeFormState = {
-  provider: 'musicassistant' | 'applemusic' | 'ytmusic' | 'deezer' | 'tidal' | 'youtube';
+  provider: 'musicassistant' | 'applemusic' | 'ytmusic' | 'deezer' | 'tidal' | 'youtube' | 'soundcloud';
   label: string;
   host: string;
   port: number;
@@ -122,6 +122,7 @@ type BridgeFormState = {
   tidalAccessToken: string;
   tidalCountryCode: string;
   youtubeApiKey: string;
+  soundcloudOauthToken: string;
   mode: 'source' | 'sink';
 };
 
@@ -572,6 +573,7 @@ const createEmptyBridgeForm = (): BridgeFormState => ({
   tidalAccessToken: '',
   tidalCountryCode: 'US',
   youtubeApiKey: '',
+  soundcloudOauthToken: '',
   mode: 'source',
 });
 
@@ -653,6 +655,8 @@ function resolveBridgeLogoUrl(provider?: string | null): string | null {
       return p('providers/youtube.svg');
     case 'deezer':
       return p('providers/deezer.svg');
+    case 'soundcloud':
+      return p('providers/soundcloud.svg');
     case 'tidal':
       return p('providers/tidal.svg');
     default:
@@ -951,6 +955,9 @@ export default function ContentView(): JSX.Element {
     }
     if (bridgeForm.provider === 'youtube') {
       return true;
+    }
+    if (bridgeForm.provider === 'soundcloud') {
+      return bridgeForm.soundcloudOauthToken.trim().length > 0;
     }
     return true;
   }, [bridgeForm]);
@@ -1579,6 +1586,7 @@ export default function ContentView(): JSX.Element {
         tidalAccessToken: bridge.tidalAccessToken ?? '',
         tidalCountryCode: bridge.tidalCountryCode ?? 'US',
         youtubeApiKey: bridge.youtubeApiKey ?? '',
+        soundcloudOauthToken: bridge.soundcloudOauthToken ?? '',
         mode: bridge.mode === 'sink' ? 'sink' : 'source',
       },
       bridgeFeedback: null,
@@ -2059,6 +2067,9 @@ export default function ContentView(): JSX.Element {
     }
     if (provider === 'youtube') {
       if (bridgeForm.youtubeApiKey.trim()) payload.youtubeApiKey = bridgeForm.youtubeApiKey.trim();
+    }
+    if (provider === 'soundcloud') {
+      if (bridgeForm.soundcloudOauthToken.trim()) payload.soundcloudOauthToken = bridgeForm.soundcloudOauthToken.trim();
     }
     try {
       const { bridge } = await createSpotifyBridge(payload);
@@ -3699,6 +3710,7 @@ export default function ContentView(): JSX.Element {
           { id: 'ytmusic', name: t('content.bridge.providerNames.ytmusic') },
           { id: 'youtube', name: t('content.bridge.providerNames.youtube') },
           { id: 'deezer', name: t('content.bridge.providerNames.deezer') },
+          { id: 'soundcloud', name: t('content.bridge.providerNames.soundcloud') },
           { id: 'musicassistant', name: t('content.bridge.providerNames.musicassistant') },
         ];
         const FLOWS: Record<BridgeFormState['provider'], Array<{ id: string; label: string }>> = {
@@ -3722,6 +3734,10 @@ export default function ContentView(): JSX.Element {
           deezer: [
             { id: 'provider', label: t('content.bridge.providerStep') },
             { id: 'deezer-arl', label: t('content.bridge.cookieStep') },
+          ],
+          soundcloud: [
+            { id: 'provider', label: t('content.bridge.providerStep') },
+            { id: 'soundcloud-token', label: t('content.bridge.tokenStep') },
           ],
           tidal: [
             { id: 'provider', label: t('content.bridge.providerStep') },
@@ -3748,6 +3764,8 @@ export default function ContentView(): JSX.Element {
               return bridgeForm.ytmusicCookie.trim().length > 0;
             case 'tidal-token':
               return bridgeForm.tidalAccessToken.trim().length > 0;
+            case 'soundcloud-token':
+              return bridgeForm.soundcloudOauthToken.trim().length > 0;
             default:
               return true;
           }
@@ -3910,6 +3928,11 @@ export default function ContentView(): JSX.Element {
                   {bridgeForm.provider === 'deezer' && (
                     <p className="bridge-modal__provider-detail-desc">
                       {t('content.bridge.deezer.desc')}
+                    </p>
+                  )}
+                  {bridgeForm.provider === 'soundcloud' && (
+                    <p className="bridge-modal__provider-detail-desc">
+                      {t('content.bridge.soundcloud.desc')}
                     </p>
                   )}
                   {bridgeForm.provider === 'tidal' && (
@@ -4273,6 +4296,28 @@ export default function ContentView(): JSX.Element {
                     value={bridgeForm.deezerArl}
                     onChange={(e) => updateBridgeForm({ deezerArl: e.target.value })}
                     placeholder="ARL"
+                    autoComplete="off"
+                  />
+                </div>
+              </div>
+            )}
+
+            {currentStepId === 'soundcloud-token' && (
+              <div className="bridge-modal__panel">
+                <div className="bridge-modal__panel-title">
+                  {t('content.bridge.soundcloud.title')}
+                </div>
+                <p className="bridge-modal__panel-desc">
+                  {t('content.bridge.soundcloud.descLong')}
+                </p>
+                <div className="bridge-modal__field">
+                  <input
+                    id="bridge-soundcloud-token"
+                    type="text"
+                    className="bridge-modal__input is-mono"
+                    value={bridgeForm.soundcloudOauthToken}
+                    onChange={(e) => updateBridgeForm({ soundcloudOauthToken: e.target.value })}
+                    placeholder="OAuth token"
                     autoComplete="off"
                   />
                 </div>

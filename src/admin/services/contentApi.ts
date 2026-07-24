@@ -191,6 +191,7 @@ export type SpotifyBridgeConfig = {
   tidalAccessToken?: string;
   tidalCountryCode?: string;
   youtubeApiKey?: string;
+  soundcloudOauthToken?: string;
   registerAll?: boolean;
   mode?: 'source' | 'sink';
 };
@@ -209,6 +210,7 @@ export type CreateSpotifyBridgePayload = {
   tidalAccessToken?: string;
   tidalCountryCode?: string;
   youtubeApiKey?: string;
+  soundcloudOauthToken?: string;
   registerAll?: boolean;
   mode?: 'source' | 'sink';
 };

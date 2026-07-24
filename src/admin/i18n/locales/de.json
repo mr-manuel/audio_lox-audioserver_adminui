@@ -445,6 +445,7 @@
         "ytmusic": "YouTube Music",
         "youtube": "YouTube",
         "deezer": "Deezer",
+        "soundcloud": "SoundCloud",
         "musicassistant": "Music Assistant"
       },
       "detailKicker": "Bridge-Setup-Details",
@@ -526,6 +527,11 @@
         "desc": "Deezer funktioniert ohne Zugangsdaten für öffentliche Katalogdaten. Ein ARL-Cookie nur ergänzen, wenn private Playlists oder Empfehlungen benötigt werden.",
         "title": "ARL-Cookie",
         "descLong": "Deezer-ARL-Cookie hinzufügen, um private Playlists oder Empfehlungen freizuschalten."
+      },
+      "soundcloud": {
+        "desc": "Titel, Sets und Likes von SoundCloud streamen.",
+        "title": "OAuth-Token (erforderlich)",
+        "descLong": "SoundCloud erfordert ein OAuth-Token eines angemeldeten Kontos. Öffne soundcloud.com im Browser, melde dich an und kopiere den Wert nach 'OAuth ' aus dem Authorization-Header einer beliebigen api-v2-Anfrage (DevTools → Netzwerk). Hinweis: Einige wenige Titel sind DRM-geschützt und können nicht abgespielt werden."
       },
       "tidal": {
         "desc": "Gültigen Access-Token plus zweistelligen Ländercode angeben, um den Tidal-Katalog und die Wiedergabe zu aktivieren.",
