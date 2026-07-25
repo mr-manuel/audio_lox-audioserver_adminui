@@ -44,8 +44,35 @@
       "radio": "Radio",
       "library": "Bibliothek",
       "linein": "Line-in",
-      "spotify": "Spotify",
-      "custom": "Eigene Dienste"
+      "streaming": "Streaming-Dienste"
+    },
+    "streaming": {
+      "title": "Streaming-Dienste",
+      "desc": "Deine Streaming-Konten — Spotify, Apple Music, Tidal, Deezer, SoundCloud, YouTube Music, Music Assistant. Alle verfügbar für den Player, den Medienserver (DLNA) und Subsonic; wenn die Loxone-Rolle aktiv ist, wird jedes zusätzlich als Spotify-kompatible Quelle angeboten.",
+      "addService": "+ Dienst hinzufügen",
+      "activeTitle": "Aktive Dienste",
+      "activeDesc": "Jedes konfigurierte Streaming-Konto, Spotify inklusive.",
+      "emptyTitle": "Noch keine Streaming-Dienste",
+      "emptySub": "Füge Spotify, Apple Music, Tidal, Deezer, SoundCloud, YouTube Music oder Music Assistant hinzu.",
+      "summary": {
+        "accounts": "Konten",
+        "count_one": "{{count}} konfiguriert",
+        "count_other": "{{count}} konfiguriert",
+        "empty": "Noch keine Dienste konfiguriert.",
+        "active_one": "{{count}} Dienst aktiv",
+        "active_other": "{{count}} Dienste aktiv"
+      },
+      "picker": {
+        "eyebrow": "Neuer Streaming-Dienst",
+        "title": "Dienst hinzufügen",
+        "subtitle": "Wähle einen Streaming-Dienst zum Verbinden",
+        "spotifySetupHint": "zuerst einrichten"
+      },
+      "spotifySetup": {
+        "eyebrow": "Spotify",
+        "title": "Spotify einrichten",
+        "subtitle": "Einmalig eine Spotify-App verbinden, dann ein oder mehrere Konten verknüpfen"
+      }
     },
     "loading": {
       "title": "Inhalte werden geladen",
@@ -419,8 +446,8 @@
       "removing": "Entfernen…"
     },
     "bridge": {
-      "editEyebrow": "Eigenen Dienst bearbeiten",
-      "newEyebrow": "Neuer eigener Dienst",
+      "editEyebrow": "Streaming-Dienst bearbeiten",
+      "newEyebrow": "Neuer Streaming-Dienst",
       "editTitle": "Dienst bearbeiten",
       "newTitle": "Dienst hinzufügen",
       "subtitle": "Ein Streaming-Konto hinzufügen und die Verbindung wählen",
@@ -440,6 +467,7 @@
       "providerTitle": "Anbieter wählen",
       "providerDesc": "Wähle, welchen Streaming-Dienst du hinzufügen möchtest.",
       "providerNames": {
+        "spotify": "Spotify",
         "applemusic": "Apple Music",
         "tidal": "Tidal",
         "ytmusic": "YouTube Music",

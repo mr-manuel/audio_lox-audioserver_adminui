@@ -44,8 +44,35 @@
       "radio": "Radio",
       "library": "Library",
       "linein": "Line-in",
-      "spotify": "Spotify",
-      "custom": "Custom services"
+      "streaming": "Streaming services"
+    },
+    "streaming": {
+      "title": "Streaming services",
+      "desc": "Your streaming accounts — Spotify, Apple Music, Tidal, Deezer, SoundCloud, YouTube Music, Music Assistant. All available to the player, the media server (DLNA) and Subsonic; when the Loxone role is on, each is also exposed as a Spotify-compatible source.",
+      "addService": "+ Add service",
+      "activeTitle": "Active services",
+      "activeDesc": "Every configured streaming account, Spotify included.",
+      "emptyTitle": "No streaming services yet",
+      "emptySub": "Add Spotify, Apple Music, Tidal, Deezer, SoundCloud, YouTube Music or Music Assistant.",
+      "summary": {
+        "accounts": "Accounts",
+        "count_one": "{{count}} configured",
+        "count_other": "{{count}} configured",
+        "empty": "No services configured yet.",
+        "active_one": "{{count}} service active",
+        "active_other": "{{count}} services active"
+      },
+      "picker": {
+        "eyebrow": "New streaming service",
+        "title": "Add a service",
+        "subtitle": "Pick a streaming service to connect",
+        "spotifySetupHint": "set up first"
+      },
+      "spotifySetup": {
+        "eyebrow": "Spotify",
+        "title": "Spotify setup",
+        "subtitle": "Connect a Spotify app once, then link one or more accounts"
+      }
     },
     "loading": {
       "title": "Loading content",
@@ -419,8 +446,8 @@
       "removing": "Removing…"
     },
     "bridge": {
-      "editEyebrow": "Edit custom service",
-      "newEyebrow": "New custom service",
+      "editEyebrow": "Edit streaming service",
+      "newEyebrow": "New streaming service",
       "editTitle": "Edit service",
       "newTitle": "Add a service",
       "subtitle": "Add a streaming account and choose how to connect it",
@@ -440,6 +467,7 @@
       "providerTitle": "Choose provider",
       "providerDesc": "Pick which streaming service you want to add.",
       "providerNames": {
+        "spotify": "Spotify",
         "applemusic": "Apple Music",
         "tidal": "Tidal",
         "ytmusic": "YouTube Music",

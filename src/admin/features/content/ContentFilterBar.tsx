@@ -10,8 +10,7 @@ const FILTERS: FilterItem[] = [
   { key: 'radio', label: 'Radio' },
   { key: 'library', label: 'Library' },
   { key: 'linein', label: 'Line-in' },
-  { key: 'spotify', label: 'Spotify' },
-  { key: 'custom', label: 'Custom services' },
+  { key: 'streaming', label: 'Streaming services' },
 ];
 
 type ContentFilterBarProps = {

@@ -773,6 +773,11 @@ export default function ContentView(): JSX.Element {
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
 
+  const [addPickerOpen, setAddPickerOpen] = React.useState(false);
+  const [spotifySetupOpen, setSpotifySetupOpen] = React.useState(false);
+  // The "+ Add service" picker already chose the provider, so the wizard skips
+  // its own provider step (no redundant, Spotify-less second provider screen).
+  const [bridgeProviderLocked, setBridgeProviderLocked] = React.useState(false);
   const [appleAuthOpen, setAppleAuthOpen] = React.useState(false);
   const [appleAuthHeight, setAppleAuthHeight] = React.useState(180);
   const [appleMusicWidevineStatus, setAppleMusicWidevineStatus] = React.useState<AppleMusicWidevineStatus | null>(null);
@@ -901,10 +906,12 @@ export default function ContentView(): JSX.Element {
   const [customRadioModalOpen, setCustomRadioModalOpen] = React.useState(false);
   const [contentFilter, setContentFilter] = React.useState<ContentFilterKey>(() => {
     if (typeof window === 'undefined') return 'radio';
-    const stored = window.localStorage.getItem('admin-content-filter') as ContentFilterKey | null;
+    const stored = window.localStorage.getItem('admin-content-filter');
     if (!stored) return 'radio';
-    const allowed: ContentFilterKey[] = ['radio', 'library', 'spotify', 'linein', 'custom'];
-    return allowed.includes(stored) ? stored : 'radio';
+    // The former 'spotify' and 'custom' tabs merged into one 'streaming' tab.
+    if (stored === 'spotify' || stored === 'custom') return 'streaming';
+    const allowed: ContentFilterKey[] = ['radio', 'library', 'streaming', 'linein'];
+    return allowed.includes(stored as ContentFilterKey) ? (stored as ContentFilterKey) : 'radio';
   });
   const { displayed: displayedFilter, isLeaving: panelLeaving } = useSubPanelTransition(contentFilter, 200);
   const spotifyAccountBaselineRef = React.useRef(0);
@@ -1069,8 +1076,10 @@ export default function ContentView(): JSX.Element {
           accounts: Array.isArray(content.spotify?.accounts)
             ? (content.spotify!.accounts! as SpotifyAccountConfig[])
             : [],
-          bridges: Array.isArray(content.spotify?.bridges)
-            ? content.spotify!.bridges!.map((bridge) => normalizeBridge(bridge as SpotifyBridgeConfig))
+          // The core migrates content.spotify.bridges → content.streamingServices
+          // on load, so the neutral location is authoritative here.
+          bridges: Array.isArray(content.streamingServices)
+            ? content.streamingServices.map((bridge) => normalizeBridge(bridge as SpotifyBridgeConfig))
             : [],
         });
         setAudioServerIp(typeof currentAudioServerIp === 'string' ? currentAudioServerIp : '');
@@ -1477,9 +1486,13 @@ export default function ContentView(): JSX.Element {
   const defaultBridgeLabel = (provider: BridgeFormState['provider']): string =>
     t(`content.bridge.providerNames.${provider}`);
 
-  const openBridgeModal = (): void => {
+  const openBridgeModal = (provider?: BridgeFormState['provider']): void => {
+    const base = createEmptyBridgeForm();
+    const form = provider ? { ...base, provider } : base;
+    // When the picker already chose a provider, lock it and skip the wizard's
+    // provider step — the config step becomes step 1 of the (filtered) flow.
+    setBridgeProviderLocked(!!provider);
     setBridgeWizStep(1);
-    const form = createEmptyBridgeForm();
     setSpotifyState({
       bridgeModalOpen: true,
       bridgeFeedback: null,
@@ -1690,7 +1703,7 @@ export default function ContentView(): JSX.Element {
         onClick: () => void handleSaveRadio(),
       };
     }
-    if (contentFilter === 'spotify' && spotifyDirty) {
+    if (contentFilter === 'streaming' && spotifyDirty) {
       return {
         label: t('content.spotify.stickySave'),
         busy: spotifySaving,
@@ -2573,8 +2586,7 @@ export default function ContentView(): JSX.Element {
     { key: 'radio', label: t('content.subTabs.radio') },
     { key: 'library', label: t('content.subTabs.library') },
     { key: 'linein', label: t('content.subTabs.linein') },
-    { key: 'spotify', label: t('content.subTabs.spotify') },
-    { key: 'custom', label: t('content.subTabs.custom') },
+    { key: 'streaming', label: t('content.subTabs.streaming') },
   ];
 
   const stubModal = (label: string): void => {
@@ -3327,47 +3339,164 @@ export default function ContentView(): JSX.Element {
       ) : null}
 
       {/* ============ SPOTIFY ============ */}
-      {displayedFilter === 'spotify' ? (
+      {displayedFilter === 'streaming' ? (
         <div className="source-layout">
           <aside className="source-aside">
             <span className="source-aside__eyebrow">{t('content.aside.eyebrow')}</span>
-            <h2 className="source-aside__title">{t('content.spotify.title')}</h2>
+            <h2 className="source-aside__title">{t('content.streaming.title')}</h2>
             <p className="source-aside__desc">
-              {t('content.spotify.desc')}
+              {t('content.streaming.desc')}
             </p>
+            <div className="source-aside__actions">
+              <button
+                type="button"
+                className="content-btn content-btn--primary"
+                onClick={() => setAddPickerOpen(true)}
+                disabled={bridgeModalOpen}
+              >
+                {t('content.streaming.addService')}
+              </button>
+            </div>
 
             <div className="library-summary">
               <div className="library-summary__row">
                 <span
-                  className={`library-summary__dot${hasSpotifyClientId ? '' : ' is-off'}`}
+                  className={`library-summary__dot${(spotifyAccounts.length + spotifyBridges.length) > 0 ? '' : ' is-off'}`}
                 />
                 <span className="library-summary__label">
-                  <strong>{t('content.spotify.summary.clientId')}</strong> · {hasSpotifyClientId ? t('content.spotify.summary.set') : t('content.spotify.summary.notSet')}
-                </span>
-              </div>
-              <div className="library-summary__row">
-                <span
-                  className={`library-summary__dot${spotifyAccounts.length > 0 ? '' : ' is-off'}`}
-                />
-                <span className="library-summary__label">
-                  <strong>{t('content.spotify.summary.accounts')}</strong> ·{' '}
-                  {spotifyAccounts.length > 0
-                    ? t('content.spotify.summary.linked', { count: spotifyAccounts.length })
-                    : t('content.spotify.summary.noneLinked')}
+                  <strong>{t('content.streaming.summary.accounts')}</strong> ·{' '}
+                  {t('content.streaming.summary.count', { count: spotifyAccounts.length + spotifyBridges.length })}
                 </span>
               </div>
               <div className="library-summary__foot">
-                {!hasSpotifyClientId
-                  ? t('content.spotify.summary.setFirst')
-                  : spotifyAccounts.length === 0
-                    ? t('content.spotify.summary.ready')
-                    : t('content.spotify.summary.active', { count: spotifyAccounts.length })}
+                {(spotifyAccounts.length + spotifyBridges.length) === 0
+                  ? t('content.streaming.summary.empty')
+                  : t('content.streaming.summary.active', { count: spotifyAccounts.length + spotifyBridges.length })}
               </div>
             </div>
           </aside>
 
           <div className="source-cards">
 
+            {/* Unified account list: Spotify + all other streaming services. */}
+            <div className="source-card">
+              <div>
+                <h3 className="source-card__title">{t('content.streaming.activeTitle')}</h3>
+                <p className="source-card__desc">{t('content.streaming.activeDesc')}</p>
+              </div>
+              {(spotifyAccounts.length + spotifyBridges.length) === 0 ? (
+                <div className="content-empty-info">
+                  <span className="content-empty-info__icon">i</span>
+                  <div className="content-empty-info__text">
+                    <div className="content-empty-info__title">{t('content.streaming.emptyTitle')}</div>
+                    <div className="content-empty-info__sub">{t('content.streaming.emptySub')}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="content-list">
+                  {spotifyAccounts.map((account) => {
+                    const accountKey =
+                      account.id ?? account.user ?? account.email ?? account.displayName ?? account.name ?? '';
+                    const accountLabel =
+                      account.displayName ?? account.name ?? account.user ?? account.email ?? accountKey;
+                    return (
+                      <div key={`spotify:${accountKey}`} className="content-list-row">
+                        <div className="content-list-row__main">
+                          <div className="content-list-row__title">{accountLabel}</div>
+                          <div className="content-list-row__meta">{t('content.bridge.providerNames.spotify')}</div>
+                        </div>
+                        <div className="content-list-row__actions">
+                          <button
+                            type="button"
+                            className="content-btn"
+                            onClick={() => setSpotifySetupOpen(true)}
+                          >
+                            {t('content.custom.edit')}
+                          </button>
+                          <button
+                            type="button"
+                            className="content-btn content-btn--danger"
+                            onClick={() => accountKey && void handleDeleteSpotifyAccount(accountKey)}
+                            disabled={deletingAccountId === accountKey}
+                          >
+                            {deletingAccountId === accountKey ? t('content.custom.removing') : t('content.custom.remove')}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  {spotifyBridges.map((bridge) => (
+                    <div key={bridge.id} className="content-list-row">
+                      <div className="content-list-row__main">
+                        <div className="content-list-row__title">{bridge.label || bridge.provider}</div>
+                        <div className="content-list-row__meta">
+                          {t(`content.bridge.providerNames.${bridge.provider}`, { defaultValue: bridge.provider })}
+                        </div>
+                      </div>
+                      <div className="content-list-row__actions">
+                        <button
+                          type="button"
+                          className="content-btn"
+                          onClick={() => openBridgeEditModal(bridge)}
+                          disabled={bridgeModalOpen}
+                        >
+                          {t('content.custom.edit')}
+                        </button>
+                        <button
+                          type="button"
+                          className="content-btn content-btn--danger"
+                          onClick={() => void handleBridgeDelete(bridge.id)}
+                          disabled={bridgeDeletingId === bridge.id}
+                        >
+                          {bridgeDeletingId === bridge.id ? t('content.custom.removing') : t('content.custom.remove')}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+      ) : null}
+
+
+      </SubPanel>
+
+      {spotifySetupOpen && (
+        <Modal
+          open
+          onClose={() => setSpotifySetupOpen(false)}
+          backdropClassName="bridge-modal-backdrop"
+          dialogClassName="bridge-modal"
+          ariaLabelledBy="spotify-setup-title"
+          closeOnBackdrop
+          closeOnEscape
+          bodyClasses={['modal-open']}
+          scrollToTop
+        >
+          <header className="bridge-modal__head">
+            <div className="bridge-modal__head-text">
+              <span className="bridge-modal__eyebrow">{t('content.streaming.spotifySetup.eyebrow')}</span>
+              <h3 id="spotify-setup-title" className="bridge-modal__title">
+                {t('content.streaming.spotifySetup.title')}
+              </h3>
+              <p className="bridge-modal__subtitle">{t('content.streaming.spotifySetup.subtitle')}</p>
+            </div>
+            <button
+              type="button"
+              className="bridge-modal__close"
+              aria-label={t('content.bridge.close')}
+              onClick={() => setSpotifySetupOpen(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </header>
+          <div className="bridge-modal__body">
             {hasSpotifyClientId && !spotifyClientIdEditing ? (
               <div className="spotify-configured-strip">
                 <span className="spotify-configured-strip__chip" aria-hidden="true">
@@ -3500,83 +3629,9 @@ export default function ContentView(): JSX.Element {
               </div>
             )}
 
-            <div
-              className={`source-card${
-                hasSpotifyClientId ? ' is-primary-card' : ' is-locked'
-              }`}
-            >
-              <div className="source-card__head">
-                <span className="source-card__chip source-card__chip--lg" aria-hidden="true">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                </span>
-                <div className="source-card__head-text">
-                  <h3 className="source-card__title">{t('content.spotify.accountsTitle')}</h3>
-                  <p className="source-card__desc">
-                    {t('content.spotify.accountsDesc')}
-                  </p>
-                </div>
-              </div>
-
-              {spotifyAccounts.length === 0 ? (
-                <div className="content-empty-info">
-                  <span className="content-empty-info__icon">i</span>
-                  <div className="content-empty-info__text">
-                    <div className="content-empty-info__title">{t('content.spotify.noAccountsTitle')}</div>
-                    <div className="content-empty-info__sub">{t('content.spotify.noAccountsSub')}</div>
-                  </div>
-                </div>
-              ) : (
-                <div className="content-list">
-                  {spotifyAccounts.map((account) => {
-                    const accountKey =
-                      account.id ?? account.user ?? account.email ?? account.displayName ?? account.name ?? '';
-                    const accountLabel =
-                      account.displayName ?? account.name ?? account.user ?? account.email ?? accountKey;
-                    return (
-                      <div key={accountKey} className="content-account-row">
-                        <span className="content-account-row__name">{accountLabel}</span>
-                        <button
-                          type="button"
-                          className="content-btn content-btn--danger"
-                          onClick={() => accountKey && void handleDeleteSpotifyAccount(accountKey)}
-                          disabled={deletingAccountId === accountKey}
-                        >
-                          {deletingAccountId === accountKey ? t('content.spotify.removingAccount') : t('content.spotify.removeAccount')}
-                        </button>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-
-              <p className="content-accounts-note">
-                {t('content.spotify.accountsNote')}
-              </p>
-
-              <div className="source-card__action-block">
-                <button
-                  type="button"
-                  className="content-btn content-btn--primary content-btn--full"
-                  onClick={() => void handleAddSpotifyAccount()}
-                  disabled={!hasSpotifyClientId || addingSpotifyAccount}
-                >
-                  {addingSpotifyAccount ? t('content.spotify.addingAccount') : t('content.spotify.addAccount')}
-                </button>
-                {!hasSpotifyClientId ? (
-                  <span className="source-card__action-reason">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="4" y="11" width="16" height="9" rx="2" />
-                      <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-                    </svg>
-                    {t('content.spotify.setClientIdFirst')}
-                  </span>
-                ) : null}
-              </div>
-            </div>
+            {/* Spotify accounts appear in the unified list above; add via the
+                "+ Add service" picker. Only Spotify's app client-ID + cache
+                remain here as Spotify-specific settings. */}
 
             <div className="content-toggle-card">
               <div className="content-toggle-card__info">
@@ -3623,85 +3678,91 @@ export default function ContentView(): JSX.Element {
                 </button>
               </div>
             ) : null}
-          </div>
-        </div>
-      ) : null}
-
-      {/* ============ CUSTOM SERVICES ============ */}
-      {displayedFilter === 'custom' ? (
-        <div className="source-layout">
-          <aside className="source-aside">
-            <span className="source-aside__eyebrow">{t('content.aside.eyebrow')}</span>
-            <h2 className="source-aside__title">{t('content.custom.title')}</h2>
-            <p className="source-aside__desc">
-              {t('content.custom.desc')}
-            </p>
-            <div className="source-aside__actions">
+            <div className="source-card__action-block" style={{ marginTop: 14 }}>
               <button
                 type="button"
-                className="content-btn content-btn--primary"
-                onClick={() => openBridgeModal()}
-                disabled={bridgeModalOpen}
+                className="content-btn content-btn--primary content-btn--full"
+                onClick={() => void handleAddSpotifyAccount()}
+                disabled={!hasSpotifyClientId || addingSpotifyAccount}
               >
-                {t('content.custom.addBridge')}
+                {addingSpotifyAccount ? t('content.spotify.addingAccount') : t('content.spotify.addAccount')}
               </button>
-            </div>
-          </aside>
-
-          <div className="source-cards">
-            <div className="source-card">
-              <div>
-                <h3 className="source-card__title">{t('content.custom.activeTitle')}</h3>
-                <p className="source-card__desc">
-                  {t('content.custom.activeDesc')}
-                </p>
-              </div>
-              {spotifyBridges.length === 0 ? (
-                <div className="content-empty-info">
-                  <span className="content-empty-info__icon">i</span>
-                  <div className="content-empty-info__text">
-                    <div className="content-empty-info__title">{t('content.custom.emptyTitle')}</div>
-                    <div className="content-empty-info__sub">
-                      {t('content.custom.emptySub')}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="content-list">
-                  {spotifyBridges.map((bridge) => (
-                    <div key={bridge.id} className="content-list-row">
-                      <div className="content-list-row__main">
-                        <div className="content-list-row__title">{bridge.label || bridge.provider}</div>
-                        <div className="content-list-row__meta">{bridge.provider}</div>
-                      </div>
-                      <div className="content-list-row__actions">
-                        <button
-                          type="button"
-                          className="content-btn"
-                          onClick={() => openBridgeEditModal(bridge)}
-                          disabled={bridgeModalOpen}
-                        >
-                          {t('content.custom.edit')}
-                        </button>
-                        <button
-                          type="button"
-                          className="content-btn content-btn--danger"
-                          onClick={() => void handleBridgeDelete(bridge.id)}
-                          disabled={bridgeDeletingId === bridge.id}
-                        >
-                          {bridgeDeletingId === bridge.id ? t('content.custom.removing') : t('content.custom.remove')}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {!hasSpotifyClientId ? (
+                <span className="source-card__action-reason">{t('content.spotify.setClientIdFirst')}</span>
+              ) : null}
             </div>
           </div>
-        </div>
-      ) : null}
+        </Modal>
+      )}
 
-      </SubPanel>
+      {addPickerOpen && (
+        <Modal
+          open
+          onClose={() => setAddPickerOpen(false)}
+          backdropClassName="bridge-modal-backdrop"
+          dialogClassName="bridge-modal"
+          ariaLabelledBy="add-service-title"
+          closeOnBackdrop
+          closeOnEscape
+          bodyClasses={['modal-open']}
+          scrollToTop
+        >
+          <header className="bridge-modal__head">
+            <div className="bridge-modal__head-text">
+              <span className="bridge-modal__eyebrow">{t('content.streaming.picker.eyebrow')}</span>
+              <h3 id="add-service-title" className="bridge-modal__title">{t('content.streaming.picker.title')}</h3>
+              <p className="bridge-modal__subtitle">{t('content.streaming.picker.subtitle')}</p>
+            </div>
+            <button
+              type="button"
+              className="bridge-modal__close"
+              aria-label={t('content.bridge.close')}
+              onClick={() => setAddPickerOpen(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </header>
+          <div className="bridge-modal__body">
+            <div className="bridge-modal__provider-grid">
+            {([
+              { id: 'spotify' as const, name: t('content.bridge.providerNames.spotify') },
+              { id: 'applemusic' as const, name: t('content.bridge.providerNames.applemusic') },
+              { id: 'tidal' as const, name: t('content.bridge.providerNames.tidal') },
+              { id: 'ytmusic' as const, name: t('content.bridge.providerNames.ytmusic') },
+              { id: 'youtube' as const, name: t('content.bridge.providerNames.youtube') },
+              { id: 'deezer' as const, name: t('content.bridge.providerNames.deezer') },
+              { id: 'soundcloud' as const, name: t('content.bridge.providerNames.soundcloud') },
+              { id: 'musicassistant' as const, name: t('content.bridge.providerNames.musicassistant') },
+            ]).map((p) => {
+              const logoUrl = resolveBridgeLogoUrl(p.id);
+              return (
+                <button
+                  key={p.id}
+                  type="button"
+                  className="bridge-modal__provider-tile"
+                  onClick={() => {
+                    setAddPickerOpen(false);
+                    if (p.id === 'spotify') {
+                      setSpotifySetupOpen(true);
+                    } else {
+                      openBridgeModal(p.id);
+                    }
+                  }}
+                >
+                  <span className="bridge-modal__provider-icon" aria-hidden="true">
+                    {logoUrl ? <img src={logoUrl} alt="" loading="lazy" /> : <span>{p.name.charAt(0)}</span>}
+                  </span>
+                  <span className="bridge-modal__provider-name">{p.name}</span>
+                </button>
+              );
+            })}
+            </div>
+          </div>
+        </Modal>
+      )}
 
       {bridgeModalOpen && (() => {
         const PROVIDERS: Array<{ id: BridgeFormState['provider']; name: string }> = [
@@ -3744,9 +3805,10 @@ export default function ContentView(): JSX.Element {
             { id: 'tidal-token', label: t('content.bridge.tokenStep') },
           ],
         };
-        // When editing an existing bridge the provider type is already fixed, so skip the
-        // provider-choice step and start directly at the configuration steps.
-        const flow = bridgeEditingId
+        // The provider is already fixed when editing, or when the "+ Add service"
+        // picker chose it — skip the provider-choice step in both cases and start
+        // directly at the configuration steps.
+        const flow = bridgeEditingId || bridgeProviderLocked
           ? FLOWS[bridgeForm.provider].filter((step) => step.id !== 'provider')
           : FLOWS[bridgeForm.provider];
         const totalSteps = flow.length;

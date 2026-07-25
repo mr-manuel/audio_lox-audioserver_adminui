@@ -33,11 +33,14 @@ export type ContentConfig = {
   radio?: { tuneInUsername?: string | null };
   spotify?: {
     accounts?: unknown[];
+    /** @deprecated Non-Spotify accounts moved to content.streamingServices. */
     bridges?: unknown[];
     clientId?: string | null;
     cacheEnabled?: boolean;
     cacheSizeMb?: number;
   };
+  /** Neutral streaming-service accounts (Apple Music, Tidal, …). */
+  streamingServices?: unknown[];
   library?: { enabled?: boolean; autoScan?: boolean };
   tts?: TtsConfig;
 };
