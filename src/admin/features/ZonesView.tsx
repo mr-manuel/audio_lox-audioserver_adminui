@@ -1175,6 +1175,11 @@ export default function ZonesView(): JSX.Element {
             next.airplay = { ...(next.airplay ?? {}), enabled };
             void handleInputChange(modalZone.id, next);
           }}
+          onDlnaToggle={(enabled) => {
+            const next = deriveZoneInputs(modalZone);
+            next.dlna = { ...(next.dlna ?? { publishName: modalZone.name }), enabled };
+            void handleInputChange(modalZone.id, next);
+          }}
           onSpotifyConnectToggle={(enabled) => handleSpotifyConnectToggle(modalZone, enabled)}
           onSpotifyOffloadToggle={(enabled) => handleSpotifyOffloadToggle(modalZone, enabled)}
           hasSpotifyAccounts={hasSpotifyAccounts}
@@ -1262,6 +1267,7 @@ type ZoneModalProps = {
   onStateControllerChange: (controller: string) => Promise<void>;
   onOutputLatency: (clientId: string | null, latencyMs: number) => void;
   onAirplayToggle: (enabled: boolean) => void;
+  onDlnaToggle: (enabled: boolean) => void;
   onSpotifyConnectToggle: (enabled: boolean) => void;
   onSpotifyOffloadToggle: (enabled: boolean) => void;
   hasSpotifyAccounts: boolean;
@@ -1288,6 +1294,7 @@ function ZoneModal({
   onStateControllerChange,
   onOutputLatency,
   onAirplayToggle,
+  onDlnaToggle,
   onSpotifyConnectToggle,
   onSpotifyOffloadToggle,
   hasSpotifyAccounts,
@@ -1305,6 +1312,7 @@ function ZoneModal({
   const inputs = zone.inputs ?? {};
   const airplayOn = Boolean(inputs.airplay?.enabled);
   const spotifyOn = Boolean(inputs.spotify?.enabled);
+  const dlnaOn = Boolean(inputs.dlna?.enabled);
   const currentTransport = getPrimaryTransport(zone);
   const currentTransportLabel = currentTransport
     ? transports.find((t) => t.id === effectiveTransportId(currentTransport))?.label ??
@@ -1485,6 +1493,25 @@ function ZoneModal({
                     className={`zones-hub__toggle${airplayOn ? ' is-on' : ''}`}
                     aria-label={t('zones.modal.airplayEnabled')}
                     onClick={() => onAirplayToggle(!airplayOn)}
+                    disabled={saving}
+                  />
+                </div>
+                <div className="zset-row">
+                  <span className="zset-row__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6" />
+                      <line x1="2" y1="20" x2="2.01" y2="20" />
+                    </svg>
+                  </span>
+                  <div className="zset-row__text">
+                    <span className="zset-row__title">{t('zones.card.dlna')}</span>
+                    <span className="zset-row__desc">{t('zones.modal.dlnaEnabled')}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className={`zones-hub__toggle${dlnaOn ? ' is-on' : ''}`}
+                    aria-label={t('zones.modal.dlnaEnabled')}
+                    onClick={() => onDlnaToggle(!dlnaOn)}
                     disabled={saving}
                   />
                 </div>

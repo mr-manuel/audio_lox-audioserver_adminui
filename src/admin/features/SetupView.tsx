@@ -334,6 +334,7 @@ export default function SetupView(): JSX.Element {
   const authEnabled = audioserver.authEnabled !== false;
   const airplayEnabled = Boolean(inputsConfig.airplay?.enabled ?? false);
   const spotifyEnabled = Boolean(inputsConfig.spotify?.enabled ?? false);
+  const dlnaEnabled = Boolean(inputsConfig.dlna?.enabled ?? false);
   const lineInCount = Array.isArray(inputsConfig.lineIn?.inputs) ? inputsConfig.lineIn.inputs.length : 0;
   const spotifyAccountsCount = Array.isArray(contentConfig.spotify?.accounts) ? contentConfig.spotify.accounts.length : 0;
   const spotifyBridgesCount = Array.isArray(contentConfig.spotify?.bridges) ? contentConfig.spotify.bridges.length : 0;
@@ -788,7 +789,7 @@ export default function SetupView(): JSX.Element {
     }
   }
 
-  async function toggleInput(key: 'airplay' | 'spotify' | 'bluetooth', next: boolean): Promise<void> {
+  async function toggleInput(key: 'airplay' | 'spotify' | 'bluetooth' | 'dlna', next: boolean): Promise<void> {
     if (inputsSaving) return;
     setInputsSaving(true);
     try {
@@ -1214,6 +1215,24 @@ export default function SetupView(): JSX.Element {
                     aria-label={t('setup.inputs.spotifyLabel')}
                     disabled={inputsSaving}
                     onClick={() => void toggleInput('spotify', !spotifyEnabled)}
+                  />
+                </div>
+              </div>
+
+              <div className="setup-row">
+                <div className="setup-row__info">
+                  <div className="setup-row__label">{t('setup.inputs.dlnaLabel')}</div>
+                  <div className="setup-row__desc">
+                    {t('setup.inputs.dlnaDesc')}
+                  </div>
+                </div>
+                <div className="setup-row__control">
+                  <button
+                    type="button"
+                    className={`setup-toggle${dlnaEnabled ? ' is-on' : ''}`}
+                    aria-label={t('setup.inputs.dlnaLabel')}
+                    disabled={inputsSaving}
+                    onClick={() => void toggleInput('dlna', !dlnaEnabled)}
                   />
                 </div>
               </div>

@@ -35,6 +35,7 @@ export type InputsUpdatePayload = {
   airplay?: { enabled?: boolean };
   spotify?: { enabled?: boolean };
   bluetooth?: { enabled?: boolean };
+  dlna?: { enabled?: boolean };
   lineIn?: { inputs?: Array<Record<string, unknown>> | null };
 };
 

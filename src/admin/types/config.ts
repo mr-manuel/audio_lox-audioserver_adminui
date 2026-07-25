@@ -61,6 +61,7 @@ export type InputsConfig = {
   airplay?: { enabled?: boolean };
   spotify?: { enabled?: boolean };
   bluetooth?: { enabled?: boolean };
+  dlna?: { enabled?: boolean };
   lineIn?: { inputs?: unknown[] | null };
 };
 
