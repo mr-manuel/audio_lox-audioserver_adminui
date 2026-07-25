@@ -26,6 +26,10 @@ export type SystemConfig = {
 };
 
 export type ContentConfig = {
+  /** DLNA/UPnP MediaServer exposing browsable content to other devices. */
+  mediaServer?: { enabled?: boolean; friendlyName?: string };
+  /** Subsonic API server; read the resolved state from /subsonic/status instead. */
+  subsonic?: { enabled?: boolean; providers?: string[]; directoryLimit?: number };
   radio?: { tuneInUsername?: string | null };
   spotify?: {
     accounts?: unknown[];

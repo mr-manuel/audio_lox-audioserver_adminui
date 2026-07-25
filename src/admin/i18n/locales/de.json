@@ -662,18 +662,21 @@
     "eyebrowPrefix": "Einrichtung · {{label}}",
     "tabs": {
       "config": "Konfiguration",
+      "loxone": "Loxone",
       "system": "Alarm-Engine",
       "updates": "Updates",
       "ariaLabel": "Einrichtungsbereiche"
     },
     "titles": {
-      "config": "AudioServer-Konfiguration",
+      "config": "Server-Konfiguration",
+      "loxone": "Loxone-Integration",
       "system": "Alarm-Engine",
       "updates": "Updates"
     },
     "subtitles": {
-      "config": "Kopplung, Verhalten, Eingänge und Diagnose dieser AudioServer-Instanz.",
-      "system": "Text-to-Speech und die mitgelieferten Alarmtondateien des AudioServers.",
+      "config": "Verhalten, Wiedergabe und Wartung dieses Servers.",
+      "loxone": "Miniserver-Kopplung, Konfigurationsabgleich und Zugriff für den Loxone-kompatiblen Betrieb.",
+      "system": "Text-to-Speech und die mitgelieferten Alarmtondateien des Servers.",
       "updates": "Installierte vs. neueste Version der Kernkomponenten. Externe Checks sind optional."
     },
     "loading": {
@@ -689,81 +692,58 @@
     "server": {
       "eyebrow": "Server",
       "title": "Server",
-      "desc": "Dieser Server läuft eigenständig — kein Miniserver nötig. Zonen, Eingänge und Verhalten verwaltest du hier.",
-      "statusStandalone": "Eigenständig"
+      "desc": "Läuft eigenständig — kein Miniserver nötig. Zonen, Eingänge und Verhalten verwaltest du hier.",
+      "descLoxone": "Mit einem Loxone Miniserver gekoppelt. Kopplung, Abgleich und Zugriff findest du im Loxone-Tab.",
+      "rowMode": "Modus",
+      "rowSerial": "Seriennummer",
+      "rowHost": "Host",
+      "statusStandalone": "Eigenständig",
+      "statusLoxone": "Loxone-integriert",
+      "copy": "Diagnose kopieren",
+      "copyHint": "Versionen, Laufzeit und Identität als Text für einen Fehlerbericht kopieren",
+      "copied": "Kopiert",
+      "copyFailedTitle": "Kopieren fehlgeschlagen",
+      "copyFailedMessage": "Der Browser hat den Zugriff auf die Zwischenablage blockiert — Werte bitte manuell markieren.",
+      "restart": "Server neu starten",
+      "restarting": "Neustart…"
     },
     "pairing": {
       "eyebrow": "Kopplung",
       "title": "Miniserver-Verbindung",
       "descPaired": "Dieser Server ist mit einem Loxone Miniserver gekoppelt. Der Miniserver sendet die Audiokonfiguration und steuert den Wiedergabestatus der verbundenen Zonen.",
-      "descUnpaired": "Der AudioServer ist online, aber noch nicht gekoppelt. In Loxone Config hinzufügen und das Projekt übertragen, um die Kopplung abzuschließen.",
-      "rowStatus": "Status",
+      "descUnpaired": "Der Server ist online, aber noch nicht gekoppelt. In Loxone Config hinzufügen und das Projekt übertragen, um die Kopplung abzuschließen.",
       "statusPaired": "Gekoppelt · Online",
       "statusAwaiting": "Wartet auf Kopplung",
       "rowMiniserver": "Miniserver",
-      "rowSerial": "Seriennummer",
-      "rowHost": "Host",
       "rowLastSync": "Letzte Synchronisierung",
       "notAvailable": "Nicht verfügbar",
       "forceResync": "Erneute Synchronisierung",
-      "restart": "AudioServer neu starten",
-      "restarting": "Neustart…",
-      "unpair": "Kopplung aufheben"
+      "unpair": "Kopplung aufheben",
+      "pairHint": "Diesen Server in Loxone Config als Audioserver hinzufügen und das Projekt übertragen. Die Kopplung schließt sich automatisch ab."
     },
     "crossfade": {
-      "eyebrow": "Verhalten",
-      "title": "Crossfade",
-      "desc": "Sanfter Übergang zwischen Titeln für alle Zonen. 0 deaktiviert die Funktion.",
       "rowLabel": "Überblenddauer",
       "rowDesc": "Gilt für alle Zonen, wenn ein Titel endet und der nächste beginnt.",
-      "seconds": "Sekunden"
+      "seconds": "Sekunden",
+      "off": "aus"
     },
     "auth": {
       "eyebrow": "Sicherheit",
       "title": "Authentifizierung",
-      "desc": "Login für die Admin-Oberfläche und den Player verlangen. Wirkt erst, sobald der AudioServer gekoppelt ist — während der Erstinrichtung ist der Assistent immer erreichbar.",
+      "desc": "Login für Admin-Oberfläche und Player verlangen. Die Anmeldedaten prüft der Miniserver — wirkt daher erst nach der Kopplung.",
       "rowLabel": "Passwort verlangen",
       "rowDesc": "Wenn aktiviert, müssen Benutzer sich anmelden, bevor sie die Admin-Tabs oder die Player-UI erreichen."
     },
-    "inputs": {
-      "eyebrow": "Eingänge",
-      "title": "Eingebaute Eingangs-Receiver",
-      "desc": "Receiver global aktivieren oder deaktivieren. Bei Aktivierung müssen einzelne Zonen sich im eigenen Einstellungs-Panel zusätzlich anmelden.",
-      "airplayLabel": "AirPlay",
-      "airplayDesc": "Auf AirPlay-Streams von iOS- und macOS-Geräten im Netzwerk lauschen.",
-      "spotifyLabel": "Spotify Connect",
-      "spotifyDesc": "Erfordert ein im Tab Inhalte konfiguriertes Spotify-Premium-Konto.",
-      "dlnaLabel": "DLNA",
-      "dlnaDesc": "Zonen als DLNA/UPnP-Renderer bereitstellen, damit Apps Audio dorthin streamen können (BubbleUPnP, mconnect, VLC).",
-      "bluetoothLabel": "Bluetooth",
-      "bluetoothDesc": "Smartphones und Laptops direkt mit dem AudioServer koppeln. Erfordert einen Bluetooth-Adapter am Host."
-    },
     "groups": {
-      "eyebrow": "Gruppen",
-      "title": "Gemischte Gruppen",
-      "desc": "Standardmäßig werden Mitglieder, die nicht zum Master-Ausgangsprotokoll passen, fallen gelassen, um die Synchronisierung zu erhalten. Gemischte Gruppen erlauben verschiedene Protokolle, dann spielen Zonen aber unabhängig — keine synchrone Wiedergabe. Auch mit gemischten Gruppen werden protokollbasierte Sync-Gruppen bevorzugt.",
       "rowLabel": "Gemischte Gruppen erlauben",
-      "rowDesc": "Erlaubt Zonen mit unterschiedlichen Ausgangsprotokollen, eine Gruppe zu teilen — auf Kosten der synchronen Wiedergabe."
-    },
-    "configTools": {
-      "eyebrow": "Konfigurations-Tools",
-      "title": "Export, Import, Zurücksetzen",
-      "desc": "AudioServer-Konfiguration sichern oder wiederherstellen oder komplett löschen. Beim Export/Import bleibt die Kopplung erhalten; Löschen entfernt alles, einschließlich der Kopplung.",
-      "exportConfig": "Konfiguration exportieren",
-      "importConfig": "Konfiguration importieren",
-      "clearConfig": "Konfiguration löschen"
+      "rowDesc": "Zonen mit unterschiedlichen Ausgabeprotokollen dürfen eine Gruppe bilden. Sie spielen gemeinsam, aber ohne exakte Synchronisierung.",
+      "note": "Eine Gruppe bevorzugt weiterhin protokollbasierte Synchronisierung — gemischte Gruppen greifen erst, wenn Mitglieder nicht zusammenpassen."
     },
     "diagnostics": {
-      "eyebrow": "Diagnose",
-      "title": "Build & Laufzeit",
-      "desc": "Snapshot des laufenden Systems — hilfreich bei Issues oder im Support-Gespräch.",
-      "server": "Server",
-      "adminUi": "Admin-UI",
       "runtime": "Laufzeit",
-      "uptime": "Laufzeit",
       "configCrc": "Config-CRC",
       "runtimeDocker": "Docker",
-      "runtimeStandalone": "Standalone (git)"
+      "runtimeStandalone": "Nativ (git)"
     },
     "tts": {
       "eyebrow": "Text-to-Speech",
@@ -887,7 +867,8 @@
       "restartFailedTitle": "Neustart fehlgeschlagen",
       "restartFailedDefault": "Neustart fehlgeschlagen",
       "clearConfirmTitle": "Konfiguration löschen?",
-      "clearConfirmMessage": "Entfernt die komplette AudioServer-Konfiguration inklusive Kopplung. Der AudioServer muss anschließend neu gekoppelt werden.",
+      "clearConfirmMessage": "Entfernt die komplette Server-Konfiguration — Zonen, Eingänge und Content-Einstellungen. Du beginnst von vorne.",
+      "clearConfirmMessageLoxone": "Entfernt die komplette Server-Konfiguration inklusive Miniserver-Kopplung. Der Server muss anschließend neu gekoppelt werden.",
       "clearConfirmOk": "Löschen",
       "clearedTitle": "Konfiguration gelöscht",
       "clearedMessage": "Die AudioServer-Konfiguration wurde zurückgesetzt.",
@@ -903,8 +884,6 @@
       "crossfadeFailedDefault": "Crossfade konnte nicht gespeichert werden",
       "authFailedTitle": "Authentifizierung-Speichern fehlgeschlagen",
       "authFailedDefault": "Authentifizierung konnte nicht aktualisiert werden",
-      "inputFailedTitle": "Eingang-Speichern fehlgeschlagen",
-      "inputFailedDefault": "{{key}} konnte nicht aktualisiert werden",
       "groupsFailedTitle": "Gruppen-Speichern fehlgeschlagen",
       "groupsFailedDefault": "Gruppen konnten nicht aktualisiert werden",
       "ttsSavedTitle": "TTS-Einstellungen gespeichert",
@@ -915,6 +894,41 @@
       "uploadCompleteMessage": "Event-Sound nach Event_Sounds/{{name}} hochgeladen.",
       "uploadFailedTitle": "Upload fehlgeschlagen",
       "uploadFailedDefault": "Event-Sound konnte nicht hochgeladen werden"
+    },
+    "playback": {
+      "eyebrow": "Verhalten",
+      "title": "Wiedergabe",
+      "desc": "Gilt für alle Zonen dieses Servers."
+    },
+    "maintenance": {
+      "eyebrow": "Wartung",
+      "title": "Server-Wartung",
+      "desc": "Dienst neu starten, Konfiguration sichern oder von vorne beginnen.",
+      "restartLabel": "Neustart",
+      "restartDesc": "Initialisiert die Audio-Engine neu. Laufende Streams brechen für einige Sekunden ab.",
+      "backupLabel": "Sichern & wiederherstellen",
+      "backupDesc": "Die komplette Konfiguration als JSON herunterladen oder eine exportierte Datei einspielen.",
+      "clearLabel": "Konfiguration löschen",
+      "clearDesc": "Löscht Zonen, Eingänge und Content-Einstellungen. Das lässt sich nicht rückgängig machen.",
+      "clearDescLoxone": "Löscht alles inklusive Miniserver-Kopplung. Das lässt sich nicht rückgängig machen.",
+      "clearAction": "Löschen",
+      "exportAction": "Konfiguration exportieren",
+      "importAction": "Konfiguration importieren"
+    },
+    "sync": {
+      "eyebrow": "Abgleich",
+      "title": "Konfigurationsabgleich",
+      "desc": "Was der Miniserver zuletzt an diesen Server übertragen hat.",
+      "zones": "Zonen",
+      "extensions": "Extensions",
+      "note": "Zonen, Gruppen und Favoriten kommen aus deinem Loxone-Projekt. Ändere sie in Loxone Config und übertrage das Projekt — ein Abgleich holt die neue Konfiguration."
+    },
+    "unpair": {
+      "eyebrow": "Gefahrenzone",
+      "title": "Kopplung aufheben",
+      "desc": "Diesen Server vom Miniserver trennen.",
+      "rowDesc": "Entfernt die Kopplung und die übertragene Konfiguration. Zum Wiederherstellen erneut aus Loxone Config koppeln.",
+      "rowLabel": "Kopplung & Konfiguration löschen"
     }
   },
   "shell": {
@@ -1233,6 +1247,92 @@
       "powerFailedDefault": "Energieverwaltung konnte nicht aktualisiert werden: {{error}}",
       "equalizerFailedDefault": "Equalizer-Forwarding konnte nicht aktualisiert werden: {{error}}",
       "powerGroupsFailedDefault": "Gemeinsame Power-Gruppen konnten nicht aktualisiert werden: {{error}}"
+    }
+  },
+  "protocols": {
+    "eyebrow": "Protokolle",
+    "title": "Protokolle & Dienste",
+    "subtitle": "Was dieser Server empfängt, wohin er abspielt und was er im Netzwerk bereitstellt.",
+    "cancel": "Abbrechen",
+    "loading": {
+      "title": "Protokolle werden geladen",
+      "message": "Eingänge, Ausgänge und Server werden abgerufen…"
+    },
+    "errorState": {
+      "title": "Protokolle nicht verfügbar",
+      "retry": "Wiederholen"
+    },
+    "inputs": {
+      "eyebrow": "Eingänge",
+      "title": "In eine Zone empfangen",
+      "desc": "Empfänger, die dieser Server im Netzwerk anbietet. Jeder aktivierte Empfänger kann eine Zone übernehmen.",
+      "note": "Aktivieren macht einen Empfänger verfügbar; jede Zone entscheidet in ihren eigenen Einstellungen, ob sie ihn nutzt.",
+      "airplayLabel": "AirPlay",
+      "airplayDesc": "Direkt von iPhone, iPad und Mac in eine Zone streamen.",
+      "spotifyLabel": "Spotify Connect",
+      "spotifyDesc": "Zonen erscheinen in Spotify als Lautsprecher. Benötigt ein Premium-Konto unter Content.",
+      "dlnaLabel": "DLNA",
+      "dlnaDesc": "Zonen erscheinen als UPnP-Renderer für BubbleUPnP, mconnect und VLC.",
+      "failedTitle": "Eingang speichern fehlgeschlagen",
+      "failedMessage": "{{key}} konnte nicht aktualisiert werden"
+    },
+    "outputs": {
+      "eyebrow": "Ausgänge",
+      "title": "Auf ein Gerät abspielen",
+      "desc": "Ausgangstypen, die beim Einrichten einer Zone angeboten werden. Was diese Installation nie nutzt, hältst du hier aus der Auswahl heraus.",
+      "note": "Das steuert nur die Verfügbarkeit: Eine Zone, die einen Ausgang bereits nutzt, spielt weiter — der Typ verschwindet lediglich aus der Auswahl.",
+      "count": "{{enabled}} von {{total}} aktiv",
+      "inUse_one": "{{count}} Zone",
+      "inUse_other": "{{count}} Zonen",
+      "loading": "Ausgangskatalog wird geladen…",
+      "unavailable": "Der Server hat keine Ausgangstypen geliefert.",
+      "disableConfirmTitle": "{{label}} deaktivieren?",
+      "disableConfirmMessage_one": "{{count}} Zone nutzt diesen Ausgang. Sie spielt weiter, der Typ wird beim Einrichten aber nicht mehr angeboten.",
+      "disableConfirmMessage_other": "{{count}} Zonen nutzen diesen Ausgang. Sie spielen weiter, der Typ wird beim Einrichten aber nicht mehr angeboten.",
+      "disableConfirmOk": "Deaktivieren",
+      "failedTitle": "Ausgang speichern fehlgeschlagen",
+      "failedMessage": "{{label}} konnte nicht aktualisiert werden"
+    },
+    "servers": {
+      "eyebrow": "Server",
+      "title": "Im Netzwerk bereitstellen",
+      "desc": "Dienste, die dieser Server veröffentlicht, damit andere Apps und Geräte seine Inhalte durchsuchen und abspielen können.",
+      "required": "Erforderlich",
+      "requiredHint": "Dieses Protokoll lässt sich nicht abschalten.",
+      "dlnaLabel": "DLNA-MediaServer",
+      "dlnaDesc": "Veröffentlicht Bibliothek, Radio und Streaming-Bridges als UPnP-Medienserver, sodass jeder DLNA-Player darin blättern und Titel abrufen kann.",
+      "loxoneLabel": "Loxone Audioserver",
+      "loxoneDescLoxone": "Spricht das Loxone-Audioserver-Protokoll mit dem Miniserver und der Loxone-App. Im Loxone-Modus immer aktiv.",
+      "loxoneDescStandalone": "Läuft nicht. Eigenständig schaltet die komplette Loxone-Rolle ab — Protokollserver, Miniserver-Handshake und Befehls-Engine. Die Player-App spricht weiterhin dieses Protokoll und bleibt daher unbenutzbar, bis sie auf eine native API umzieht.",
+      "subsonicLabel": "Subsonic",
+      "subsonicDesc": "Stellt dieselben Inhalte über die Subsonic-API bereit — für Clients wie Symfonium, Amperfy, DSub und Feishin.",
+      "subsonicSave": "Speichern",
+      "saving": "Speichern…",
+      "failedTitle": "Server speichern fehlgeschlagen",
+      "failedMessage": "Die Servereinstellungen konnten nicht aktualisiert werden",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "subsonicUrl": "Server-URL",
+      "subsonicLimit": "Verzeichnislimit",
+      "subsonicLimitRange": "Das Verzeichnislimit muss zwischen {{min}} und {{max}} liegen.",
+      "subsonicUnknownProvider": "Unbekannter Dienst: {{providers}}",
+      "subsonicExposed": "Bereitgestellte Dienste",
+      "serviceBrowseSearch": "Blättern · Suche",
+      "serviceBrowseOnly": "Nur blättern",
+      "serviceHidden": "Ausgeblendet",
+      "subsonicLimitations": "Clients können blättern, suchen und abspielen. Sterne und Bewertungen werden angenommen, aber nicht gespeichert; Playlists sind schreibgeschützt.",
+      "serviceSources_one": "{{count}} Quelle",
+      "serviceSources_other": "{{count}} Quellen",
+      "subsonicSignIn": "Anmelden mit",
+      "authLoxone": "Loxone-Konten",
+      "authLocal": "Lokale Konten",
+      "authNone": "Keine Konten — niemand kann sich anmelden",
+      "subsonicNoCredentials": "Lege zuerst unter Benutzer ein Konto an — dieser Server hat keinen Miniserver zur Authentifizierung.",
+      "subsonicTokenWarning": "Es gibt keine lokalen Konten, daher müssen Clients Klartext-Authentifizierung verwenden: Die Token-Anmeldung (Standard in den meisten Subsonic-Clients) braucht ein Passwort, das dieser Server lesen kann — ein Loxone-Konto gibt das nie heraus.",
+      "settingsSavedTitle": "Subsonic-Einstellungen gespeichert",
+      "settingsSavedMessage": "Das neue Verzeichnislimit gilt ab der nächsten Anfrage.",
+      "loxoneOff": "Aus im Standalone",
+      "loxoneOffHint": "Im eigenständigen Modus läuft kein Loxone-Protokollserver."
     }
   }
 }

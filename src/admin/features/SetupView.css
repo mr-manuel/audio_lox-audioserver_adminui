@@ -355,37 +355,42 @@
   background: rgba(239, 68, 68, 0.08);
 }
 
-/* ---- Pairing status block (info card) ---- */
-.setup-info-card {
+/* ---- Facts strip -------------------------------------------------------
+   Dense read-only key/value band that fills the width of a section instead
+   of stacking label/value rows down one narrow column. Auto-fit means the
+   same markup reads as a 4-up strip on desktop and a 2-up grid on a phone. */
+.setup-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
   margin: 0 18px 18px;
-  padding: 16px 18px;
   background: rgba(255, 255, 255, 0.02);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 12px;
-  position: relative;
   overflow: hidden;
 }
 
-.setup-info-card::before {
+.setup-facts__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 14px 18px;
+  min-width: 0;
+}
+
+/* Hairline between neighbours. Only ever wrong on the first item of a wrapped
+   row, which the breakpoints below take care of. */
+.setup-facts__item + .setup-facts__item::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg, transparent, var(--accent) 25%, var(--accent) 75%, transparent);
-  opacity: 0.5;
+  top: 12px;
+  bottom: 12px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.07);
 }
 
-.setup-info-row {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 16px;
-  align-items: baseline;
-  padding: 4px 0;
-}
-
-.setup-info-label {
+.setup-facts__label {
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 1.6px;
@@ -394,36 +399,44 @@
   text-transform: uppercase;
 }
 
-.setup-info-value {
+.setup-facts__value {
   font-family: var(--font-mono);
   font-size: 13px;
   color: var(--text);
   font-weight: 700;
   letter-spacing: -0.1px;
+  overflow-wrap: anywhere;
 }
 
-.setup-info-value--status {
+.setup-facts__value--muted {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ---- Live status value (pulsing dot) ---- */
+.setup-status {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   color: var(--accent);
 }
 
-.setup-info-value--status::before {
+.setup-status::before {
   content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
+  flex-shrink: 0;
   background: var(--accent);
   box-shadow: 0 0 6px rgba(74, 222, 128, 0.6);
   animation: setup-pulse 1.8s ease-out infinite;
 }
 
-.setup-info-value--status-warn {
+.setup-status--warn {
   color: var(--warn);
 }
 
-.setup-info-value--status-warn::before {
+.setup-status--warn::before {
   background: var(--warn);
   box-shadow: 0 0 6px rgba(245, 158, 11, 0.6);
   animation-name: setup-pulse-warn;
@@ -453,13 +466,424 @@
   }
 }
 
-.setup-info-value a {
-  color: var(--accent);
-  text-decoration: none;
+/* ---- Connection band (Loxone tab) --------------------------------------
+   Miniserver ⇄ this server, drawn as two nodes joined by a wire. The wire
+   carries a travelling dot while paired and turns into an amber dashed line
+   while waiting, so the pairing state is readable without parsing text. */
+.setup-link {
+  margin: 0 18px 18px;
+  padding: 26px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  background:
+    radial-gradient(120% 160% at 50% -20%, rgba(74, 222, 128, 0.06), transparent 62%),
+    rgba(255, 255, 255, 0.02);
 }
 
-.setup-info-value a:hover {
-  text-decoration: underline;
+.setup-link--warn {
+  background:
+    radial-gradient(120% 160% at 50% -20%, rgba(245, 158, 11, 0.07), transparent 62%),
+    rgba(255, 255, 255, 0.02);
+}
+
+/* Nodes take their natural width so the wire absorbs every remaining pixel and
+   visibly reaches both boxes; the whole composition stays centred in the band. */
+.setup-link__inner {
+  display: grid;
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.setup-link__node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+}
+
+.setup-link__icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 4px;
+  border-radius: 13px;
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.setup-link__node--self .setup-link__icon {
+  color: var(--accent);
+  background: rgba(74, 222, 128, 0.08);
+  border-color: rgba(74, 222, 128, 0.28);
+  box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.05);
+}
+
+.setup-link__name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.1px;
+  color: var(--text);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.setup-link__meta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-dim);
+  overflow-wrap: anywhere;
+}
+
+/* The wire runs through the badge at icon height, so the two nodes read as
+   physically connected. 12px = icon half-height minus half the badge. */
+.setup-link__wire {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: start;
+  margin-top: 12px;
+}
+
+.setup-link__line {
+  position: relative;
+  flex: 1;
+  min-width: 24px;
+  height: 2px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.setup-link__line--in {
+  background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.5) 70%);
+}
+
+.setup-link__line--out {
+  background: linear-gradient(90deg, rgba(74, 222, 128, 0.5) 30%, transparent);
+}
+
+/* Offset the second dot so something is always in flight across the pair. */
+.setup-link__line--out::after {
+  animation-delay: -1.4s;
+}
+
+.setup-link__line::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.9);
+  animation: setup-wire 2.8s linear infinite;
+}
+
+.setup-link--warn .setup-link__line {
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(245, 158, 11, 0.5) 0 6px,
+    transparent 6px 13px
+  );
+}
+
+.setup-link--warn .setup-link__line::after {
+  display: none;
+}
+
+@keyframes setup-wire {
+  0% {
+    left: -8px;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  88% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% + 2px);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .setup-link__line::after,
+  .setup-status::before {
+    animation: none;
+  }
+}
+
+/* ---- Protocol tiles -----------------------------------------------------
+   A flat on/off catalogue (inputs, output types) where every entry is the same
+   shape: icon, name, one line of what it does, a switch. Tiles beat rows here
+   because there are ten of them and the label is the thing you scan for. */
+.setup-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(268px, 1fr));
+  gap: 12px;
+  padding: 4px 18px 18px;
+}
+
+.setup-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.setup-tile:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.setup-tile.is-on {
+  border-color: var(--border-accent);
+  background: rgba(74, 222, 128, 0.04);
+}
+
+.setup-tile--locked {
+  opacity: 0.7;
+}
+
+.setup-tile__head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.setup-tile__icon {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-dim);
+}
+
+.setup-tile.is-on .setup-tile__icon {
+  color: var(--accent);
+  border-color: rgba(74, 222, 128, 0.24);
+}
+
+.setup-tile__icon img {
+  width: 17px;
+  height: 17px;
+  opacity: 0.85;
+}
+
+.setup-tile__name {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.1px;
+  color: var(--text);
+}
+
+.setup-tile__desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.setup-tile__foot {
+  margin-top: auto;
+  padding-top: 9px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.setup-tile__foot--accent {
+  color: var(--accent);
+}
+
+/* ---- Detail panel under a settings row (a server's own settings) ---- */
+.setup-subpanel {
+  margin: 0 18px 18px;
+  padding: 4px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.setup-subpanel > .setup-facts,
+.setup-subpanel > .setup-subform,
+.setup-subpanel > .setup-note {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.setup-facts__value--link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.setup-linkcopy {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-dim);
+  border-radius: 6px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  min-height: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.setup-linkcopy:hover {
+  color: var(--text);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* ---- Compact tile: same language as the protocol tiles, one line of caption
+   instead of a paragraph, for dense sub-grids inside a panel. ---- */
+.setup-tiles--compact {
+  grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+  gap: 10px;
+  padding: 0 0 14px;
+}
+
+.setup-tile--compact {
+  gap: 6px;
+  padding: 11px 12px;
+}
+
+.setup-tile--compact .setup-tile__icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+}
+
+.setup-tile--compact .setup-tile__icon img {
+  width: 15px;
+  height: 15px;
+}
+
+.setup-tile--compact .setup-tile__name {
+  font-size: 13px;
+}
+
+.setup-tile__caption {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.setup-tile--compact.is-on .setup-tile__caption {
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+/* Label above a sub-grid inside a panel. */
+.setup-fieldlabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+/* ---- Nested form inside a settings row (server credentials) ---- */
+.setup-subform {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 10px;
+  margin: 0 18px 18px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.setup-subform__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.setup-subform__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* ---- Inline explainer ---- */
+.setup-note {
+  display: flex;
+  gap: 10px;
+  margin: 0 18px 18px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+.setup-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: var(--text-dim);
+}
+
+.setup-note strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* ---- Destructive setting row ---- */
+.setup-row--danger {
+  border-radius: 10px;
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.06), transparent 55%);
+  padding-left: 12px;
+  padding-right: 4px;
+  margin-top: 4px;
+}
+
+.setup-row--danger .setup-row__label {
+  color: #fca5a5;
+}
+
+/* Section that spans the whole config grid instead of one column. */
+.setup-grid > .setup-section--full {
+  grid-column: 1 / -1;
 }
 
 .setup-actions {
@@ -740,6 +1164,7 @@
 .setup-badge {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   gap: 7px;
   padding: 4px 10px;
   background: rgba(255, 255, 255, 0.04);
@@ -1055,9 +1480,30 @@ a.setup-webapp__chip--ok:hover {
   .setup-row__control {
     justify-self: flex-start;
   }
-  .setup-info-row {
+  /* Two-up facts: the hairline belongs between the pair, never at the row start. */
+  .setup-facts {
+    grid-template-columns: 1fr 1fr;
+  }
+  .setup-facts__item:nth-child(odd)::before {
+    display: none;
+  }
+  .setup-facts__item:nth-child(n + 3) {
+    border-top: 1px solid rgba(255, 255, 255, 0.07);
+  }
+  /* Stack the two nodes; the wire becomes a short connector between them. */
+  .setup-link {
+    padding: 20px 16px;
+  }
+  .setup-link__inner {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+  .setup-link__wire {
+    align-self: center;
+    margin-top: 0;
+    padding: 10px 0;
+    width: 80%;
+    justify-self: center;
   }
   .setup-tts-providers {
     grid-template-columns: 1fr;
@@ -1069,4 +1515,22 @@ a.setup-webapp__chip--ok:hover {
     grid-template-columns: 1fr;
     gap: 2px;
   }
+}
+
+/* Warn-toned variant of the inline explainer. */
+.setup-note--warn {
+  border-color: rgba(245, 158, 11, 0.22);
+  background: rgba(245, 158, 11, 0.05);
+  color: var(--text);
+}
+
+.setup-note--warn svg {
+  color: var(--warn);
+}
+
+/* A field plus its save button, inline inside a facts cell. */
+.setup-inlineform {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }

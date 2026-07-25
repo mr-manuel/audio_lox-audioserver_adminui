@@ -2843,6 +2843,10 @@ function ZoneOutputEditor({
     : maBridges.some((b) => b.mode === 'sink' && b.enabled);
   const moduleOptions = definitions
     .filter((definition) => definition.id !== 'snapcast-cast')
+    // Output types switched off under Setup → Protocols are not offered here.
+    // The one already saved on this zone stays listed regardless, so turning a
+    // type off never silently rewrites a zone that is using it.
+    .filter((definition) => definition.enabled !== false || definition.id === selectedId)
     .map((definition) => {
       const active = definition.id === selectedId;
       // Disable MA output if no sink-mode bridge exists yet — keeps the option

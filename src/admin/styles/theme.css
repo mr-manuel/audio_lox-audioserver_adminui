@@ -351,6 +351,9 @@ body[data-theme='light'] .album-strip,
 body[data-theme='light'] .library-summary,
 body[data-theme='light'] .spotify-configured-strip,
 body[data-theme='light'] .content-spec-row,
+body[data-theme='light'] .setup-facts,
+body[data-theme='light'] .setup-link,
+body[data-theme='light'] .setup-note,
 body[data-theme='light'] .logs-statusbar {
   background: #F3F5F7;
   border-color: rgba(17, 24, 39, 0.14);

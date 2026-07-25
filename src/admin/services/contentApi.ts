@@ -29,7 +29,14 @@ export type ContentUpdatePayload = {
         };
     fallbackToInternal?: boolean;
   };
+  /** DLNA/UPnP MediaServer that exposes browsable content to other devices. */
+  mediaServer?: {
+    enabled?: boolean;
+    friendlyName?: string;
+  };
 };
+
+export type OutputsUpdatePayload = Record<string, { enabled: boolean }>;
 
 export type InputsUpdatePayload = {
   airplay?: { enabled?: boolean };
@@ -54,6 +61,16 @@ export async function updateInputsConfig(payload: InputsUpdatePayload): Promise<
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
     errorMessage: 'Failed to update input settings',
+  });
+}
+
+/** Availability of output types, keyed by output id — gates the zone picker. */
+export async function updateOutputsConfig(payload: OutputsUpdatePayload): Promise<void> {
+  await requestOk(`${API_BASE}/config/outputs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    errorMessage: 'Failed to update output settings',
   });
 }
 
@@ -216,19 +233,23 @@ export type CreateSpotifyBridgePayload = {
   mode?: 'source' | 'sink';
 };
 
+// Non-Spotify services are first-class streaming accounts, not "Spotify
+// bridges" — that framing is a Loxone-adapter detail. The server exposes them
+// under the neutral /content/services route (the /spotify/bridges alias still
+// works, but new clients use the neutral one).
 export async function createSpotifyBridge(payload: CreateSpotifyBridgePayload): Promise<{ bridge: SpotifyBridgeConfig }> {
-  return requestJson(`${API_BASE}/spotify/bridges`, {
+  return requestJson(`${API_BASE}/content/services`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    errorMessage: 'Failed to add bridge',
+    errorMessage: 'Failed to add streaming service',
   });
 }
 
 export async function deleteSpotifyBridge(id: string): Promise<void> {
-  await requestOk(`${API_BASE}/spotify/bridges/${encodeURIComponent(id)}`, {
+  await requestOk(`${API_BASE}/content/services/${encodeURIComponent(id)}`, {
     method: 'DELETE',
-    errorMessage: 'Failed to remove bridge',
+    errorMessage: 'Failed to remove streaming service',
   });
 }
 
