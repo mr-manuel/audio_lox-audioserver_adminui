@@ -32,12 +32,12 @@
   "content": {
     "eyebrow": "Inhalte",
     "title": "Inhalte",
-    "subtitle": "Eingebaute Loxone-Quellen, externe Bridges und eigene Streams.",
+    "subtitle": "Eingebaute Quellen, Streaming-Dienste und eigene Streams.",
     "stats": {
       "customStreams": "Eigene Streams",
       "libraryTracks": "Bibliothek-Titel",
       "spotifyAccounts": "Spotify-Konten",
-      "activeBridges": "Aktive Bridges"
+      "activeBridges": "Aktive Dienste"
     },
     "subTabs": {
       "ariaLabel": "Inhalt-Unterbereiche",
@@ -407,13 +407,13 @@
       }
     },
     "custom": {
-      "title": "Eigene Dienste",
-      "desc": "Loxone unterstützt nativ nur Spotify. Um weitere Dienste in der App anzubieten, kommen Bridge-Provider zum Einsatz. Jede Bridge bildet einen externen Dienst auf ein virtuelles Spotify-Konto ab, sodass Loxone mehrere nicht unterstützte Quellen anzeigen kann.",
-      "addBridge": "+ Bridge hinzufügen",
-      "activeTitle": "Aktive Bridges",
-      "activeDesc": "Jede Bridge erscheint in der Loxone-App als eigene Spotify-kompatible Quelle.",
-      "emptyTitle": "Noch keine eigenen Dienste konfiguriert",
-      "emptySub": "Bridge hinzufügen, um Music Assistant, Apple Music, YouTube Music, Deezer oder Tidal anzubieten.",
+      "title": "Streaming-Dienste",
+      "desc": "Füge deine Streaming-Konten hinzu — Apple Music, Tidal, Deezer, SoundCloud, YouTube Music oder Music Assistant. Sie stehen dem Medienserver (DLNA), Subsonic und dem Player zur Verfügung. Wenn die Loxone-Rolle aktiv ist, wird jedes zusätzlich als Spotify-kompatible Quelle angeboten, sodass die Loxone-App es auflisten kann.",
+      "addBridge": "+ Dienst hinzufügen",
+      "activeTitle": "Aktive Dienste",
+      "activeDesc": "Wenn die Loxone-Rolle aktiv ist, erscheint jeder Dienst zusätzlich als eigene Spotify-kompatible Quelle in der Loxone-App.",
+      "emptyTitle": "Noch keine Streaming-Dienste konfiguriert",
+      "emptySub": "Dienst hinzufügen, um Apple Music, Tidal, Deezer, SoundCloud, YouTube Music oder Music Assistant verfügbar zu machen.",
       "edit": "Bearbeiten",
       "remove": "Entfernen",
       "removing": "Entfernen…"
@@ -421,16 +421,16 @@
     "bridge": {
       "editEyebrow": "Eigenen Dienst bearbeiten",
       "newEyebrow": "Neuer eigener Dienst",
-      "editTitle": "Bridge bearbeiten",
-      "newTitle": "Bridge hinzufügen",
-      "subtitle": "Einen überbrückten Dienst als Spotify-kompatible Quelle anbieten",
+      "editTitle": "Dienst bearbeiten",
+      "newTitle": "Dienst hinzufügen",
+      "subtitle": "Ein Streaming-Konto hinzufügen und die Verbindung wählen",
       "close": "Schließen",
-      "wizardAriaLabel": "Bridge-Assistent-Fortschritt",
+      "wizardAriaLabel": "Dienst-Assistent-Fortschritt",
       "back": "← Zurück",
       "next": "Weiter →",
       "saving": "Speichern…",
-      "saveBridge": "Bridge speichern",
-      "addBridge": "Bridge hinzufügen",
+      "saveBridge": "Dienst speichern",
+      "addBridge": "Dienst hinzufügen",
       "providerStep": "Anbieter",
       "connectionStep": "Verbindung",
       "modeStep": "Modus",
@@ -438,7 +438,7 @@
       "cookieStep": "Cookie",
       "apiKeyStep": "API-Schlüssel",
       "providerTitle": "Anbieter wählen",
-      "providerDesc": "Wählen, welcher Dienst über die Spotify-kompatible Bridge angeboten werden soll.",
+      "providerDesc": "Wähle, welchen Streaming-Dienst du hinzufügen möchtest.",
       "providerNames": {
         "applemusic": "Apple Music",
         "tidal": "Tidal",
@@ -448,7 +448,7 @@
         "soundcloud": "SoundCloud",
         "musicassistant": "Music Assistant"
       },
-      "detailKicker": "Bridge-Setup-Details",
+      "detailKicker": "Dienst-Setup-Details",
       "nameLabel": "Anzeigename",
       "nameHelp": "Wird in der Loxone-App angezeigt. Gib jedem Konto einen eindeutigen Namen, um mehrere Logins desselben Dienstes zu unterscheiden.",
       "ma": {

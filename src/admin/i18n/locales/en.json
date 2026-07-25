@@ -32,12 +32,12 @@
   "content": {
     "eyebrow": "Content",
     "title": "Content",
-    "subtitle": "Built-in Loxone sources, external bridges, and custom streams.",
+    "subtitle": "Built-in sources, streaming services, and custom streams.",
     "stats": {
       "customStreams": "Custom streams",
       "libraryTracks": "Library tracks",
       "spotifyAccounts": "Spotify accounts",
-      "activeBridges": "Active bridges"
+      "activeBridges": "Active services"
     },
     "subTabs": {
       "ariaLabel": "Content sub-sections",
@@ -407,13 +407,13 @@
       }
     },
     "custom": {
-      "title": "Custom services",
-      "desc": "Loxone only supports Spotify natively. To expose other services inside the app we introduce bridge providers. Each bridge maps one external service to one virtual Spotify account so Loxone can list multiple unsupported sources.",
-      "addBridge": "+ Add bridge",
-      "activeTitle": "Active bridges",
-      "activeDesc": "Each bridge appears as its own Spotify-compatible source in the Loxone app.",
-      "emptyTitle": "No custom services configured yet",
-      "emptySub": "Add a bridge to expose Music Assistant, Apple Music, YouTube Music, Deezer, or Tidal.",
+      "title": "Streaming services",
+      "desc": "Add your streaming accounts — Apple Music, Tidal, Deezer, SoundCloud, YouTube Music, or Music Assistant. They're available to the media server (DLNA), Subsonic and the player. When the Loxone role is enabled, each is also exposed as a Spotify-compatible source so the Loxone app can list it.",
+      "addBridge": "+ Add service",
+      "activeTitle": "Active services",
+      "activeDesc": "When the Loxone role is on, each service also appears as its own Spotify-compatible source in the Loxone app.",
+      "emptyTitle": "No streaming services configured yet",
+      "emptySub": "Add a service to make Apple Music, Tidal, Deezer, SoundCloud, YouTube Music or Music Assistant available.",
       "edit": "Edit",
       "remove": "Remove",
       "removing": "Removing…"
@@ -421,16 +421,16 @@
     "bridge": {
       "editEyebrow": "Edit custom service",
       "newEyebrow": "New custom service",
-      "editTitle": "Edit bridge",
-      "newTitle": "Add a bridge",
-      "subtitle": "Expose a bridged service as a Spotify-compatible source",
+      "editTitle": "Edit service",
+      "newTitle": "Add a service",
+      "subtitle": "Add a streaming account and choose how to connect it",
       "close": "Close",
-      "wizardAriaLabel": "Bridge wizard progress",
+      "wizardAriaLabel": "Service wizard progress",
       "back": "← Back",
       "next": "Next →",
       "saving": "Saving…",
-      "saveBridge": "Save bridge",
-      "addBridge": "Add bridge",
+      "saveBridge": "Save service",
+      "addBridge": "Add service",
       "providerStep": "Provider",
       "connectionStep": "Connection",
       "modeStep": "Mode",
@@ -438,7 +438,7 @@
       "cookieStep": "Cookie",
       "apiKeyStep": "API key",
       "providerTitle": "Choose provider",
-      "providerDesc": "Pick which service you want to expose through the Spotify-compatible bridge.",
+      "providerDesc": "Pick which streaming service you want to add.",
       "providerNames": {
         "applemusic": "Apple Music",
         "tidal": "Tidal",
@@ -448,7 +448,7 @@
         "soundcloud": "SoundCloud",
         "musicassistant": "Music Assistant"
       },
-      "detailKicker": "Bridge setup details",
+      "detailKicker": "Service setup details",
       "nameLabel": "Display name",
       "nameHelp": "Shown in the Loxone app. Give each account a distinct name to tell multiple logins of the same service apart.",
       "ma": {
