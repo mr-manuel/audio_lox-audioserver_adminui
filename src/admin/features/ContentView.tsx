@@ -778,6 +778,10 @@ export default function ContentView(): JSX.Element {
   // The "+ Add service" picker already chose the provider, so the wizard skips
   // its own provider step (no redundant, Spotify-less second provider screen).
   const [bridgeProviderLocked, setBridgeProviderLocked] = React.useState(false);
+  // Radio providers, managed like streaming services: a picker + provider list.
+  const [radioPickerOpen, setRadioPickerOpen] = React.useState(false);
+  const [tuneInModalOpen, setTuneInModalOpen] = React.useState(false);
+  const [radioParadiseEnabled, setRadioParadiseEnabled] = React.useState(true);
   const [appleAuthOpen, setAppleAuthOpen] = React.useState(false);
   const [appleAuthHeight, setAppleAuthHeight] = React.useState(180);
   const [appleMusicWidevineStatus, setAppleMusicWidevineStatus] = React.useState<AppleMusicWidevineStatus | null>(null);
@@ -819,7 +823,6 @@ export default function ContentView(): JSX.Element {
     validationMessage: radioValidationMessage,
     validationStatus: radioValidationStatus,
   } = radioState;
-  const radioParadiseEnabled = true;
   const {
     clientId: spotifyClientId,
     initialClientId: initialSpotifyClientId,
@@ -1059,6 +1062,7 @@ export default function ContentView(): JSX.Element {
         const cfg = (await getConfig()) as ContentConfigResponse;
         if (signal?.aborted) return;
         const content = cfg.config?.content ?? {};
+        setRadioParadiseEnabled(content.radio?.radioParadise?.enabled !== false);
         const lineIn = cfg.config?.inputs?.lineIn?.inputs ?? [];
         const currentRadio = content.radio?.tuneInUsername ?? '';
         const currentSpotify = content.spotify?.clientId ?? '';
@@ -1638,6 +1642,30 @@ export default function ContentView(): JSX.Element {
       void refreshLibraryCovers(false);
     }
   }, [libraryStatus, refreshLibraryCovers]);
+
+  // Radio Paradise as a toggleable provider (persisted like a streaming account).
+  const handleToggleRadioParadise = async (enabled: boolean): Promise<void> => {
+    const previous = radioParadiseEnabled;
+    setRadioParadiseEnabled(enabled);
+    try {
+      await updateContentConfig({ radio: { radioParadise: { enabled } } });
+    } catch (err) {
+      setRadioParadiseEnabled(previous);
+      pushAlert({ type: 'error', message: err instanceof Error ? err.message : t('content.radio.feedback.saveFailed') });
+    }
+  };
+
+  // Removing TuneIn = clearing the username (it stops surfacing presets).
+  const handleRemoveTuneIn = async (): Promise<void> => {
+    dispatchRadio({ type: 'update', payload: { username: '' } });
+    try {
+      await updateContentConfig({ radio: { tuneInUsername: null } });
+      setRadioState({ username: '', initialUsername: '' });
+      await validateTuneIn('');
+    } catch (err) {
+      pushAlert({ type: 'error', message: err instanceof Error ? err.message : t('content.radio.feedback.saveFailed') });
+    }
+  };
 
   const handleSaveRadio = async (): Promise<void> => {
     if (radioSaving) return;
@@ -2650,6 +2678,15 @@ export default function ContentView(): JSX.Element {
             <p className="source-aside__desc">
               {t('content.radio.desc')}
             </p>
+            <div className="source-aside__actions">
+              <button
+                type="button"
+                className="content-btn content-btn--primary"
+                onClick={() => setRadioPickerOpen(true)}
+              >
+                {t('content.radio.providers.add')}
+              </button>
+            </div>
 
             <div className="library-summary">
               <div className="library-summary__row">
@@ -2697,88 +2734,70 @@ export default function ContentView(): JSX.Element {
           </aside>
 
           <div className="source-cards">
-            <div className="source-card-row">
-              <div className="source-card">
-                <div className="source-card__head">
-                  <span className="source-card__chip" aria-hidden="true">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <circle cx="12" cy="12" r="2" />
-                      <path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14" />
-                    </svg>
-                  </span>
-                  <div className="source-card__head-text">
-                    <h3 className="source-card__title">{t('content.radio.tunein.title')}</h3>
-                    <p className="source-card__desc">
-                      {t('content.radio.tunein.desc')}
-                    </p>
-                  </div>
+            <div className="source-card">
+              <div className="source-card__head">
+                <div className="source-card__head-text">
+                  <h3 className="source-card__title">{t('content.radio.providers.title')}</h3>
+                  <p className="source-card__desc">{t('content.radio.providers.desc')}</p>
                 </div>
-                <div>
-                  <label className="content-input-label">{t('content.radio.tunein.label')}</label>
-                  <div className="source-card__input-row">
-                    <div className="content-input content-input--compact">
-                      <input
-                        type="text"
-                        value={radioUsername}
-                        placeholder={t('content.radio.tunein.placeholder')}
-                        onChange={(event) =>
-                          dispatchRadio({ type: 'update', payload: { username: event.target.value } })
-                        }
-                      />
+              </div>
+              {radioUsername.trim() || radioParadiseEnabled ? (
+                <div className="content-list">
+                  {radioUsername.trim() ? (
+                    <div className="content-list-row">
+                      <div className="content-list-row__main">
+                        <div className="content-list-row__title">{t('content.radio.tunein.title')}</div>
+                        <div className="content-list-row__meta">
+                          {(radioPresetCount ?? 0) > 0
+                            ? t('content.radio.summary.presets', { count: radioPresetCount ?? 0 })
+                            : radioUsername}
+                        </div>
+                      </div>
+                      <div className="content-list-row__actions">
+                        <button
+                          type="button"
+                          className="content-btn"
+                          onClick={() => setTuneInModalOpen(true)}
+                        >
+                          {t('content.custom.edit')}
+                        </button>
+                        <button
+                          type="button"
+                          className="content-btn content-btn--danger"
+                          onClick={() => void handleRemoveTuneIn()}
+                        >
+                          {t('content.custom.remove')}
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      type="button"
-                      className="content-btn content-btn--primary"
-                      onClick={() => void handleSaveRadio()}
-                      disabled={radioSaving || !radioDirty}
-                    >
-                      {radioSaving ? t('content.radio.tunein.saving') : t('content.radio.tunein.save')}
-                    </button>
-                  </div>
-                  {radioValidationStatus === 'valid' && radioPresetCount != null && radioPresetCount > 0 ? (
-                    <span className="source-card__save-hint">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <polyline points="20 6 9 17 4 12" />
-                      </svg>
-                      {t('content.radio.tunein.presetsFound', { count: radioPresetCount })}
-                    </span>
-                  ) : radioValidationMessage ? (
-                    <span className="source-card__save-hint source-card__save-hint--muted">
-                      {radioValidationMessage}
-                    </span>
+                  ) : null}
+                  {radioParadiseEnabled ? (
+                    <div className="content-list-row">
+                      <div className="content-list-row__main">
+                        <div className="content-list-row__title">{t('content.radio.radioParadise.title')}</div>
+                        <div className="content-list-row__meta">{t('content.radio.providers.radioBadge')}</div>
+                      </div>
+                      <div className="content-list-row__actions">
+                        <button
+                          type="button"
+                          className="content-btn content-btn--danger"
+                          onClick={() => void handleToggleRadioParadise(false)}
+                        >
+                          {t('content.custom.remove')}
+                        </button>
+                      </div>
+                    </div>
                   ) : null}
                 </div>
-              </div>
-
-              <div className="source-card">
-                <div className="source-card__head">
-                  <span className="source-card__chip" aria-hidden="true">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M12 12v0" />
-                      <path d="M8.5 12a3.5 3.5 0 0 1 7 0" />
-                      <path d="M5.5 12a6.5 6.5 0 0 1 13 0" />
-                      <path d="M2.5 12a9.5 9.5 0 0 1 19 0" />
-                    </svg>
-                  </span>
-                  <div className="source-card__head-text">
-                    <h3 className="source-card__title">{t('content.radio.radioParadise.title')}</h3>
-                    <p className="source-card__desc">
-                      {t('content.radio.radioParadise.desc')}
-                    </p>
+              ) : (
+                <div className="content-empty-info">
+                  <span className="content-empty-info__icon">i</span>
+                  <div className="content-empty-info__text">
+                    <div className="content-empty-info__title">{t('content.radio.providers.emptyTitle')}</div>
+                    <div className="content-empty-info__sub">{t('content.radio.providers.emptySub')}</div>
                   </div>
                 </div>
-                <div className="source-card__toggle-row">
-                  <span className="source-card__toggle-label">
-                    {radioParadiseEnabled ? t('content.radio.radioParadise.enabled') : t('content.radio.radioParadise.disabled')}
-                  </span>
-                  <button
-                    type="button"
-                    className={`content-toggle${radioParadiseEnabled ? ' is-on' : ''}`}
-                    aria-label={t('content.radio.radioParadise.title')}
-                    disabled
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="source-card">
@@ -3759,6 +3778,125 @@ export default function ContentView(): JSX.Element {
                 </button>
               );
             })}
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {radioPickerOpen && (
+        <Modal
+          open
+          onClose={() => setRadioPickerOpen(false)}
+          backdropClassName="bridge-modal-backdrop"
+          dialogClassName="bridge-modal"
+          ariaLabelledBy="add-radio-title"
+          closeOnBackdrop
+          closeOnEscape
+          bodyClasses={['modal-open']}
+          scrollToTop
+        >
+          <header className="bridge-modal__head">
+            <div className="bridge-modal__head-text">
+              <span className="bridge-modal__eyebrow">{t('content.radio.providers.pickerEyebrow')}</span>
+              <h3 id="add-radio-title" className="bridge-modal__title">{t('content.radio.providers.pickerTitle')}</h3>
+              <p className="bridge-modal__subtitle">{t('content.radio.providers.pickerSubtitle')}</p>
+            </div>
+            <button
+              type="button"
+              className="bridge-modal__close"
+              aria-label={t('content.bridge.close')}
+              onClick={() => setRadioPickerOpen(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </header>
+          <div className="bridge-modal__body">
+            <div className="bridge-modal__provider-grid">
+              <button
+                type="button"
+                className="bridge-modal__provider-tile"
+                onClick={() => {
+                  setRadioPickerOpen(false);
+                  setTuneInModalOpen(true);
+                }}
+              >
+                <span className="bridge-modal__provider-icon" aria-hidden="true"><span>T</span></span>
+                <span className="bridge-modal__provider-name">{t('content.radio.tunein.title')}</span>
+              </button>
+              <button
+                type="button"
+                className="bridge-modal__provider-tile"
+                disabled={radioParadiseEnabled}
+                onClick={() => {
+                  setRadioPickerOpen(false);
+                  void handleToggleRadioParadise(true);
+                }}
+              >
+                <span className="bridge-modal__provider-icon" aria-hidden="true"><span>R</span></span>
+                <span className="bridge-modal__provider-name">{t('content.radio.radioParadise.title')}</span>
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {tuneInModalOpen && (
+        <Modal
+          open
+          onClose={() => setTuneInModalOpen(false)}
+          backdropClassName="bridge-modal-backdrop"
+          dialogClassName="bridge-modal"
+          ariaLabelledBy="tunein-title"
+          closeOnBackdrop
+          closeOnEscape
+          bodyClasses={['modal-open']}
+          scrollToTop
+        >
+          <header className="bridge-modal__head">
+            <div className="bridge-modal__head-text">
+              <span className="bridge-modal__eyebrow">{t('content.radio.tunein.title')}</span>
+              <h3 id="tunein-title" className="bridge-modal__title">{t('content.radio.tunein.title')}</h3>
+              <p className="bridge-modal__subtitle">{t('content.radio.tunein.desc')}</p>
+            </div>
+            <button
+              type="button"
+              className="bridge-modal__close"
+              aria-label={t('content.bridge.close')}
+              onClick={() => setTuneInModalOpen(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </header>
+          <div className="bridge-modal__body">
+            <label className="content-input-label">{t('content.radio.tunein.label')}</label>
+            <div className="content-input">
+              <input
+                type="text"
+                value={radioUsername}
+                placeholder={t('content.radio.tunein.placeholder')}
+                onChange={(event) =>
+                  dispatchRadio({ type: 'update', payload: { username: event.target.value } })
+                }
+              />
+            </div>
+            <div className="source-card__save-row" style={{ marginTop: 16, justifyContent: 'flex-end' }}>
+              <button
+                type="button"
+                className="content-btn content-btn--primary"
+                onClick={async () => {
+                  await handleSaveRadio();
+                  setTuneInModalOpen(false);
+                }}
+                disabled={radioSaving || !radioDirty}
+              >
+                {radioSaving ? t('content.radio.tunein.saving') : t('content.radio.tunein.save')}
+              </button>
             </div>
           </div>
         </Modal>

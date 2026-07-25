@@ -4,6 +4,7 @@ import { requestJson, requestOk } from './http';
 export type ContentUpdatePayload = {
   radio?: {
     tuneInUsername?: string | null;
+    radioParadise?: { enabled?: boolean };
   };
   spotify?: {
     clientId?: string | null;

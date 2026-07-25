@@ -92,6 +92,17 @@
     "radio": {
       "title": "Radio",
       "desc": "TuneIn liefert den Radiokatalog — mit einem TuneIn-Benutzernamen werden persönliche Presets verfügbar, die Suche durchsucht TuneIn komplett. Eigene Streams sind ebenfalls möglich.",
+      "providers": {
+        "title": "Radio-Provider",
+        "desc": "Radio-Provider wie Streaming-Dienste verbinden. TuneIn zeigt deine Presets; Radio Paradise fügt kuratierte, hörerfinanzierte Streams hinzu.",
+        "add": "+ Radio-Provider hinzufügen",
+        "radioBadge": "Radio",
+        "emptyTitle": "Noch keine Radio-Provider",
+        "emptySub": "Füge TuneIn oder Radio Paradise hinzu.",
+        "pickerEyebrow": "Neuer Radio-Provider",
+        "pickerTitle": "Radio-Provider hinzufügen",
+        "pickerSubtitle": "Wähle einen Radio-Provider zum Verbinden"
+      },
       "summary": {
         "tunein": "TuneIn",
         "presets_one": "{{count}} Preset",
