@@ -8,7 +8,6 @@ import {
   importServerConfig,
   reinitializeServer,
   updateAdminUi,
-  updateAuthEnabled,
   updateComponentPackage,
   updateCrossfadeSec,
   updatePlayer,
@@ -24,6 +23,7 @@ import { COMPONENT_PACKAGES, compareSemver, normalizeTag } from '../services/upd
 import SubTabs from '../components/SubTabs';
 import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
 import { useConfirm } from '../components/ConfirmDialog';
+import { useServerControl } from '../components/ServerControl';
 import InlineState from '../components/InlineState';
 import type { RootConfig } from '../types/config';
 import { copyText } from '../utils/clipboard';
@@ -103,7 +103,6 @@ export default function SetupView(): JSX.Element {
   const [restarting, setRestarting] = React.useState(false);
   const [mixedGroupEnabled, setMixedGroupEnabled] = React.useState(true);
   const [groupsSaving, setGroupsSaving] = React.useState(false);
-  const [authSaving, setAuthSaving] = React.useState(false);
   const [playerUpdating, setPlayerUpdating] = React.useState(false);
   const [playerUpdatedAt, setPlayerUpdatedAt] = React.useState<string | null>(null);
   const [playerUpdateRelease, setPlayerUpdateRelease] = React.useState<string | null>(null);
@@ -145,6 +144,7 @@ export default function SetupView(): JSX.Element {
   const importInputRef = React.useRef<HTMLInputElement | null>(null);
   const { push: pushAlert } = useGlobalAlert();
   const { confirm } = useConfirm();
+  const { resetServer } = useServerControl();
 
   const refreshConfig = React.useCallback(async (): Promise<void> => {
     setLoading(true);
@@ -256,7 +256,8 @@ export default function SetupView(): JSX.Element {
   }, [data?.config, ttsDirty]);
 
   const isPaired = Boolean(status?.paired);
-  const standalone = data?.config?.system?.audioserver?.mode === 'standalone';
+  // No deployment mode anymore: "standalone" here just means Loxone is not connected.
+  const standalone = data?.config?.system?.audioserver?.loxoneEnabled !== true;
   // Everything that only exists because a Miniserver is in the picture (pairing,
   // config push/CRC, Miniserver-backed auth) lives on its own Loxone tab. A
   // standalone install never sees that tab; a legacy config without an explicit
@@ -324,7 +325,6 @@ export default function SetupView(): JSX.Element {
     null;
 
   const contentConfig = cfg.content ?? {};
-  const authEnabled = audioserver.authEnabled !== false;
   const versionLabel = status?.version ?? status?.apiVersion ?? '—';
   const uptimeLabel = formatDuration(status?.uptime);
   const serverName = audioserver.name || status?.name || t('setup.server.title');
@@ -760,24 +760,6 @@ export default function SetupView(): JSX.Element {
     }
   }
 
-  async function toggleAuth(next: boolean): Promise<void> {
-    if (authSaving) return;
-    setAuthSaving(true);
-    try {
-      await updateAuthEnabled(next);
-      const fresh = (await getConfig()) as SetupConfig;
-      setData(fresh);
-    } catch (err) {
-      pushAlert({
-        tone: 'error',
-        title: t('setup.actions.authFailedTitle'),
-        message: err instanceof Error ? err.message : t('setup.actions.authFailedDefault'),
-      });
-    } finally {
-      setAuthSaving(false);
-    }
-  }
-
   async function toggleMixedGroups(next: boolean): Promise<void> {
     if (groupsSaving) return;
     setGroupsSaving(true);
@@ -845,19 +827,18 @@ export default function SetupView(): JSX.Element {
     if (!ok) return;
     try {
       await clearServerConfig();
-      pushAlert({
-        tone: 'success',
-        title: t('setup.actions.clearedTitle'),
-        message: t('setup.actions.clearedMessage'),
-      });
-      await refreshConfig();
     } catch (err) {
       pushAlert({
         tone: 'error',
         title: t('setup.actions.clearFailedTitle'),
         message: err instanceof Error ? err.message : t('setup.actions.clearFailedDefault'),
       });
+      return;
     }
+    // Hand off to App: it bounces the server (so the gate re-evaluates against the
+    // now-empty config and Loxone stays down) and shows the "resetting" screen,
+    // then lands on the welcome screen automatically — no manual refresh.
+    await resetServer();
   }
 
   async function handleImportConfig(file: File | null): Promise<void> {
@@ -1285,39 +1266,6 @@ export default function SetupView(): JSX.Element {
           </section>
 
           {/* ===== Authentication (Loxone only — credentials come from the Miniserver) ===== */}
-          <section className="setup-section">
-            <header className="setup-section__head">
-              <div className="setup-section__head-main">
-                <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('setup.auth.eyebrow')}</span>
-                <h2 className="setup-section__title">{t('setup.auth.title')}</h2>
-                <p className="setup-section__desc">
-                  {t('setup.auth.desc')}
-                </p>
-              </div>
-            </header>
-
-            <div className="setup-rows">
-              <div className="setup-row">
-                <div className="setup-row__info">
-                  <div className="setup-row__label">{t('setup.auth.rowLabel')}</div>
-                  <div className="setup-row__desc">
-                    {t('setup.auth.rowDesc')}
-                  </div>
-                </div>
-                <div className="setup-row__control">
-                  <button
-                    type="button"
-                    className={`setup-toggle${authEnabled ? ' is-on' : ''}`}
-                    aria-label={t('setup.auth.rowLabel')}
-                    aria-pressed={authEnabled}
-                    disabled={authSaving}
-                    onClick={() => void toggleAuth(!authEnabled)}
-                  />
-                </div>
-              </div>
-            </div>
-          </section>
-
           {/* ===== Unpair ===== */}
           <section className="setup-section">
             <header className="setup-section__head">

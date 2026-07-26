@@ -6,17 +6,18 @@ import { ConfirmProvider } from './components/ConfirmDialog';
 import { UpdateCheckProvider } from './components/UpdateCheckContext';
 import LoginView from './features/LoginView';
 import InterfaceChooserView from './features/InterfaceChooserView';
-import PairingView from './features/PairingView';
 import WelcomeView from './features/WelcomeView';
+import TransitionView from './features/TransitionView';
+import { ServerControlProvider } from './components/ServerControl';
 import { ADMIN_TABS } from './tabsConfig';
-import { fetchAdminSession, getLastAdminUsername, loginAdmin, logoutAdmin } from './services/auth';
+import { fetchAdminSession, getLastAdminUsername, loginAdmin, logoutAdmin, setupAdmin } from './services/auth';
 import type { AdminSession } from './services/auth';
 import { fetchStatus } from './services/statusApi';
-import { setDeploymentMode } from './services/setupApi';
+import { restartServer } from './services/setupApi';
 import { setApiBase } from './config/apiConfig';
 import type { StatusResponse } from './types/api';
 
-type Mode = 'welcome' | 'pairing' | 'login' | 'chooser' | 'shell';
+type Mode = 'welcome' | 'login' | 'chooser' | 'shell' | 'transition';
 
 const TAB_STORAGE_KEY = 'lox.admin.activeTab';
 
@@ -47,12 +48,17 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   const [authNotice, setAuthNotice] = React.useState<string | null>(null);
   const [forceLogin, setForceLogin] = React.useState(false);
   const [apiStatus, setApiStatus] = React.useState<StatusResponse | null>(null);
+  // Non-null while the server is bouncing and the interstitial should hold: a
+  // config wipe ('reset') or an in-place deployment-mode switch ('switch').
+  const [transition, setTransition] = React.useState<'reset' | 'switch' | null>(null);
   const [showChooser, setShowChooser] = React.useState<boolean>(() => readChooserFlag());
   const [tabKey, setTabKey] = React.useState<string>(() => readStoredTab());
   const [tabPulse, setTabPulse] = React.useState(false);
 
   const isAuthenticated = Boolean(session);
-  const requiresLogin = forceLogin || (apiStatus?.paired === true && apiStatus?.authEnabled !== false);
+  // Auth is required once a local admin account exists (created at first-run) — not
+  // driven by Miniserver pairing. Miniserver credentials are just an alternate login.
+  const requiresLogin = forceLogin || apiStatus?.hasAdminUser === true;
 
   const refreshApiStatus = React.useCallback(async (): Promise<StatusResponse | null> => {
     const controller = new AbortController();
@@ -136,13 +142,34 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
     setShowChooser(false);
   }, []);
 
-  const chooseMode = React.useCallback(
-    async (mode: 'loxone' | 'standalone') => {
-      await setDeploymentMode(mode);
+  // First-run: create the local admin account and log straight in, then refresh so
+  // the view resolves to the shell. No restart — it just writes config + a session.
+  const createAdmin = React.useCallback(
+    async (username: string, password: string) => {
+      const nextSession = await setupAdmin(username, password);
+      setSession(nextSession);
       await refreshApiStatus();
     },
     [refreshApiStatus],
   );
+
+  const resetServer = React.useCallback(async () => {
+    // The config was just cleared (SetupView). Bounce the server so the gate
+    // re-evaluates against fresh config (Loxone off, unpaired) and show the
+    // interstitial until it answers again — then computedMode lands on 'welcome'
+    // without a manual browser refresh, and no Miniserver can re-pair meanwhile.
+    setTransition('reset');
+    try {
+      await restartServer();
+    } catch {
+      // The wipe already landed; a manual restart would still bring it back clean.
+    }
+    for (let attempt = 0; attempt < 40; attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 1000));
+      if (await refreshApiStatus()) break;
+    }
+    setTransition(null);
+  }, [refreshApiStatus]);
 
   const handleLogin = React.useCallback(async ({ username, password }: { username: string; password: string }) => {
     setAuthError(null);
@@ -192,12 +219,13 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   ).current;
 
   const computedMode: Mode = (() => {
-    // First-run, unconfigured server: no deployment mode chosen yet → welcome.
-    if (apiStatus?.paired === false && apiStatus.mode == null) return 'welcome';
-    // Loxone-integrated but not yet paired → the Miniserver pairing flow.
-    if (apiStatus?.paired === false && apiStatus.mode === 'loxone') return 'pairing';
-    // Standalone (paired === false, mode === 'standalone') falls through to the
-    // normal shell/login handling below.
+    // A server bounce is in flight (wipe or Loxone connect/disconnect): hold the
+    // interstitial over everything (including the transient null status) until it settles.
+    if (transition) return 'transition';
+    // First-run: the minimal welcome intro until it's dismissed. There is no
+    // deployment-mode fork — Loxone is connected later from the Players screen, and
+    // its pairing wait lives in that modal (no top-level pairing view).
+    if (apiStatus && apiStatus.setupComplete === false) return 'welcome';
     // Boot: apiStatus not yet loaded. Default to login so admin panels don't
     // flash for unauthenticated users on refresh. If we know the previous tick
     // was workspace (sessionStorage flag), assume shell instead so an authed
@@ -237,7 +265,8 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   React.useEffect(() => {
     if (typeof document === 'undefined') return;
     const body = document.body;
-    body.classList.toggle('is-unpaired', computedMode === 'pairing');
+    // Pairing now happens inside the Players Loxone modal (no top-level pairing view).
+    body.classList.remove('is-unpaired');
     body.classList.toggle('is-success', computedMode === 'chooser' || computedMode === 'shell');
     body.classList.toggle('is-workspace', computedMode === 'shell');
     try {
@@ -265,10 +294,10 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   const shellOnTabChange = mode === 'shell' ? handleTabChange : undefined;
   const shellOnSignOut = mode === 'shell' && isAuthenticated ? handleSignOut : undefined;
 
-  if (mode === 'welcome') {
-    mainContent = <WelcomeView onChoose={chooseMode} isLeaving={isLeaving} />;
-  } else if (mode === 'pairing') {
-    mainContent = <PairingView status={apiStatus} />;
+  if (mode === 'transition') {
+    mainContent = <TransitionView reason={transition ?? 'reset'} />;
+  } else if (mode === 'welcome') {
+    mainContent = <WelcomeView onCreateAdmin={createAdmin} isLeaving={isLeaving} />;
   } else if (mode === 'login') {
     mainContent = (
       <LoginView
@@ -298,17 +327,19 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
     <GlobalAlertProvider>
       <ConfirmProvider>
         <UpdateCheckProvider status={apiStatus} enabled={mode === 'shell'}>
-          <Shell
-            apiStatus={apiStatus}
-            tabs={shellTabs}
-            activeTab={shellActiveTab}
-            onTabChange={shellOnTabChange}
-            currentUserName={session?.username}
-            onSignOut={shellOnSignOut}
-            onSwitchServer={onSwitchServer}
-          >
-            {mainContent}
-          </Shell>
+          <ServerControlProvider value={{ resetServer }}>
+            <Shell
+              apiStatus={apiStatus}
+              tabs={shellTabs}
+              activeTab={shellActiveTab}
+              onTabChange={shellOnTabChange}
+              currentUserName={session?.username}
+              onSignOut={shellOnSignOut}
+              onSwitchServer={onSwitchServer}
+            >
+              {mainContent}
+            </Shell>
+          </ServerControlProvider>
         </UpdateCheckProvider>
       </ConfirmProvider>
     </GlobalAlertProvider>

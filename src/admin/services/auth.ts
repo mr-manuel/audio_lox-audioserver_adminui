@@ -109,6 +109,45 @@ export async function loginAdmin(username: string, password: string): Promise<Ad
   return loginAdminAt(API_BASE, username, password);
 }
 
+/** First-run: create the local admin account and log straight in. The server
+ *  refuses this once an admin exists, so it only ever bootstraps the first one. */
+export async function setupAdmin(username: string, password: string): Promise<AdminSession> {
+  const normalizedUser = username.trim();
+  if (!normalizedUser) {
+    throw new Error('Enter a username.');
+  }
+  if (!password.trim()) {
+    throw new Error('Enter a password.');
+  }
+
+  const response = await fetch(`${API_BASE}/auth/setup`, {
+    method: 'POST',
+    credentials: credentialsMode(API_BASE),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: normalizedUser, password }),
+  });
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => '');
+    throw new Error(parseLoginError(body || `Request failed (${response.status})`));
+  }
+
+  if (isBrowser()) {
+    window.localStorage.setItem(LAST_USER_KEY, normalizedUser);
+  }
+
+  const payload = (await response.json().catch(() => null)) as unknown;
+  const token = (payload as { token?: unknown } | null)?.token;
+  if (typeof token === 'string' && token) {
+    setToken(API_BASE, token);
+  }
+  const parsed = parseAuthMe(payload);
+  if (!parsed) {
+    throw new Error('Setup succeeded but the response was invalid.');
+  }
+  return parsed;
+}
+
 export async function fetchAdminSession(): Promise<AdminSession | null> {
   const response = await fetch(`${API_BASE}/auth/me`, {
     method: 'GET',

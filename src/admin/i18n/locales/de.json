@@ -591,10 +591,11 @@
   },
   "hero": {
     "appTitle": "sonn core",
-    "tagline": "Ein vollwertiger Multiroom-Audioserver. Funktioniert eigenständig, voll kompatibel mit Loxone.",
+    "tagline": "Ein vollwertiger Multiroom-Audioserver — Streaming, AirPlay und DLNA in jedem Raum.",
     "status": {
       "unavailable": "Nicht verfügbar",
       "connecting": "Verbinde…",
+      "online": "Online",
       "paired": "Gekoppelt",
       "unpaired": "Nicht gekoppelt",
       "standalone": "Eigenständig",
@@ -603,7 +604,6 @@
     },
     "labels": {
       "uptime": "Laufzeit",
-      "zones": "Zonen",
       "fw": "FW",
       "api": "API",
       "core": "Core",
@@ -667,17 +667,17 @@
   },
   "welcome": {
     "eyebrow": "Willkommen",
-    "title": "Audio-Server einrichten",
-    "intro": "Wähle, wie dieser Server läuft. Er kann eigenständig arbeiten oder sich in einen Loxone Miniserver integrieren.",
-    "standalone": {
-      "title": "Eigenständig",
-      "desc": "Läuft unabhängig. Zonen und Quellen konfigurierst du hier — kein Miniserver nötig."
-    },
-    "loxone": {
-      "title": "Loxone-integriert",
-      "desc": "Mit einem Loxone Miniserver koppeln. Zonen und Konfiguration kommen aus deinem Loxone-Projekt."
-    },
-    "foot": "Du kannst dies später ändern, indem du die Serverkonfiguration zurücksetzt."
+    "title": "Dein Audio-Server ist bereit",
+    "introStep1": "Lass es uns einrichten — das dauert nur eine Minute.",
+    "getStarted": "Loslegen",
+    "createTitle": "Admin-Konto erstellen",
+    "introStep2": "Mit diesem Login erreichst du ab jetzt das Control-Panel.",
+    "usernameLabel": "Benutzername",
+    "passwordLabel": "Passwort",
+    "createAdmin": "Konto erstellen",
+    "creating": "Wird erstellt…",
+    "createFailed": "Konto konnte nicht erstellt werden.",
+    "back": "Zurück"
   },
   "pairing": {
     "eyebrow": "Einrichtungsassistent",
@@ -691,6 +691,22 @@
     "step1Host": "IP/Host:",
     "step2": "Stereo-Ausgänge aufteilen, um alle 4 Ausgänge zu erhalten. Ausgänge ins Projekt ziehen. Dadurch entsteht ein passender Player-Baustein und 4 Audio-Zonen. Bei Bedarf später Stereo-Extensions hinzufügen.",
     "step3": "Änderungen übertragen und Miniserver neu starten, um die Kopplung zu starten."
+  },
+  "transition": {
+    "reset": {
+      "eyebrow": "Konfiguration wird gelöscht",
+      "title": "Server wird zurückgesetzt",
+      "subtitle": "Die Konfiguration wird gelöscht und der Server startet neu.",
+      "statusTitle": "Neustart",
+      "statusSub": "Das dauert ein paar Sekunden. Danach landest du wieder auf dem Willkommensbildschirm."
+    },
+    "switch": {
+      "eyebrow": "Änderungen werden übernommen",
+      "title": "Modus wird gewechselt",
+      "subtitle": "Der Server startet neu, damit die neue Einrichtung wirksam wird.",
+      "statusTitle": "Neustart",
+      "statusSub": "Das dauert ein paar Sekunden. Der richtige Bildschirm erscheint, sobald er wieder da ist."
+    }
   },
   "searchInput": {
     "clearAriaLabel": "Suche leeren",
@@ -992,21 +1008,61 @@
     "ariaLabel": "Admin-Navigation"
   },
   "zones": {
-    "eyebrow": "Zonen",
-    "title": "Zonen",
-    "subtitle": "Mach aus jedem Lautsprecher einen AirPlay- und Spotify-Connect-Empfänger — sende Audio an jeden Ausgang, egal was er selbst unterstützt.",
-    "subtitleStandalone": "Erstelle hier deine Zonen und gib jeder einen Ausgang und die Empfänger, die sie annehmen soll.",
-    "subtitleIntegrated": "Deine Zonen kommen vom Miniserver. Hier gibst du jeder einen Ausgang und die Empfänger, die sie annehmen soll.",
+    "eyebrow": "Players",
+    "title": "Players",
+    "subtitle": "Ein Player ist ein einzelnes Gerät, auf dem du Musik abspielst. Gruppiere mehrere, um synchron zu spielen, und lass Telefone und Apps über AirPlay, Spotify Connect oder DLNA darauf casten — auch Geräte, die das selbst nicht können.",
+    "setup": {
+      "title": "Wie werden Player eingerichtet?",
+      "desc": "Wähle eine Option. Du kannst das später ändern.",
+      "active": "Aktiv",
+      "none": {
+        "label": "Deaktiviert",
+        "desc": "Keine Player. Dieser Server teilt deine Musik nur über Access mit anderen Apps."
+      },
+      "pairing": "Kopplung…",
+      "manual": {
+        "label": "Hier einrichten",
+        "desc": "Du legst Player selbst an — Lautsprecher und Räume, die du benennst, gruppierst und bespielst."
+      },
+      "loxone": {
+        "label": "Loxone integriert",
+        "desc": "Dein Miniserver sendet, welche Player es gibt, und ihre Namen — Ausgang und Empfänger legst du hier fest."
+      },
+      "confirmSwitch": "Wechseln",
+      "confirmManualTitle": "Player stattdessen hier einrichten?",
+      "confirmManualMessage": "Damit wird die Loxone-Integration getrennt. Der Miniserver liefert keine Player mehr und du verwaltest sie hier.",
+      "confirmOffTitle": "Player ausschalten?",
+      "confirmOffMessage": "Damit wird die Loxone-Integration getrennt und der Server teilt nur noch Inhalte."
+    },
+    "managed": {
+      "failedTitle": "Player konnten nicht aktualisiert werden"
+    },
+    "loxone": {
+      "descWaiting": "Verbunden — warte darauf, dass der Miniserver seine Player sendet.",
+      "descPaired": "Verbunden — die Player kommen von deinem Miniserver. Ausgang und Empfänger legst du hier fest.",
+      "connect": "Verbinden",
+      "disconnect": "Trennen",
+      "modalTitle": "Loxone Miniserver",
+      "modalConnectSub": "Kopple diesen Server mit einem Loxone Miniserver. Er beginnt sofort zu lauschen und wartet darauf, dass der Miniserver seine Player sendet. Hier eingerichtete Player werden beiseitegelegt, solange Loxone verbunden ist.",
+      "modalWaitingSub": "Verbunden. Warte darauf, dass der Miniserver seine Konfiguration sendet — folge den Schritten unten in Loxone Config.",
+      "modalPairedSub": "Verbunden. Dein Miniserver liefert die Player und ihre Namen; Ausgang und Empfänger konfigurierst du hier. Trennen, um Player lokal zu verwalten.",
+      "serial": "Seriennummer",
+      "host": "IP / Host",
+      "step1": "Füge den AudioServer in Loxone Config mit Seriennummer und Host von oben hinzu.",
+      "step2": "Teile die Stereo-Ausgänge in 4 Zonen und ziehe sie in dein Projekt.",
+      "step3": "Übertrage die Änderungen und starte den Miniserver neu, um die Kopplung zu beginnen.",
+      "failedTitle": "Loxone-Verbindung konnte nicht aktualisiert werden"
+    },
     "add": {
-      "button": "Zone hinzufügen",
-      "title": "Zone hinzufügen",
+      "button": "Player hinzufügen",
+      "title": "Player hinzufügen",
       "sub": "Gib der Zone einen Namen. Ausgang und Eingänge konfigurierst du danach.",
       "placeholder": "Zonenname (z. B. Küche)",
       "create": "Erstellen",
       "creating": "Wird erstellt…",
       "cancel": "Abbrechen",
       "errorTitle": "Zone konnte nicht erstellt werden",
-      "emptyTitle": "Noch keine Zonen",
+      "emptyTitle": "Noch keine Player",
       "emptySub": "Füge deine erste Zone hinzu, um Ausgänge und Eingänge zu konfigurieren.",
       "limitReached": "Maximal {{max}} Zonen erreicht."
     },
@@ -1015,12 +1071,6 @@
       "message": "Damit werden die Zone und ihre Konfiguration entfernt. Das kann nicht rückgängig gemacht werden.",
       "confirm": "Zone löschen",
       "errorTitle": "Zone konnte nicht gelöscht werden"
-    },
-    "filter": {
-      "ariaLabel": "Ausgangsfilter",
-      "all": "Alle",
-      "assigned": "Mit Ausgang",
-      "unassigned": "Ohne Ausgang"
     },
     "emptyTitle": "Noch keine Zonen konfiguriert",
     "emptySub": "AudioServer mit einem Miniserver koppeln und Zonen in Loxone Config zuweisen, um diese Ansicht zu füllen.",
@@ -1293,94 +1343,41 @@
   },
   "access": {
     "eyebrow": "Zugang",
-    "title": "Zugang",
-    "subtitle": "Lass andere Apps und Geräte auf deine Musik zugreifen — ein DLNA/UPnP-Medienserver für Smart-TVs und Lautsprecher, und die Subsonic-API für Musik-Apps auf dem Handy.",
-    "retry": "Erneut versuchen"
-  },
-  "protocols": {
-    "eyebrow": "Protokolle",
-    "title": "Protokolle & Dienste",
-    "subtitle": "Was dieser Server empfängt, wohin er abspielt und was er im Netzwerk bereitstellt.",
-    "cancel": "Abbrechen",
+    "title": "Wie deine Inhalte geteilt werden",
+    "subtitle": "Stelle die eingerichteten Inhalte anderen Apps und Geräten im Netzwerk bereit — über einen Server. Schalte ein, was du nutzen willst; jede Variante funktioniert eigenständig.",
+    "retry": "Erneut versuchen",
+    "servers": {
+      "failedMessage": "Die Servereinstellungen konnten nicht aktualisiert werden",
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "subsonicNoCredentials": "Lege zuerst unter Benutzer ein Konto an — dieser Server hat keinen Miniserver zur Authentifizierung."
+    },
     "loading": {
       "title": "Protokolle werden geladen",
       "message": "Eingänge, Ausgänge und Server werden abgerufen…"
     },
     "errorState": {
-      "title": "Protokolle nicht verfügbar",
-      "retry": "Wiederholen"
+      "title": "Protokolle nicht verfügbar"
     },
-    "inputs": {
-      "eyebrow": "Eingänge",
-      "title": "In eine Zone empfangen",
-      "desc": "Empfänger, die dieser Server im Netzwerk anbietet. Jeder aktivierte Empfänger kann eine Zone übernehmen.",
-      "note": "Aktivieren macht einen Empfänger verfügbar; jede Zone entscheidet in ihren eigenen Einstellungen, ob sie ihn nutzt.",
-      "airplayLabel": "AirPlay",
-      "airplayDesc": "Direkt von iPhone, iPad und Mac in eine Zone streamen.",
-      "spotifyLabel": "Spotify Connect",
-      "spotifyDesc": "Zonen erscheinen in Spotify als Lautsprecher. Benötigt ein Premium-Konto unter Content.",
-      "dlnaLabel": "DLNA",
-      "dlnaDesc": "Zonen erscheinen als UPnP-Renderer für BubbleUPnP, mconnect und VLC.",
-      "failedTitle": "Eingang speichern fehlgeschlagen",
-      "failedMessage": "{{key}} konnte nicht aktualisiert werden"
-    },
-    "outputs": {
-      "eyebrow": "Ausgänge",
-      "title": "Auf ein Gerät abspielen",
-      "desc": "Ausgangstypen, die beim Einrichten einer Zone angeboten werden. Was diese Installation nie nutzt, hältst du hier aus der Auswahl heraus.",
-      "note": "Das steuert nur die Verfügbarkeit: Eine Zone, die einen Ausgang bereits nutzt, spielt weiter — der Typ verschwindet lediglich aus der Auswahl.",
-      "count": "{{enabled}} von {{total}} aktiv",
-      "inUse_one": "{{count}} Zone",
-      "inUse_other": "{{count}} Zonen",
-      "loading": "Ausgangskatalog wird geladen…",
-      "unavailable": "Der Server hat keine Ausgangstypen geliefert.",
-      "disableConfirmTitle": "{{label}} deaktivieren?",
-      "disableConfirmMessage_one": "{{count}} Zone nutzt diesen Ausgang. Sie spielt weiter, der Typ wird beim Einrichten aber nicht mehr angeboten.",
-      "disableConfirmMessage_other": "{{count}} Zonen nutzen diesen Ausgang. Sie spielen weiter, der Typ wird beim Einrichten aber nicht mehr angeboten.",
-      "disableConfirmOk": "Deaktivieren",
-      "failedTitle": "Ausgang speichern fehlgeschlagen",
-      "failedMessage": "{{label}} konnte nicht aktualisiert werden"
-    },
-    "servers": {
-      "eyebrow": "Server",
-      "title": "Im Netzwerk bereitstellen",
-      "desc": "Dienste, die dieser Server veröffentlicht, damit andere Apps und Geräte seine Inhalte durchsuchen und abspielen können.",
-      "required": "Erforderlich",
-      "requiredHint": "Dieses Protokoll lässt sich nicht abschalten.",
-      "dlnaLabel": "DLNA-MediaServer",
-      "dlnaDesc": "Veröffentlicht Bibliothek, Radio und Streaming-Bridges als UPnP-Medienserver, sodass jeder DLNA-Player darin blättern und Titel abrufen kann.",
-      "loxoneLabel": "Loxone Audioserver",
-      "loxoneDescLoxone": "Spricht das Loxone-Audioserver-Protokoll mit dem Miniserver und der Loxone-App. Im Loxone-Modus immer aktiv.",
-      "loxoneDescStandalone": "Läuft nicht. Eigenständig schaltet die komplette Loxone-Rolle ab — Protokollserver, Miniserver-Handshake und Befehls-Engine. Die Player-App spricht weiterhin dieses Protokoll und bleibt daher unbenutzbar, bis sie auf eine native API umzieht.",
-      "subsonicLabel": "Subsonic",
-      "subsonicDesc": "Stellt dieselben Inhalte über die Subsonic-API bereit — für Clients wie Symfonium, Amperfy, DSub und Feishin.",
-      "subsonicSave": "Speichern",
-      "saving": "Speichern…",
-      "failedTitle": "Server speichern fehlgeschlagen",
-      "failedMessage": "Die Servereinstellungen konnten nicht aktualisiert werden",
-      "copy": "Kopieren",
-      "copied": "Kopiert",
-      "subsonicUrl": "Server-URL",
-      "subsonicLimit": "Verzeichnislimit",
-      "subsonicLimitRange": "Das Verzeichnislimit muss zwischen {{min}} und {{max}} liegen.",
-      "subsonicUnknownProvider": "Unbekannter Dienst: {{providers}}",
-      "subsonicExposed": "Bereitgestellte Dienste",
-      "serviceBrowseSearch": "Blättern · Suche",
-      "serviceBrowseOnly": "Nur blättern",
-      "serviceHidden": "Ausgeblendet",
-      "subsonicLimitations": "Clients können blättern, suchen und abspielen. Sterne und Bewertungen werden angenommen, aber nicht gespeichert; Playlists sind schreibgeschützt.",
-      "serviceSources_one": "{{count}} Quelle",
-      "serviceSources_other": "{{count}} Quellen",
-      "subsonicSignIn": "Anmelden mit",
-      "authLoxone": "Loxone-Konten",
-      "authLocal": "Lokale Konten",
-      "authNone": "Keine Konten — niemand kann sich anmelden",
-      "subsonicNoCredentials": "Lege zuerst unter Benutzer ein Konto an — dieser Server hat keinen Miniserver zur Authentifizierung.",
-      "subsonicTokenWarning": "Es gibt keine lokalen Konten, daher müssen Clients Klartext-Authentifizierung verwenden: Die Token-Anmeldung (Standard in den meisten Subsonic-Clients) braucht ein Passwort, das dieser Server lesen kann — ein Loxone-Konto gibt das nie heraus.",
-      "settingsSavedTitle": "Subsonic-Einstellungen gespeichert",
-      "settingsSavedMessage": "Das neue Verzeichnislimit gilt ab der nächsten Anfrage.",
-      "loxoneOff": "Aus im Standalone",
-      "loxoneOffHint": "Im eigenständigen Modus läuft kein Loxone-Protokollserver."
+    "count": "{{on}} von {{total}} an",
+    "on": "An",
+    "off": "Aus",
+    "failedTitle": "Änderung konnte nicht übernommen werden",
+    "services": {
+      "dlna": {
+        "name": "DLNA / UPnP",
+        "purpose": "Ein Medienserver in deinem Netzwerk: Jedes DLNA-Gerät — Smart-TV, Receiver, Lautsprecher — durchsucht und spielt alles, was dieser Server anbietet. Streaming-Dienste inklusive, damit Spotify oder Apple Music auch auf Geräte kommen, die keine App dafür haben."
+      },
+      "subsonic": {
+        "name": "Subsonic-API",
+        "purpose": "Eine weit verbreitete Musik-API. Richte eine App wie Symfonium, Amperfy oder DSub auf die Adresse unten und melde dich mit deinem Konto an, um alles zu durchsuchen und zu streamen."
+      },
+      "loxone": {
+        "name": "Loxone Audio Server",
+        "purpose": "Eine vollwertige Loxone-Audioserver-Implementierung: fügt sich vollständig in dein Loxone-Setup ein und verhält sich wie ein echtes Gerät.",
+        "waiting": "An — warte auf Kopplung",
+        "hint": "Einschalten kannst du das unter Player, mit der Option „Loxone integriert“."
+      }
     }
   }
 }

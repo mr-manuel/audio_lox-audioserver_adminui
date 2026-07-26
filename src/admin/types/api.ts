@@ -10,8 +10,12 @@ export type StatusResponse = {
   zones?: number;
   activeAdapters?: number;
   paired?: boolean;
-  /** Deployment mode chosen at first-run setup. Absent = not yet chosen (show welcome). */
-  mode?: 'loxone' | 'standalone';
+  /** Whether the Loxone integration is connected (the protocol stack is running). */
+  loxoneEnabled?: boolean;
+  /** True once the first-run welcome has been dismissed; false/absent shows it. */
+  setupComplete?: boolean;
+  /** Whether a local admin account exists — drives login vs the create-admin welcome. */
+  hasAdminUser?: boolean;
   authEnabled?: boolean;
   containerized?: boolean;
   // Whether a server-core update will auto-restart (containerized or supervised).

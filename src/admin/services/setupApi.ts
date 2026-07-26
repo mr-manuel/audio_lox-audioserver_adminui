@@ -33,6 +33,16 @@ export async function reinitializeServer(): Promise<void> {
   });
 }
 
+// Full stop+start so the server re-evaluates the deployment-mode gate. Used after
+// a mode choice: 'loxone' brings the protocol stack up (so it can pair), and
+// 'standalone' tears it down.
+export async function restartServer(): Promise<void> {
+  await requestOk(`${API_BASE}/setup/restart`, {
+    method: 'POST',
+    errorMessage: 'Failed to restart',
+  });
+}
+
 export async function updateAudioServerMacId(macId: string): Promise<void> {
   await requestOk(`${API_BASE}/config/system`, {
     method: 'POST',
@@ -51,21 +61,25 @@ export async function updateAudioServerIp(ip: string): Promise<void> {
   });
 }
 
-export async function setDeploymentMode(mode: 'loxone' | 'standalone'): Promise<void> {
-  await requestOk(`${API_BASE}/config/system`, {
+// Connect/disconnect Loxone by starting/stopping just its protocol subsystem on
+// the server — no restart. The endpoint persists the flag and returns once the
+// subsystem is up/down, so the caller can refresh to reflect the new state.
+export async function setLoxoneConnection(enabled: boolean): Promise<void> {
+  await requestOk(`${API_BASE}/setup/loxone`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audioserver: { mode } }),
-    errorMessage: 'Failed to set deployment mode',
+    body: JSON.stringify({ enabled }),
+    errorMessage: 'Failed to update Loxone connection',
   });
 }
 
-export async function updateAuthEnabled(authEnabled: boolean): Promise<void> {
+
+export async function updateManagedPlayers(managedPlayers: boolean): Promise<void> {
   await requestOk(`${API_BASE}/config/system`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audioserver: { authEnabled } }),
-    errorMessage: 'Failed to update auth setting',
+    body: JSON.stringify({ audioserver: { managedPlayers } }),
+    errorMessage: 'Failed to update managed players setting',
   });
 }
 

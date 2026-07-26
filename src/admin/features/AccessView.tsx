@@ -1,7 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-// Shares the admin form language (sections, rows, tiles, toggles) with Setup.
+// Shares the admin form language (inputs, buttons, notes) with Setup; the card
+// grid is this view's own.
 import './SetupView.css';
+import './AccessView.css';
 import { getConfig } from '../services/setupApi';
 import { updateContentConfig } from '../services/contentApi';
 import {
@@ -17,21 +19,38 @@ import type { RootConfig } from '../types/config';
 
 type ConfigResponse = { config: RootConfig };
 
-function InfoGlyph(): JSX.Element {
+/** Every way content can be served. Adding one means adding an entry to `ORDER`
+ *  plus its `access.services.<id>` copy — and, only if it has settings of its own,
+ *  a block in `renderExtras`. */
+type ServiceId = 'loxone' | 'dlna' | 'subsonic';
+
+// Loxone leads: this server started life as a pure Loxone Audioserver, and that
+// implementation is still its most complete integration.
+const ORDER: readonly ServiceId[] = ['loxone', 'dlna', 'subsonic'];
+
+function PhoneGlyph(): JSX.Element {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="9.5" />
-      <line x1="12" y1="11" x2="12" y2="16.5" />
-      <line x1="12" y1="7.5" x2="12" y2="7.6" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="6" y="2.5" width="12" height="19" rx="2.5" />
+      <line x1="10.5" y1="18.5" x2="13.5" y2="18.5" />
+      <path d="M9.5 7.5h5M9.5 10.5h5M9.5 13.5h3" opacity="0.55" />
     </svg>
   );
 }
 
+/** Brand artwork where we ship it, a purpose-drawn glyph otherwise. */
+function ServiceMark({ id }: { id: ServiceId }): JSX.Element {
+  const asset = id === 'dlna' ? 'providers/dlna.svg' : id === 'loxone' ? 'providers/loxone.png' : '';
+  if (asset) return <img src={`${import.meta.env.BASE_URL || '/'}${asset}`} alt="" />;
+  return <PhoneGlyph />;
+}
+
 /**
- * Access — how the server's content is reached from the network. This is the
- * inverse of playback: the outbound content interfaces (DLNA MediaServer,
- * Subsonic) plus the Loxone protocol server. It owns no zones/players; a pure
- * content-server deployment lives entirely here.
+ * Access — how this server's content is served to the outside. The inverse of
+ * playback: one card per interface others can reach the library, radio and
+ * streaming services through, each showing its state and its own settings inline.
+ * Deliberately data-driven so a new interface slots in without touching the
+ * layout, and a content-only deployment lives entirely here.
  */
 export default function AccessView(): JSX.Element {
   const { t } = useTranslation();
@@ -40,11 +59,8 @@ export default function AccessView(): JSX.Element {
   const [data, setData] = React.useState<ConfigResponse | null>(null);
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
-  const [serversSaving, setServersSaving] = React.useState<string | null>(null);
+  const [saving, setSaving] = React.useState<ServiceId | null>(null);
   const [subsonic, setSubsonic] = React.useState<SubsonicStatus | null>(null);
-  const [subsonicDraft, setSubsonicDraft] = React.useState({ directoryLimit: '' });
-  const [subsonicDirty, setSubsonicDirty] = React.useState(false);
-  const [subsonicError, setSubsonicError] = React.useState<string | null>(null);
   const [urlCopied, setUrlCopied] = React.useState(false);
 
   const refreshConfig = React.useCallback(async (): Promise<void> => {
@@ -72,106 +88,85 @@ export default function AccessView(): JSX.Element {
   }, [refreshConfig, refreshSubsonic]);
 
   const cfg = data?.config ?? {};
-  const content = cfg.content ?? {};
-  const standalone = cfg.system?.audioserver?.mode === 'standalone';
-  React.useEffect(() => {
-    if (!subsonicDirty && subsonic) {
-      setSubsonicDraft({ directoryLimit: String(subsonic.directoryLimit) });
-    }
-  }, [subsonic, subsonicDirty]);
-
-  const mediaServerEnabled = Boolean(content.mediaServer?.enabled);
+  const audioserver = cfg.system?.audioserver;
+  const loxoneEnabled = audioserver?.loxoneEnabled === true;
+  const mediaServerEnabled = Boolean(cfg.content?.mediaServer?.enabled);
   const subsonicEnabled = subsonic?.enabled ?? false;
 
-  async function toggleMediaServer(next: boolean): Promise<void> {
-    if (serversSaving) return;
-    setServersSaving('mediaServer');
-    try {
-      await updateContentConfig({ mediaServer: { enabled: next } });
-      await refreshConfig();
-    } catch (err) {
-      pushAlert({
-        tone: 'error',
-        title: t('protocols.servers.failedTitle'),
-        message: err instanceof Error ? err.message : t('protocols.servers.failedMessage'),
-      });
-    } finally {
-      setServersSaving(null);
+  const isOn: Record<ServiceId, boolean> = {
+    loxone: loxoneEnabled,
+    dlna: mediaServerEnabled,
+    subsonic: subsonicEnabled,
+  };
+  const enabledCount = ORDER.filter((id) => isOn[id]).length;
+
+  /** Only the state the toggle can't express: listening, but not paired yet. The
+   *  plain on/off is already visible in the control itself. */
+  function pendingLabel(id: ServiceId): string | null {
+    if (id === 'loxone' && isOn[id] && audioserver?.paired === false) {
+      return t('access.services.loxone.waiting');
     }
+    return null;
   }
 
-  function subsonicErrorText(err: unknown): string {
+  function errorText(err: unknown): string {
     if (err instanceof SubsonicConfigError) {
-      switch (err.code) {
-        case 'no-usable-credentials':
-          return t('protocols.servers.subsonicNoCredentials');
-        case 'invalid-directory-limit':
-          return t('protocols.servers.subsonicLimitRange', {
-            min: err.detail.min ?? subsonic?.directoryLimitBounds.min,
-            max: err.detail.max ?? subsonic?.directoryLimitBounds.max,
-          });
-        case 'unknown-provider':
-          return t('protocols.servers.subsonicUnknownProvider', {
-            providers: Array.isArray(err.detail.providers) ? err.detail.providers.join(', ') : '',
-          });
-        default:
-          return err.message;
-      }
+      return err.code === 'no-usable-credentials'
+        ? t('access.servers.subsonicNoCredentials')
+        : err.message;
     }
-    return err instanceof Error ? err.message : t('protocols.servers.failedMessage');
+    return err instanceof Error ? err.message : t('access.servers.failedMessage');
   }
 
-  async function writeSubsonic(payload: Parameters<typeof updateSubsonicConfig>[0]): Promise<boolean> {
-    setServersSaving('subsonic');
-    setSubsonicError(null);
+  async function toggleService(id: ServiceId, next: boolean): Promise<void> {
+    if (saving) return;
+    setSaving(id);
     try {
-      setSubsonic(await updateSubsonicConfig(payload));
-      return true;
-    } catch (err) {
-      const text = subsonicErrorText(err);
-      setSubsonicError(text);
-      if (!subsonic?.enabled) {
-        pushAlert({ tone: 'warn', title: t('protocols.servers.failedTitle'), message: text });
+      if (id === 'dlna') {
+        await updateContentConfig({ mediaServer: { enabled: next } });
+        await refreshConfig();
+      } else if (id === 'subsonic') {
+        setSubsonic(await updateSubsonicConfig({ enabled: next }));
       }
-      return false;
+    } catch (err) {
+      pushAlert({ tone: 'error', title: t('access.failedTitle'), message: errorText(err) });
     } finally {
-      setServersSaving(null);
+      setSaving(null);
     }
-  }
-
-  async function toggleSubsonic(next: boolean): Promise<void> {
-    if (serversSaving) return;
-    if (await writeSubsonic({ enabled: next })) setSubsonicDirty(false);
   }
 
   async function copyClientUrl(): Promise<void> {
-    if (!subsonic) return;
-    const ok = await copyText(subsonic.url);
-    if (!ok) return;
+    if (!subsonic || !(await copyText(subsonic.url))) return;
     setUrlCopied(true);
     window.setTimeout(() => setUrlCopied(false), 2000);
   }
 
-  async function saveSubsonicSettings(event: React.FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    if (serversSaving || !subsonic) return;
-    const limit = Number(subsonicDraft.directoryLimit);
-    if (!Number.isFinite(limit) || limit === subsonic.directoryLimit) return;
-    if (await writeSubsonic({ directoryLimit: limit })) {
-      setSubsonicDirty(false);
-      pushAlert({
-        tone: 'success',
-        title: t('protocols.servers.settingsSavedTitle'),
-        message: t('protocols.servers.settingsSavedMessage'),
-      });
+  /** Settings that belong to one interface, shown in its card while it is serving.
+   *  Interfaces with nothing to configure simply return null. */
+  function renderExtras(id: ServiceId): JSX.Element | null {
+    if (id === 'subsonic' && subsonicEnabled && subsonic) {
+      return (
+        <div className="access-url" title={subsonic.url}>
+          <code className="access-url__text">{subsonic.url}</code>
+          <button
+            type="button"
+            className={`access-url__copy${urlCopied ? ' is-done' : ''}`}
+            onClick={() => void copyClientUrl()}
+          >
+            {urlCopied ? t('access.servers.copied') : t('access.servers.copy')}
+          </button>
+        </div>
+      );
     }
+
+    return null;
   }
 
   if (loading) {
     return (
       <div className="setup-layout">
         <div className="setup-placeholder">
-          <InlineState kind="loading" title={t('protocols.loading.title')} message={t('protocols.loading.message')} />
+          <InlineState kind="loading" title={t('access.loading.title')} message={t('access.loading.message')} />
         </div>
       </div>
     );
@@ -183,7 +178,7 @@ export default function AccessView(): JSX.Element {
         <div className="setup-placeholder">
           <InlineState
             kind="error"
-            title={t('protocols.errorState.title')}
+            title={t('access.errorState.title')}
             message={error}
             action={{ label: t('access.retry'), onClick: () => void refreshConfig() }}
           />
@@ -200,152 +195,58 @@ export default function AccessView(): JSX.Element {
           <h1 className="setup-title">{t('access.title')}</h1>
           <p className="setup-subtitle">{t('access.subtitle')}</p>
         </div>
+        <span className="access-count">
+          {t('access.count', { on: enabledCount, total: ORDER.length })}
+        </span>
       </header>
 
-      <div className="setup-grid">
-        <section className="setup-section setup-section--full">
-          <div className="setup-rows">
-            {/* Loxone protocol server — driven by the deployment mode, not a switch. */}
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('protocols.servers.loxoneLabel')}</div>
-                <div className="setup-row__desc">
-                  {standalone
-                    ? t('protocols.servers.loxoneDescStandalone')
-                    : t('protocols.servers.loxoneDescLoxone')}
-                </div>
-              </div>
-              <div className="setup-row__control">
-                <span className={`setup-badge${standalone ? '' : ' setup-badge--ok'}`}>
-                  {standalone ? t('protocols.servers.loxoneOff') : t('protocols.servers.required')}
+      <div className="access-grid">
+        {ORDER.map((id) => {
+          const on = isOn[id];
+          // Loxone follows the integration switch on Players, so here it only reports.
+          const readOnly = id === 'loxone';
+          const extras = renderExtras(id);
+          const pending = pendingLabel(id);
+          // Services switched from another screen say so, since they have no toggle here.
+          const hint = t(`access.services.${id}.hint`, { defaultValue: '' });
+          return (
+            <article key={id} className={`access-card${on ? ' is-on' : ''}`}>
+              <div className="access-card__head">
+                <span className="access-card__icon" aria-hidden="true">
+                  <ServiceMark id={id} />
                 </span>
-                <button
-                  type="button"
-                  className={`setup-toggle${standalone ? '' : ' is-on'}`}
-                  aria-label={t('protocols.servers.loxoneLabel')}
-                  aria-pressed={!standalone}
-                  disabled
-                  title={standalone ? t('protocols.servers.loxoneOffHint') : t('protocols.servers.requiredHint')}
-                />
-              </div>
-            </div>
-
-            {/* DLNA MediaServer — the inverse of the DLNA output: we serve content. */}
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('protocols.servers.dlnaLabel')}</div>
-                <div className="setup-row__desc">{t('protocols.servers.dlnaDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <button
-                  type="button"
-                  className={`setup-toggle${mediaServerEnabled ? ' is-on' : ''}`}
-                  aria-label={t('protocols.servers.dlnaLabel')}
-                  aria-pressed={mediaServerEnabled}
-                  disabled={serversSaving !== null}
-                  onClick={() => void toggleMediaServer(!mediaServerEnabled)}
-                />
-              </div>
-            </div>
-
-            {/* Subsonic API server. */}
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('protocols.servers.subsonicLabel')}</div>
-                <div className="setup-row__desc">{t('protocols.servers.subsonicDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <button
-                  type="button"
-                  className={`setup-toggle${subsonicEnabled ? ' is-on' : ''}`}
-                  aria-label={t('protocols.servers.subsonicLabel')}
-                  aria-pressed={subsonicEnabled}
-                  disabled={serversSaving !== null}
-                  onClick={() => void toggleSubsonic(!subsonicEnabled)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {subsonicEnabled && subsonic ? (
-            <div className="setup-subpanel">
-              <div className="setup-facts">
-                <div className="setup-facts__item">
-                  <span className="setup-facts__label">{t('protocols.servers.subsonicUrl')}</span>
-                  <span className="setup-facts__value setup-facts__value--link">
-                    {subsonic.url}
-                    <button type="button" className="setup-linkcopy" onClick={() => void copyClientUrl()}>
-                      {urlCopied ? t('protocols.servers.copied') : t('protocols.servers.copy')}
-                    </button>
+                <h2 className="access-card__name">{t(`access.services.${id}.name`)}</h2>
+                {readOnly ? (
+                  <span className={`setup-badge${on ? ' setup-badge--ok' : ''}`}>
+                    {on ? t('access.on') : t('access.off')}
                   </span>
-                </div>
-                <div className="setup-facts__item">
-                  <span className="setup-facts__label">{t('protocols.servers.subsonicSignIn')}</span>
-                  <span
-                    className={`setup-facts__value ${subsonic.configured ? 'setup-status' : 'setup-status setup-status--warn'}`}
-                  >
-                    {subsonic.auth.loxone
-                      ? t('protocols.servers.authLoxone')
-                      : subsonic.auth.localUsers
-                        ? t('protocols.servers.authLocal')
-                        : t('protocols.servers.authNone')}
-                  </span>
-                </div>
-                <div className="setup-facts__item">
-                  <span className="setup-facts__label">{t('protocols.servers.subsonicLimit')}</span>
-                  <form
-                    className="setup-inlineform"
-                    onSubmit={(event) => void saveSubsonicSettings(event)}
-                  >
-                    <div className="setup-input" style={{ width: 110 }}>
-                      <input
-                        type="number"
-                        min={subsonic.directoryLimitBounds.min}
-                        max={subsonic.directoryLimitBounds.max}
-                        aria-label={t('protocols.servers.subsonicLimit')}
-                        value={subsonicDraft.directoryLimit}
-                        onChange={(event) => {
-                          setSubsonicDraft({ directoryLimit: event.target.value });
-                          setSubsonicDirty(true);
-                        }}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="setup-btn setup-btn--primary"
-                      disabled={serversSaving !== null || !subsonicDirty}
-                    >
-                      {serversSaving === 'subsonic'
-                        ? t('protocols.servers.saving')
-                        : t('protocols.servers.subsonicSave')}
-                    </button>
-                  </form>
-                </div>
+                ) : (
+                  <button
+                    type="button"
+                    className={`setup-toggle${on ? ' is-on' : ''}`}
+                    aria-label={t(`access.services.${id}.name`)}
+                    aria-pressed={on}
+                    disabled={saving !== null}
+                    onClick={() => void toggleService(id, !on)}
+                  />
+                )}
               </div>
 
-              {subsonicError ? (
-                <div className="setup-note setup-note--warn">
-                  <InfoGlyph />
-                  <span>{subsonicError}</span>
-                </div>
+              <p className="access-card__desc">{t(`access.services.${id}.purpose`)}</p>
+
+              {hint ? <p className="access-card__hint">{hint}</p> : null}
+
+              {pending ? (
+                <span className="access-pending">
+                  <span className="access-pending__dot" aria-hidden="true" />
+                  {pending}
+                </span>
               ) : null}
 
-              {!subsonic.auth.tokenAuthSupported ? (
-                <div className="setup-note setup-note--warn">
-                  <InfoGlyph />
-                  <span>{t('protocols.servers.subsonicTokenWarning')}</span>
-                </div>
-              ) : null}
-
-              {!subsonic.limitations.persistsStarsAndRatings || !subsonic.limitations.writablePlaylists ? (
-                <div className="setup-note">
-                  <InfoGlyph />
-                  <span>{t('protocols.servers.subsonicLimitations')}</span>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-        </section>
+              {extras ? <div className="access-card__extras">{extras}</div> : null}
+            </article>
+          );
+        })}
       </div>
     </div>
   );

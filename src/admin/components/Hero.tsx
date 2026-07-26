@@ -42,16 +42,12 @@ export default function Hero(): JSX.Element {
   const status = React.useMemo((): { label: string; tone: StatusTone } => {
     if (error) return { label: t('hero.status.unavailable'), tone: 'error' };
     if (!info) return { label: t('hero.status.connecting'), tone: 'warn' };
-    if (info.paired) return { label: t('hero.status.paired'), tone: 'success' };
-    // Standalone runs without a Miniserver, so "unpaired" does not apply.
-    if (info.mode === 'standalone') return { label: t('hero.status.standalone'), tone: 'success' };
-    // No mode chosen yet → first-run setup (neutral, not the amber "unpaired").
-    if (info.mode == null) return { label: t('hero.status.setup'), tone: 'muted' };
-    return { label: t('hero.status.unpaired'), tone: 'warn' };
+    // Neutral operational status only. The Loxone connection state (connected /
+    // pairing / not connected) lives on the Players screen, not in the global header.
+    return { label: t('hero.status.online'), tone: 'success' };
   }, [error, info, t]);
 
   const uptime = formatUptime(info?.uptime);
-  const zoneCount = typeof info?.zones === 'number' ? info.zones : null;
   const coreVersion = info?.version ?? '';
 
   return (
@@ -86,7 +82,6 @@ export default function Hero(): JSX.Element {
         <span className="hero-wordmark__sonn">sonn</span>
         <span className="hero-wordmark__core">core</span>
       </h1>
-      <p className="hero-tagline">{t('hero.tagline')}</p>
 
       <div className="diag-strip">
         <div className="diag-item">
@@ -97,12 +92,6 @@ export default function Hero(): JSX.Element {
           <div className="diag-item">
             <span className="diag-label">{t('hero.labels.uptime')}</span>
             <span className="diag-value">{uptime}</span>
-          </div>
-        ) : null}
-        {zoneCount !== null ? (
-          <div className="diag-item">
-            <span className="diag-label">{t('hero.labels.zones')}</span>
-            <span className="diag-value">{zoneCount}</span>
           </div>
         ) : null}
         {coreVersion ? (

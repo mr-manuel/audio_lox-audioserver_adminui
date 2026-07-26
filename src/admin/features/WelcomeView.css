@@ -1,7 +1,7 @@
 /* ============================================================
-   Welcome — first-run deployment mode selection (standalone vs
-   Loxone-integrated). Shown on an unconfigured server before any
-   mode has been chosen. Mirrors the interface-chooser card style.
+   Welcome — first-run intro. Two steps: a branded "get started"
+   moment, then create the local admin account. Shown on a server
+   that has no admin account yet.
    ============================================================ */
 
 .welcome-root {
@@ -33,7 +33,7 @@
   color: var(--accent);
   margin: 0 0 10px;
   animation: welcome-fade-up 0.6s var(--spring) both;
-  animation-delay: 0.2s;
+  animation-delay: 2.15s;
 }
 
 .welcome-title {
@@ -42,7 +42,7 @@
   color: var(--text);
   margin: 0 0 10px;
   animation: welcome-fade-up 0.6s var(--spring) both;
-  animation-delay: 0.25s;
+  animation-delay: 2.25s;
 }
 
 .welcome-intro {
@@ -52,12 +52,136 @@
   line-height: 1.5;
   margin: 0 0 30px;
   animation: welcome-fade-up 0.6s var(--spring) both;
-  animation-delay: 0.3s;
+  animation-delay: 2.35s;
 }
 
 @keyframes welcome-fade-up {
   from { opacity: 0; transform: translateY(6px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+.welcome-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #04120a;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 2.45s;
+  transition: filter 0.15s, transform 0.15s;
+}
+.welcome-start:hover:not(:disabled) {
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+.welcome-start:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+.welcome-start__go {
+  display: inline-flex;
+}
+
+.welcome-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 360px;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 2.4s;
+}
+.welcome-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+.welcome-field__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.welcome-input {
+  width: 100%;
+  padding: 11px 13px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  transition: border-color 0.15s;
+}
+.welcome-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+.welcome-input:disabled {
+  opacity: 0.6;
+}
+.welcome-error {
+  margin: 0;
+  font-size: 13px;
+  color: #f87171;
+  text-align: left;
+}
+.welcome-form .welcome-start {
+  margin-top: 4px;
+  justify-content: center;
+  animation: none;
+}
+
+/* Keyed per step so each one animates in with the hero rather than sitting static.
+   Base delays land the first paint after the hero's ~2s intro; once the user
+   interacts, `.is-quick` snaps later step swaps in — they don't wait on the hero. */
+.welcome-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.welcome-step.is-quick .welcome-title {
+  animation-delay: 0.04s;
+}
+.welcome-step.is-quick .welcome-intro {
+  animation-delay: 0.1s;
+}
+.welcome-step.is-quick .welcome-form {
+  animation-delay: 0.16s;
+}
+.welcome-step.is-quick .welcome-start {
+  animation-delay: 0.2s;
+}
+.welcome-step.is-quick .welcome-back {
+  animation-delay: 0.28s;
+}
+.welcome-back {
+  margin-top: 16px;
+  padding: 6px 10px;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.15s;
+  animation: welcome-fade-up 0.6s var(--spring) both;
+  animation-delay: 2.55s;
+}
+.welcome-back:hover:not(:disabled) {
+  color: var(--text);
+}
+.welcome-back:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .welcome-choices {

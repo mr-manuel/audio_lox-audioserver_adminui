@@ -11,7 +11,10 @@ export type AudioServerConfig = {
   uuid?: string;
   macId?: string;
   paired?: boolean;
+  /** @deprecated Retired; the server migrates this to loxoneEnabled/setupComplete. */
   mode?: 'loxone' | 'standalone';
+  loxoneEnabled?: boolean;
+  setupComplete?: boolean;
   authEnabled?: boolean;
   extensions?: AudioServerExtension[];
   crossfadeSec?: number;
@@ -65,10 +68,6 @@ export type TtsConfig = {
 };
 
 export type InputsConfig = {
-  airplay?: { enabled?: boolean };
-  spotify?: { enabled?: boolean };
-  bluetooth?: { enabled?: boolean };
-  dlna?: { enabled?: boolean };
   lineIn?: { inputs?: unknown[] | null };
 };
 

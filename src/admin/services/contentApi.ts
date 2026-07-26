@@ -37,13 +37,8 @@ export type ContentUpdatePayload = {
   };
 };
 
-export type OutputsUpdatePayload = Record<string, { enabled: boolean }>;
-
+/** Server-wide input settings. Receivers are per player (see zonesApi), not here. */
 export type InputsUpdatePayload = {
-  airplay?: { enabled?: boolean };
-  spotify?: { enabled?: boolean };
-  bluetooth?: { enabled?: boolean };
-  dlna?: { enabled?: boolean };
   lineIn?: { inputs?: Array<Record<string, unknown>> | null };
 };
 
@@ -62,16 +57,6 @@ export async function updateInputsConfig(payload: InputsUpdatePayload): Promise<
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
     errorMessage: 'Failed to update input settings',
-  });
-}
-
-/** Availability of output types, keyed by output id — gates the zone picker. */
-export async function updateOutputsConfig(payload: OutputsUpdatePayload): Promise<void> {
-  await requestOk(`${API_BASE}/config/outputs`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-    errorMessage: 'Failed to update output settings',
   });
 }
 

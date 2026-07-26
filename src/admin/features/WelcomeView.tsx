@@ -2,10 +2,8 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import './WelcomeView.css';
 
-type DeploymentMode = 'loxone' | 'standalone';
-
 type WelcomeViewProps = {
-  onChoose: (mode: DeploymentMode) => Promise<void> | void;
+  onCreateAdmin: (username: string, password: string) => Promise<void> | void;
   isLeaving?: boolean;
 };
 
@@ -17,72 +15,108 @@ function ChevronRight(): JSX.Element {
   );
 }
 
-function StandaloneIcon(): JSX.Element {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="4" width="18" height="6" rx="1.5" />
-      <rect x="3" y="14" width="18" height="6" rx="1.5" />
-      <line x1="7" y1="7" x2="7" y2="7" />
-      <line x1="7" y1="17" x2="7" y2="17" />
-    </svg>
-  );
-}
-
-function LoxoneIcon(): JSX.Element {
-  return (
-    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M3 11l9-7 9 7" />
-      <path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9" />
-      <path d="M9 20v-6h6v6" />
-    </svg>
-  );
-}
-
-export default function WelcomeView({ onChoose, isLeaving }: WelcomeViewProps): JSX.Element {
+// First-run, two steps: a branded "get started" intro, then create the local admin
+// account that guards the admin UI. Each step re-mounts (keyed) so it animates in
+// alongside the hero's intro rather than sitting there statically. No deployment-mode
+// fork — Loxone is connected later from the Players screen.
+export default function WelcomeView({ onCreateAdmin, isLeaving }: WelcomeViewProps): JSX.Element {
   const { t } = useTranslation();
-  const [pending, setPending] = React.useState<DeploymentMode | null>(null);
+  const [step, setStep] = React.useState<'intro' | 'create'>('intro');
+  // The initial entrance is timed to land after the hero's ~2s intro. Once the user
+  // interacts, later step swaps should snap in — they're not waiting on the hero.
+  const [instant, setInstant] = React.useState(false);
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [pending, setPending] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
 
-  const handleChoose = async (mode: DeploymentMode): Promise<void> => {
-    if (pending) return;
-    setPending(mode);
+  const canSubmit = username.trim().length > 0 && password.length > 0 && !pending;
+
+  const handleSubmit = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault();
+    if (!canSubmit) return;
+    setPending(true);
+    setError(null);
     try {
-      await onChoose(mode);
-    } catch {
-      // Let the user retry if persisting the choice failed.
-      setPending(null);
+      await onCreateAdmin(username.trim(), password);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('welcome.createFailed'));
+      setPending(false);
     }
   };
-
-  const choices: Array<{ mode: DeploymentMode; icon: JSX.Element }> = [
-    { mode: 'standalone', icon: <StandaloneIcon /> },
-    { mode: 'loxone', icon: <LoxoneIcon /> },
-  ];
 
   return (
     <div className={`welcome-root${isLeaving ? ' is-leaving' : ''}${pending ? ' is-committing' : ''}`}>
       <p className="welcome-eyebrow">{t('welcome.eyebrow')}</p>
-      <h2 className="welcome-title">{t('welcome.title')}</h2>
-      <p className="welcome-intro">{t('welcome.intro')}</p>
 
-      <div className="welcome-choices">
-        {choices.map(({ mode, icon }) => (
+      {step === 'intro' ? (
+        <div key="intro" className={`welcome-step${instant ? ' is-quick' : ''}`}>
+          <h2 className="welcome-title">{t('welcome.title')}</h2>
+          <p className="welcome-intro">{t('welcome.introStep1')}</p>
           <button
-            key={mode}
             type="button"
-            className={`welcome-choice${pending === mode ? ' is-pending' : ''}`}
-            onClick={() => void handleChoose(mode)}
-            disabled={pending !== null}
-            aria-label={t(`welcome.${mode}.title`)}
+            className="welcome-start"
+            onClick={() => {
+              setInstant(true);
+              setStep('create');
+            }}
           >
-            <span className="welcome-choice__go" aria-hidden="true"><ChevronRight /></span>
-            <span className="welcome-choice__icon" aria-hidden="true">{icon}</span>
-            <span className="welcome-choice__name">{t(`welcome.${mode}.title`)}</span>
-            <span className="welcome-choice__desc">{t(`welcome.${mode}.desc`)}</span>
+            <span className="welcome-start__label">{t('welcome.getStarted')}</span>
+            <span className="welcome-start__go" aria-hidden="true"><ChevronRight /></span>
           </button>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div key="create" className={`welcome-step${instant ? ' is-quick' : ''}`}>
+          <h2 className="welcome-title">{t('welcome.createTitle')}</h2>
+          <p className="welcome-intro">{t('welcome.introStep2')}</p>
 
-      <p className="welcome-foot">{t('welcome.foot')}</p>
+          <form className="welcome-form" onSubmit={(e) => void handleSubmit(e)}>
+            <label className="welcome-field">
+              <span className="welcome-field__label">{t('welcome.usernameLabel')}</span>
+              <input
+                type="text"
+                autoComplete="username"
+                className="welcome-input"
+                value={username}
+                maxLength={64}
+                disabled={pending}
+                onChange={(e) => setUsername(e.target.value)}
+                autoFocus
+              />
+            </label>
+            <label className="welcome-field">
+              <span className="welcome-field__label">{t('welcome.passwordLabel')}</span>
+              <input
+                type="password"
+                autoComplete="new-password"
+                className="welcome-input"
+                value={password}
+                maxLength={256}
+                disabled={pending}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+
+            {error ? <p className="welcome-error">{error}</p> : null}
+
+            <button type="submit" className="welcome-start" disabled={!canSubmit}>
+              <span className="welcome-start__label">
+                {pending ? t('welcome.creating') : t('welcome.createAdmin')}
+              </span>
+              <span className="welcome-start__go" aria-hidden="true"><ChevronRight /></span>
+            </button>
+          </form>
+
+          <button
+            type="button"
+            className="welcome-back"
+            onClick={() => setStep('intro')}
+            disabled={pending}
+          >
+            {t('welcome.back')}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -2,11 +2,10 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import './ZonesView.css';
-import { getConfig, updateGroupsConfig } from '../services/setupApi';
+import { getConfig, updateGroupsConfig, updateManagedPlayers, setLoxoneConnection } from '../services/setupApi';
 import { createZone, deleteZone, fetchZoneStates, setZoneOutputLatency, updateZones, type ZonePlaybackState } from '../services/zonesApi';
 import { fetchGroups, type GroupRecord } from '../services/groupsApi';
-import SubTabs from '../components/SubTabs';
-import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
+import { SubPanel } from '../components/SubPanel';
 import { useGlobalAlert } from '../components/GlobalAlert';
 import { useConfirm } from '../components/ConfirmDialog';
 import InlineState from '../components/InlineState';
@@ -81,7 +80,9 @@ type AudioServerExtension = {
 type AudioServerConfig = {
   macId?: string;
   name?: string;
-  mode?: 'loxone' | 'standalone';
+  paired?: boolean;
+  loxoneEnabled?: boolean;
+  managedPlayers?: boolean;
   extensions?: AudioServerExtension[];
 };
 
@@ -98,6 +99,7 @@ interface ConfigResponse {
     inputs?: {
       airplay?: { enabled?: boolean };
       spotify?: { enabled?: boolean };
+      dlna?: { enabled?: boolean };
       bluetooth?: { enabled?: boolean };
     };
     groups?: {
@@ -122,11 +124,53 @@ interface ExtensionPlaceholder {
   label: string;
 }
 
+/** Crossed-out circle: no player layer at all. */
+function DisabledIcon(): JSX.Element {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <line x1="5.6" y1="18.4" x2="18.4" y2="5.6" />
+    </svg>
+  );
+}
+
+/** Speaker: players you set up and control here. */
+function ManualIcon(): JSX.Element {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="5" y="2.5" width="14" height="19" rx="2.5" />
+      <circle cx="12" cy="15" r="3.4" />
+      <circle cx="12" cy="7" r="1.4" />
+    </svg>
+  );
+}
+
+/** Loxone brand mark: players come from the Loxone project. */
+function LoxoneIcon(): JSX.Element {
+  return (
+    <img
+      src={`${import.meta.env.BASE_URL || '/'}providers/loxone.png`}
+      alt=""
+      width={20}
+      height={20}
+    />
+  );
+}
+
 export default function ZonesView(): JSX.Element {
   const { t } = useTranslation();
   const [zoneGroups, setZoneGroups] = React.useState<ZoneGroup[]>([]);
   const [baseSerial, setBaseSerial] = React.useState<string>('');
+  // "standalone" = Loxone not connected. When Loxone is connected, players are
+  // pushed by the Miniserver and the local managed-players controls don't apply.
   const [standalone, setStandalone] = React.useState(false);
+  const [paired, setPaired] = React.useState(false);
+  // Opt-in for the local player layer (only when Loxone is not connected). Off =
+  // pure content/access server (DLNA/Subsonic), no players shown.
+  const [managedPlayers, setManagedPlayers] = React.useState(false);
+  const [managedSaving, setManagedSaving] = React.useState(false);
+  const [loxoneModalOpen, setLoxoneModalOpen] = React.useState(false);
+  const [loxoneBusy, setLoxoneBusy] = React.useState(false);
   const [addZoneOpen, setAddZoneOpen] = React.useState(false);
   const [newZoneName, setNewZoneName] = React.useState('');
   const [addingZone, setAddingZone] = React.useState(false);
@@ -143,17 +187,7 @@ export default function ZonesView(): JSX.Element {
   const [hasSpotifyAccounts, setHasSpotifyAccounts] = React.useState(false);
   const [spotifyDiscovery, setSpotifyDiscovery] = React.useState<Record<number, SpotifyDiscoveryState>>({});
   const [tileOutputLatencyDrafts, setTileOutputLatencyDrafts] = React.useState<Record<number, string>>({});
-  const [outputFilter, setOutputFilter] = React.useState<'all' | 'assigned' | 'unassigned'>('all');
-  const { displayed: displayedFilter, isLeaving: filterPanelLeaving } = useSubPanelTransition(
-    outputFilter,
-    200,
-  );
   const [zoneQuery, setZoneQuery] = React.useState('');
-  const [globalInputs, setGlobalInputs] = React.useState({
-    airplayEnabled: true,
-    spotifyEnabled: true,
-    bluetoothEnabled: true,
-  });
   const [powerGroups, setPowerGroups] = React.useState<PowerGroupConfig[]>([]);
   const [zoneStateMap, setZoneStateMap] = React.useState<Record<number, ZonePlaybackState>>({});
   const [groups, setGroups] = React.useState<GroupRecord[]>([]);
@@ -163,8 +197,10 @@ export default function ZonesView(): JSX.Element {
     setActiveZoneModal(null);
   }, []);
 
-  const refreshZones = React.useCallback(async (signal?: AbortSignal): Promise<void> => {
-    setLoading(true);
+  // `quiet` re-reads without flipping the loading state, so background refreshes
+  // (e.g. while waiting for a Miniserver push) don't flash the placeholder.
+  const refreshZones = React.useCallback(async (signal?: AbortSignal, quiet = false): Promise<void> => {
+    if (!quiet) setLoading(true);
     setError(null);
     try {
       const [cfg, definitions, states, groupList] = await Promise.all([
@@ -180,16 +216,16 @@ export default function ZonesView(): JSX.Element {
         ? data.config?.content?.spotify?.accounts
         : [];
       const base = (data.config?.system?.audioserver?.macId ?? '').toUpperCase();
-      setStandalone(data.config?.system?.audioserver?.mode === 'standalone');
+      const loxoneConnected = data.config?.system?.audioserver?.loxoneEnabled === true;
+      setStandalone(!loxoneConnected);
+      setPaired(data.config?.system?.audioserver?.paired === true);
+      // Explicit flag wins; absent means "on if zones already exist" so existing
+      // local setups aren't suddenly hidden behind the opt-in gate.
+      const rawManaged = data.config?.system?.audioserver?.managedPlayers;
+      setManagedPlayers(typeof rawManaged === 'boolean' ? rawManaged : rawZones.length > 0);
       const hasAccounts = spotifyAccounts.length > 0;
-      const inputs = data.config?.inputs ?? {};
       setHasSpotifyAccounts(hasAccounts);
       setBaseSerial(base);
-      setGlobalInputs({
-        airplayEnabled: inputs.airplay?.enabled !== false,
-        spotifyEnabled: inputs.spotify?.enabled !== false,
-        bluetoothEnabled: inputs.bluetooth?.enabled !== false,
-      });
       setPowerGroups(Array.isArray(data.config?.groups?.powerGroups) ? data.config?.groups?.powerGroups : []);
       setTransportDefinitions(definitions);
       setZoneStateMap(states?.map ?? {});
@@ -244,6 +280,17 @@ export default function ZonesView(): JSX.Element {
       clearInterval(timer);
     };
   }, []);
+
+  // While waiting for the Miniserver to push its configuration, re-read the config
+  // so the pushed players (and the paired state) appear on their own. The regular
+  // poll above only refreshes playback state, so without this the page would sit on
+  // "Pairing…" until a manual browser refresh. Stops as soon as pairing lands.
+  const awaitingPairing = !standalone && !paired;
+  React.useEffect(() => {
+    if (!awaitingPairing) return;
+    const timer = setInterval(() => void refreshZones(undefined, true), 4000);
+    return () => clearInterval(timer);
+  }, [awaitingPairing, refreshZones]);
 
   const handleCreateZone = React.useCallback(async (): Promise<void> => {
     const name = newZoneName.trim();
@@ -380,11 +427,6 @@ export default function ZonesView(): JSX.Element {
     const query = zoneQuery.trim().toLowerCase();
     displayGroups.forEach((group) => {
       const zones = group.zones.filter((zone) => {
-        const hasOutput = Boolean(getPrimaryTransport(zone));
-        if (displayedFilter === 'assigned') return hasOutput;
-        if (displayedFilter === 'unassigned') return !hasOutput;
-        return true;
-      }).filter((zone) => {
         if (!query) return true;
         const name = (zone.name ?? '').toLowerCase();
         const idLabel = String(zone.id ?? '');
@@ -399,18 +441,29 @@ export default function ZonesView(): JSX.Element {
         groups.push({ ...group, zones, totalZones: 0, filteredEmpty: false });
         return;
       }
-      if (displayedFilter !== 'all' || query) {
+      if (query) {
         groups.push({ ...group, zones, totalZones: group.zones.length, filteredEmpty: true });
       }
     });
     return groups;
-  }, [displayGroups, displayedFilter, zoneQuery]);
+  }, [displayGroups, zoneQuery]);
 
   const totalZones = zoneGroups.reduce((sum, g) => sum + g.zones.length, 0);
 
   // Standalone caps zones at 24, matching the Loxone audioserver ceiling.
   const STANDALONE_MAX_ZONES = 24;
   const atZoneLimit = standalone && totalZones >= STANDALONE_MAX_ZONES;
+  // The player layer is shown when Loxone pushes zones, or when the local opt-in
+  // is on. Off = pure content/access server, so the rest stays hidden.
+  const showPlayers = !standalone || managedPlayers;
+  // One explicit choice: nobody manages players ('none'), you do ('manual'), or the
+  // Miniserver does ('loxone'). Loxone wins when connected — it owns the zones then.
+  const playerMode: 'none' | 'manual' | 'loxone' = !standalone
+    ? 'loxone'
+    : managedPlayers
+      ? 'manual'
+      : 'none';
+  const busySetup = managedSaving || loxoneBusy;
 
   const MAX_EXTENSION_COUNT = 10;
 
@@ -490,6 +543,86 @@ export default function ZonesView(): JSX.Element {
     transportDefinitions.forEach((def) => map.set(def.id, def));
     return map;
   }, [transportDefinitions]);
+
+  // Standalone opt-in for the player layer. Enabling reveals the rest of this
+  // view; disabling collapses it back to the gate (existing zones stay in config,
+  // just hidden). Optimistic; reverts on failure.
+  async function handleToggleManagedPlayers(next: boolean): Promise<void> {
+    if (managedSaving) return;
+    const previous = managedPlayers;
+    setManagedSaving(true);
+    setManagedPlayers(next);
+    try {
+      await updateManagedPlayers(next);
+    } catch (err) {
+      setManagedPlayers(previous);
+      pushAlert({
+        tone: 'error',
+        title: t('zones.managed.failedTitle'),
+        message: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      setManagedSaving(false);
+    }
+  }
+
+  // Connect or disconnect Loxone in the background: the server starts/stops just its
+  // protocol subsystem — no restart, the admin UI stays live. Refresh afterwards so
+  // the card, the managed toggle and the (Miniserver-pushed) zone list reflect it.
+  async function applyLoxone(enabled: boolean): Promise<void> {
+    if (loxoneBusy) return;
+    setLoxoneBusy(true);
+    try {
+      await setLoxoneConnection(enabled);
+      setLoxoneModalOpen(false);
+      await refreshZones();
+    } catch (err) {
+      pushAlert({
+        tone: 'error',
+        title: t('zones.loxone.failedTitle'),
+        message: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      setLoxoneBusy(false);
+    }
+  }
+
+  // The single either/or on this screen. Picking Loxone opens the pairing modal (it
+  // needs the serial/host instructions); the other two apply straight away. Leaving
+  // Loxone always disconnects it first so the two can never both claim the players.
+  async function selectPlayerMode(next: 'none' | 'manual' | 'loxone'): Promise<void> {
+    if (busySetup) return;
+
+    // The Loxone card always opens its modal — to connect when it isn't the current
+    // choice, and to show the pairing state / disconnect when it already is.
+    if (next === 'loxone') {
+      setLoxoneModalOpen(true);
+      return;
+    }
+
+    if (next === playerMode) return;
+
+    if (playerMode === 'loxone') {
+      const ok = await confirm({
+        title: t(next === 'manual' ? 'zones.setup.confirmManualTitle' : 'zones.setup.confirmOffTitle'),
+        message: t(next === 'manual' ? 'zones.setup.confirmManualMessage' : 'zones.setup.confirmOffMessage'),
+        confirmLabel: t('zones.setup.confirmSwitch'),
+        cancelLabel: t('zones.add.cancel'),
+      });
+      if (!ok) return;
+      // Persist the local intent first so the post-disconnect reload lands on it.
+      try {
+        setManagedPlayers(next === 'manual');
+        await updateManagedPlayers(next === 'manual');
+      } catch {
+        // Non-fatal: disconnecting still applies and the gate defaults sanely.
+      }
+      await applyLoxone(false);
+      return;
+    }
+
+    await handleToggleManagedPlayers(next === 'manual');
+  }
 
   const handleTileInputToggle = React.useCallback(
     (zone: Zone, badge: InputBadge): void => {
@@ -844,23 +977,9 @@ export default function ZonesView(): JSX.Element {
           <p className="zones-eyebrow">{t('zones.eyebrow')}</p>
           <h1 className="zones-title">{t('zones.title')}</h1>
           <p className="zones-subtitle">{t('zones.subtitle')}</p>
-          <p className="zones-subtitle zones-subtitle--mode">
-            {standalone ? t('zones.subtitleStandalone') : t('zones.subtitleIntegrated')}
-          </p>
         </div>
-        <SubTabs
-          className="zones-head__subtabs"
-          ariaLabel={t('zones.filter.ariaLabel')}
-          active={outputFilter}
-          onChange={setOutputFilter}
-          tabs={[
-            { key: 'all', label: t('zones.filter.all') },
-            { key: 'assigned', label: t('zones.filter.assigned') },
-            { key: 'unassigned', label: t('zones.filter.unassigned') },
-          ]}
-        />
 
-        {standalone ? (
+        {standalone && managedPlayers ? (
           <button
             type="button"
             className="zones-add-btn"
@@ -876,7 +995,89 @@ export default function ZonesView(): JSX.Element {
         ) : null}
       </header>
 
-      <SubPanel key={displayedFilter} isLeaving={filterPanelLeaving}>
+      {/* One explicit either/or: you manage the players, or the Miniserver does. */}
+      <section className="zones-setup">
+        <h2 className="zones-setup__title">{t('zones.setup.title')}</h2>
+        <p className="zones-setup__desc">{t('zones.setup.desc')}</p>
+
+        <div className="zones-setup__options" role="radiogroup" aria-label={t('zones.setup.title')}>
+          <button
+            type="button"
+            role="radio"
+            aria-checked={playerMode === 'none'}
+            className={`zones-setup-card${playerMode === 'none' ? ' is-active' : ''}`}
+            disabled={busySetup}
+            onClick={() => void selectPlayerMode('none')}
+          >
+            <span className="zones-setup-card__head">
+              <span className="zones-setup-card__icon" aria-hidden="true"><DisabledIcon /></span>
+              <span className="zones-setup-card__label">{t('zones.setup.none.label')}</span>
+              {playerMode === 'none' ? (
+                <span className="zones-setup-card__badge">{t('zones.setup.active')}</span>
+              ) : null}
+            </span>
+            <span className="zones-setup-card__desc">{t('zones.setup.none.desc')}</span>
+          </button>
+
+          <button
+            type="button"
+            role="radio"
+            aria-checked={playerMode === 'manual'}
+            className={`zones-setup-card${playerMode === 'manual' ? ' is-active' : ''}`}
+            disabled={busySetup}
+            onClick={() => void selectPlayerMode('manual')}
+          >
+            <span className="zones-setup-card__head">
+              <span className="zones-setup-card__icon" aria-hidden="true"><ManualIcon /></span>
+              <span className="zones-setup-card__label">{t('zones.setup.manual.label')}</span>
+              {playerMode === 'manual' ? (
+                <span className="zones-setup-card__badge">{t('zones.setup.active')}</span>
+              ) : null}
+            </span>
+            <span className="zones-setup-card__desc">{t('zones.setup.manual.desc')}</span>
+          </button>
+
+          <button
+            type="button"
+            role="radio"
+            aria-checked={playerMode === 'loxone'}
+            className={`zones-setup-card${playerMode === 'loxone' ? ' is-active' : ''}${
+              playerMode === 'loxone' && !paired ? ' is-pairing' : ''
+            }`}
+            disabled={busySetup}
+            onClick={() => void selectPlayerMode('loxone')}
+          >
+            <span className="zones-setup-card__head">
+              <span className="zones-setup-card__icon" aria-hidden="true"><LoxoneIcon /></span>
+              <span className="zones-setup-card__label">{t('zones.setup.loxone.label')}</span>
+              {playerMode === 'loxone' ? (
+                paired ? (
+                  <span className="zones-setup-card__badge">{t('zones.setup.active')}</span>
+                ) : (
+                  // Pairing is an active wait (we poll for the Miniserver push), so the
+                  // badge pulses to show something is genuinely happening.
+                  <span className="zones-setup-card__badge zones-setup-card__badge--pairing">
+                    <span className="zones-setup-card__pulse" aria-hidden="true" />
+                    {t('zones.setup.pairing')}
+                  </span>
+                )
+              ) : null}
+            </span>
+            <span className="zones-setup-card__desc">
+              {playerMode === 'loxone'
+                ? paired
+                  ? t('zones.loxone.descPaired')
+                  : t('zones.loxone.descWaiting')
+                : t('zones.setup.loxone.desc')}
+            </span>
+          </button>
+        </div>
+      </section>
+
+      {showPlayers ? (
+        <>
+
+      <SubPanel isLeaving={false}>
       {filteredGroups.length === 0 ? (
         <div className="zones-empty">
           <p className="zones-empty__title">{standalone ? t('zones.add.emptyTitle') : t('zones.emptyTitle')}</p>
@@ -951,12 +1152,9 @@ export default function ZonesView(): JSX.Element {
                           ? rawDeviceName
                           : '';
                       const hasOutput = transportId.length > 0;
-                      const airplayOn = Boolean(
-                        globalInputs.airplayEnabled && zone.inputs?.airplay?.enabled !== false,
-                      );
-                      const spotifyOn = Boolean(
-                        globalInputs.spotifyEnabled && zone.inputs?.spotify?.enabled !== false,
-                      );
+                      // Receivers are opt-in per player, matching the server's gate.
+                      const airplayOn = zone.inputs?.airplay?.enabled === true;
+                      const spotifyOn = zone.inputs?.spotify?.enabled === true;
                       const dlnaOn = Boolean(zone.inputs?.dlna?.enabled);
 
                       // Group role lookup — Loxone sync group (master/member)
@@ -1166,6 +1364,8 @@ export default function ZonesView(): JSX.Element {
         </div>
       )}
       </SubPanel>
+        </>
+      ) : null}
 
       {activeZoneModal && modalZone ? (
         <ZoneModal
@@ -1259,6 +1459,76 @@ export default function ZonesView(): JSX.Element {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal
+        open={loxoneModalOpen}
+        onClose={() => {
+          if (!loxoneBusy) setLoxoneModalOpen(false);
+        }}
+        backdropClassName="zones-add-backdrop"
+        dialogClassName="zones-add-modal zones-loxone-modal"
+        ariaLabelledBy="zones-loxone-title"
+      >
+        <h3 id="zones-loxone-title" className="zones-add-modal__title">{t('zones.loxone.modalTitle')}</h3>
+        <p className="zones-add-modal__sub">
+          {standalone
+            ? t('zones.loxone.modalConnectSub')
+            : paired
+              ? t('zones.loxone.modalPairedSub')
+              : t('zones.loxone.modalWaitingSub')}
+        </p>
+
+        {standalone || !paired ? (
+          <dl className="zones-loxone-modal__facts">
+            <div>
+              <dt>{t('zones.loxone.serial')}</dt>
+              <dd>{baseSerial || '—'}</dd>
+            </div>
+            <div>
+              <dt>{t('zones.loxone.host')}</dt>
+              <dd>{typeof window !== 'undefined' ? window.location.host || '—' : '—'}</dd>
+            </div>
+          </dl>
+        ) : null}
+
+        {!standalone && !paired ? (
+          <ol className="zones-loxone-modal__steps">
+            <li>{t('zones.loxone.step1')}</li>
+            <li>{t('zones.loxone.step2')}</li>
+            <li>{t('zones.loxone.step3')}</li>
+          </ol>
+        ) : null}
+
+        <div className="zones-add-modal__actions">
+          <button
+            type="button"
+            className="zones-modal__btn"
+            onClick={() => setLoxoneModalOpen(false)}
+            disabled={loxoneBusy}
+          >
+            {t('zones.add.cancel')}
+          </button>
+          {standalone ? (
+            <button
+              type="button"
+              className="zones-modal__btn zones-modal__btn--primary"
+              onClick={() => void applyLoxone(true)}
+              disabled={loxoneBusy}
+            >
+              {t('zones.loxone.connect')}
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="zones-modal__btn zones-modal__btn--danger"
+              onClick={() => void applyLoxone(false)}
+              disabled={loxoneBusy}
+            >
+              {t('zones.loxone.disconnect')}
+            </button>
+          )}
+        </div>
       </Modal>
     </div>
   );
@@ -2852,10 +3122,6 @@ function ZoneOutputEditor({
     : maBridges.some((b) => b.mode === 'sink' && b.enabled);
   const moduleOptions = definitions
     .filter((definition) => definition.id !== 'snapcast-cast')
-    // Output types switched off under Setup → Protocols are not offered here.
-    // The one already saved on this zone stays listed regardless, so turning a
-    // type off never silently rewrites a zone that is using it.
-    .filter((definition) => definition.enabled !== false || definition.id === selectedId)
     .map((definition) => {
       const active = definition.id === selectedId;
       // Disable MA output if no sink-mode bridge exists yet — keeps the option
@@ -5374,10 +5640,11 @@ function pickNonEmptyString(value: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+/** Receivers are opt-in per player, so every one starts off. */
 function buildDefaultInputs(zone: Zone): ZoneInputConfig {
   return {
     airplay: {
-      enabled: true,
+      enabled: false,
       model: 'generic',
     },
     spotify: {
@@ -5387,31 +5654,6 @@ function buildDefaultInputs(zone: Zone): ZoneInputConfig {
     },
     lineIn: null,
   };
-}
-
-function buildInputBadges(
-  inputs: ZoneInputConfig,
-  spotifyAllowed?: boolean,
-  airplayAllowed?: boolean,
-): InputBadge[] {
-  const badges: InputBadge[] = [
-    {
-      key: 'airplay',
-      label: 'AirPlay',
-      enabled: airplayAllowed ? inputs.airplay?.enabled ?? false : false,
-      disabled: airplayAllowed === false,
-      type: 'airplay',
-    },
-    {
-      key: 'spotify',
-      label: 'Spotify Connect',
-      enabled: spotifyAllowed ? inputs.spotify?.enabled ?? false : false,
-      disabled: spotifyAllowed !== true,
-      type: 'spotify',
-    },
-  ];
-
-  return badges;
 }
 
 function getPrimaryTransport(zone: Zone): ZoneTransportConfig | null {

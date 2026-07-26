@@ -1,0 +1,197 @@
+/* ============================================================
+   Access — the showcase of ways this server's content is served.
+   One card per interface: what it is, whether it's serving, and
+   its own settings. Cards in a row share a height and align their
+   footers, so the grid stays tidy however many interfaces exist.
+   ============================================================ */
+
+.access-count {
+  align-self: center;
+  flex: none;
+  padding: 5px 12px;
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  background: var(--surface-0);
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.access-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 14px;
+}
+
+.access-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-0);
+  overflow: hidden;
+  transition: border-color 0.18s ease;
+}
+
+/* A faint top edge that lights up once the interface is serving. */
+.access-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.access-card.is-on::before {
+  opacity: 0.7;
+}
+.access-card.is-on {
+  border-color: color-mix(in srgb, var(--accent) 24%, var(--border-soft));
+}
+
+.access-card__head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 12px;
+}
+
+.access-card__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--color-muted);
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.access-card__icon img,
+.access-card__icon svg {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+.access-card.is-on .access-card__icon {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: var(--accent-soft);
+}
+
+.access-card__name {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.access-card__head .setup-toggle,
+.access-card__head .setup-badge {
+  flex: none;
+}
+
+.access-card__desc {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+/* Where to switch a service that has no toggle here. */
+.access-card__hint {
+  display: flex;
+  gap: 7px;
+  margin: 11px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+
+/* The one state a toggle can't express (listening, not yet paired). */
+.access-pending {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 12px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--warn, #f59e0b) 14%, transparent);
+  color: var(--warn, #f59e0b);
+  font-size: 0.73rem;
+  font-weight: 650;
+}
+.access-pending__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: access-pending-pulse 1.25s ease-in-out infinite;
+}
+@keyframes access-pending-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .access-pending__dot { animation: none; }
+}
+
+/* Settings for this interface, pinned to the bottom so footers line up. */
+.access-card__extras {
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+/* ---- Copyable address: one row, truncating rather than wrapping ---- */
+.access-url {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.access-url__text {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.78rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.access-url__copy {
+  flex: none;
+  padding: 0 12px;
+  border: none;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  color: var(--color-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.access-url__copy:hover {
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.access-url__copy.is-done {
+  color: var(--accent);
+}

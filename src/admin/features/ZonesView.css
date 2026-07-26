@@ -4690,3 +4690,172 @@ button.zones-hub__toggle:disabled {
   color: var(--text-dim);
   vertical-align: middle;
 }
+
+/* Player setup: the single either/or on this screen — you set players up here, or
+   the Loxone Miniserver supplies them. Two mutually exclusive cards; the active one
+   is accented and badged, so the current choice is unmistakable. */
+.zones-setup {
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-lg);
+  background: var(--surface-0);
+}
+.zones-setup__title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 650;
+}
+.zones-setup__desc {
+  margin: 3px 0 14px;
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+.zones-setup__options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.zones-setup-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px 16px;
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.zones-setup-card:hover:not(:disabled):not(.is-active) {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+}
+.zones-setup-card:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.zones-setup-card.is-active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.zones-setup-card__head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.zones-setup-card__icon {
+  display: inline-flex;
+  color: var(--color-muted);
+}
+/* Brand artwork keeps its own colours; the color rules below only tint glyphs. */
+.zones-setup-card__icon img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+.zones-setup-card.is-active .zones-setup-card__icon {
+  color: var(--accent);
+}
+.zones-setup-card__label {
+  font-size: 0.92rem;
+  font-weight: 640;
+}
+.zones-setup-card__badge {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #04120a;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+/* Pairing is a live wait, not a resting state: an amber badge with a pulsing dot,
+   plus a breathing border on the card, so it reads as "working on it". */
+.zones-setup-card__badge--pairing {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--warn, #f59e0b);
+  color: #1a1204;
+}
+.zones-setup-card__pulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: zones-pairing-pulse 1.25s ease-in-out infinite;
+}
+.zones-setup-card.is-pairing {
+  border-color: color-mix(in srgb, var(--warn, #f59e0b) 55%, var(--border));
+  background: color-mix(in srgb, var(--warn, #f59e0b) 8%, transparent);
+  animation: zones-pairing-breathe 2.4s ease-in-out infinite;
+}
+.zones-setup-card.is-pairing .zones-setup-card__icon {
+  color: var(--warn, #f59e0b);
+}
+@keyframes zones-pairing-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.35; transform: scale(0.75); }
+}
+@keyframes zones-pairing-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--warn, #f59e0b) 26%, transparent); }
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--warn, #f59e0b) 12%, transparent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .zones-setup-card__pulse,
+  .zones-setup-card.is-pairing {
+    animation: none;
+  }
+}
+
+.zones-setup-card__desc {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
+@media (max-width: 1040px) {
+  .zones-setup__options {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+}
+@media (max-width: 620px) {
+  .zones-setup__options {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Loxone modal: facts (serial/host) + pairing steps. */
+.zones-loxone-modal__facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 4px 0 14px;
+}
+.zones-loxone-modal__facts dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+.zones-loxone-modal__facts dd {
+  margin: 2px 0 0;
+  font-size: 0.9rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  word-break: break-all;
+}
+.zones-loxone-modal__steps {
+  margin: 0 0 16px;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+}
