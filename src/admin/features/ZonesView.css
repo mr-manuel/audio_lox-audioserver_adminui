@@ -717,6 +717,36 @@
   isolation: isolate;
 }
 
+/* Output tab: pin the modal height so switching the output type (which swaps the
+   device/field area below the select) no longer resizes and re-centers the whole
+   modal — the body scrolls internally instead of the dialog jumping around. */
+.zones-modal--output {
+  height: min(88vh, 820px);
+}
+
+/* Output modal cleanup: denser device rows, calmer panel headers, and buffer /
+   protocol fields that read as an integrated settings row rather than bolted on.
+   Scoped to the output tab so other views are untouched. */
+.zones-modal--output .zone-device-row {
+  padding: var(--space-2) var(--space-5);
+}
+.zones-modal--output .zone-output-editor__body,
+.zones-modal--output .zone-output-discovery-panel {
+  gap: 0.7rem;
+}
+.zones-modal--output .zone-output-discovery-panel__title {
+  font-size: 0.95rem;
+}
+.zones-modal--output .zone-output-discovery-panel__copy,
+.zones-modal--output .zone-output-discovery-panel__meta {
+  font-size: 0.8rem;
+}
+.zones-modal--output .zone-output-field {
+  margin-top: 2px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
 /* Hide the legacy in-body header/footer from rich components — the new modal
    shell owns the head + foot now. */
 .zones-modal .zone-output-modal__header,

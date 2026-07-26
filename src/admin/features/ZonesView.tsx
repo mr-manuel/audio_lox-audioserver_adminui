@@ -13,6 +13,7 @@ import InlineState from '../components/InlineState';
 import Modal from '../components/Modal';
 import SearchInput from '../components/SearchInput';
 import Row from '../components/Row';
+import SelectMenu from '../components/SelectMenu';
 import {
   getTransportDefinitions,
   discoverAirplayDevices,
@@ -843,6 +844,9 @@ export default function ZonesView(): JSX.Element {
           <p className="zones-eyebrow">{t('zones.eyebrow')}</p>
           <h1 className="zones-title">{t('zones.title')}</h1>
           <p className="zones-subtitle">{t('zones.subtitle')}</p>
+          <p className="zones-subtitle zones-subtitle--mode">
+            {standalone ? t('zones.subtitleStandalone') : t('zones.subtitleIntegrated')}
+          </p>
         </div>
         <SubTabs
           className="zones-head__subtabs"
@@ -953,6 +957,7 @@ export default function ZonesView(): JSX.Element {
                       const spotifyOn = Boolean(
                         globalInputs.spotifyEnabled && zone.inputs?.spotify?.enabled !== false,
                       );
+                      const dlnaOn = Boolean(zone.inputs?.dlna?.enabled);
 
                       // Group role lookup — Loxone sync group (master/member)
                       const groupRec = groups.find((g) => g.members.includes(zone.id));
@@ -1106,6 +1111,10 @@ export default function ZonesView(): JSX.Element {
                               <span className={`zones-card__chip${spotifyOn ? ' is-on' : ''}`}>
                                 <span className="zones-card__chip-dot" />
                                 {t('zones.card.spotifyConnect')}
+                              </span>
+                              <span className={`zones-card__chip${dlnaOn ? ' is-on' : ''}`}>
+                                <span className="zones-card__chip-dot" />
+                                {t('zones.card.dlna')}
                               </span>
                             </div>
                           </div>
@@ -3067,26 +3076,33 @@ function ZoneOutputEditor({
         </div>
         <div className="zone-output-editor__body">
           <div className="zone-output-selector">
-            {moduleOptions.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                className={`protocol-pill${option.active ? ' is-selected' : ''}${option.disabled ? ' is-disabled' : ''}`}
-                onClick={() => handleModuleSelect(option.id)}
-                disabled={saving || option.disabled}
-                aria-pressed={option.active}
-                title={option.disabledReason}
-                data-protocol={option.id}
-              >
-                <span className={`protocol-pill__icon protocol-pill__icon--${option.id}`}>
-                  {moduleIcons[option.id] ? (
-                    <img src={moduleIcons[option.id]} alt="" aria-hidden="true" />
-                  ) : null}
-                </span>
-                <span className="protocol-pill__label">{option.label}</span>
-              </button>
-            ))}
-            {!definitions.length && (
+            {definitions.length ? (
+              <SelectMenu
+                className="zone-output-select"
+                label={t('zones.output.type')}
+                value={moduleOptions.some((o) => o.active) ? selectedId ?? '' : ''}
+                disabled={saving}
+                options={[
+                  // Unavailable types (e.g. Music Assistant without a sink bridge)
+                  // are simply omitted — you can't pick them anyway.
+                  ...(moduleOptions.some((o) => o.active)
+                    ? []
+                    : [{ value: '', label: t('zones.output.selectTypePlaceholder') }]),
+                  ...moduleOptions
+                    .filter((o) => !o.disabled)
+                    .map((o) => ({
+                      value: o.id,
+                      label: o.label,
+                      icon: moduleIcons[o.id] ? (
+                        <img src={moduleIcons[o.id]} alt="" loading="lazy" />
+                      ) : undefined,
+                    })),
+                ]}
+                onChange={(next) => {
+                  if (next) handleModuleSelect(next);
+                }}
+              />
+            ) : (
               <p className="zone-detail-text muted">{t('zones.output.noTransports')}</p>
             )}
           </div>

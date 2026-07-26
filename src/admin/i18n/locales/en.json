@@ -994,18 +994,20 @@
   "zones": {
     "eyebrow": "Zones",
     "title": "Zones",
-    "subtitle": "Configure the audio zones connected to your AudioServer.",
+    "subtitle": "Turn any speaker into an AirPlay and Spotify Connect receiver — send audio to any output, whatever it supports natively.",
+    "subtitleStandalone": "Create your zones here, then give each one an output and the receivers it should accept.",
+    "subtitleIntegrated": "Your zones come from the Miniserver. Here you give each one an output and the receivers it should accept.",
     "add": {
       "button": "Add zone",
       "title": "Add a zone",
-      "sub": "Give the zone a name. You can configure its output and inputs afterwards.",
+      "sub": "Give the zone a name. You can set its output and receivers afterwards.",
       "placeholder": "Zone name (e.g. Kitchen)",
       "create": "Create",
       "creating": "Creating…",
       "cancel": "Cancel",
       "errorTitle": "Could not create zone",
       "emptyTitle": "No zones yet",
-      "emptySub": "Add your first zone to start configuring outputs and inputs.",
+      "emptySub": "Add your first zone to start configuring outputs and receivers.",
       "limitReached": "Maximum of {{max}} zones reached."
     },
     "delete": {
@@ -1054,7 +1056,7 @@
       "connected": "Connected",
       "idleShort": "Idle",
       "setOutput": "Set output",
-      "inputs": "Inputs",
+      "inputs": "Receivers",
       "airplay": "AirPlay",
       "dlna": "DLNA",
       "spotifyConnect": "Spotify Connect",
@@ -1115,6 +1117,7 @@
     "output": {
       "type": "Output type",
       "typeDesc": "Pick where this zone should play.",
+      "selectTypePlaceholder": "Choose an output type…",
       "airplayBuffer": "Buffer (ms)",
       "airplayBufferHint": "Device read-ahead buffer. Default 750; raise (e.g. 1500) if this device stutters. Range 250–5000.",
       "noTransports": "No transports available for this build.",

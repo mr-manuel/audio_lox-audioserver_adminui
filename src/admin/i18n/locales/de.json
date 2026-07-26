@@ -994,7 +994,9 @@
   "zones": {
     "eyebrow": "Zonen",
     "title": "Zonen",
-    "subtitle": "Audio-Zonen konfigurieren, die am AudioServer angeschlossen sind.",
+    "subtitle": "Mach aus jedem Lautsprecher einen AirPlay- und Spotify-Connect-Empfänger — sende Audio an jeden Ausgang, egal was er selbst unterstützt.",
+    "subtitleStandalone": "Erstelle hier deine Zonen und gib jeder einen Ausgang und die Empfänger, die sie annehmen soll.",
+    "subtitleIntegrated": "Deine Zonen kommen vom Miniserver. Hier gibst du jeder einen Ausgang und die Empfänger, die sie annehmen soll.",
     "add": {
       "button": "Zone hinzufügen",
       "title": "Zone hinzufügen",
@@ -1054,7 +1056,7 @@
       "connected": "Verbunden",
       "idleShort": "Leerlauf",
       "setOutput": "Ausgang setzen",
-      "inputs": "Eingänge",
+      "inputs": "Empfänger",
       "airplay": "AirPlay",
       "dlna": "DLNA",
       "spotifyConnect": "Spotify Connect",
@@ -1115,6 +1117,7 @@
     "output": {
       "type": "Ausgangstyp",
       "typeDesc": "Festlegen, wo diese Zone abspielen soll.",
+      "selectTypePlaceholder": "Ausgangstyp wählen…",
       "noTransports": "Keine Transporte für diesen Build verfügbar.",
       "filterDevices": "Geräte filtern",
       "filterPlaceholder": "Geräte filtern…",

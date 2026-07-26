@@ -4,6 +4,7 @@ import './SelectMenu.css';
 type SelectMenuOption<T extends string> = {
   value: T;
   label: string;
+  icon?: React.ReactNode;
 };
 
 type SelectMenuProps<T extends string> = {
@@ -67,6 +68,9 @@ export default function SelectMenu<T extends string>({
         aria-expanded={open}
         aria-label={label}
       >
+        {current?.icon ? (
+          <span className="select-menu__value-icon" aria-hidden="true">{current.icon}</span>
+        ) : null}
         <span className="select-menu__value">{current?.label ?? 'Select…'}</span>
         <span className="select-menu__chevron" aria-hidden="true">
           <svg viewBox="0 0 24 24" focusable="false">
@@ -99,6 +103,9 @@ export default function SelectMenu<T extends string>({
                   window.setTimeout(() => buttonRef.current?.focus?.(), 0);
                 }}
               >
+                {opt.icon ? (
+                  <span className="select-menu__option-icon" aria-hidden="true">{opt.icon}</span>
+                ) : null}
                 <span className="select-menu__option-label">{opt.label}</span>
               </button>
             );

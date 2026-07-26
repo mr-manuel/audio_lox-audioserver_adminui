@@ -51,6 +51,32 @@
   color: var(--color-muted);
 }
 
+/* Optional per-option leading icon (e.g. a provider logo). */
+.select-menu__value {
+  flex: 1;
+}
+.select-menu__option {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.select-menu__value-icon,
+.select-menu__option-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+.select-menu__value-icon img,
+.select-menu__option-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
 .select-menu__chevron svg {
   width: 18px;
   height: 18px;
