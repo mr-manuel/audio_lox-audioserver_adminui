@@ -1293,6 +1293,12 @@
       "powerGroupsFailedDefault": "Failed to update shared power groups: {{error}}"
     }
   },
+  "access": {
+    "eyebrow": "Access",
+    "title": "Access",
+    "subtitle": "Let other apps and devices reach your music — a DLNA/UPnP media server for smart TVs and speakers, and the Subsonic API for music apps on your phone.",
+    "retry": "Retry"
+  },
   "protocols": {
     "eyebrow": "Protocols",
     "title": "Protocols & services",

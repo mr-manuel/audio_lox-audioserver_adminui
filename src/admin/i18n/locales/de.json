@@ -1291,6 +1291,12 @@
       "powerGroupsFailedDefault": "Gemeinsame Power-Gruppen konnten nicht aktualisiert werden: {{error}}"
     }
   },
+  "access": {
+    "eyebrow": "Zugang",
+    "title": "Zugang",
+    "subtitle": "Lass andere Apps und Geräte auf deine Musik zugreifen — ein DLNA/UPnP-Medienserver für Smart-TVs und Lautsprecher, und die Subsonic-API für Musik-Apps auf dem Handy.",
+    "retry": "Erneut versuchen"
+  },
   "protocols": {
     "eyebrow": "Protokolle",
     "title": "Protokolle & Dienste",

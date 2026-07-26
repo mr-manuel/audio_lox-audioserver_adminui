@@ -4,18 +4,11 @@ import { useTranslation } from 'react-i18next';
 // the stylesheet is the shared one rather than a duplicated `protocols-` copy.
 import './SetupView.css';
 import { getConfig } from '../services/setupApi';
-import { updateContentConfig, updateInputsConfig, updateOutputsConfig } from '../services/contentApi';
+import { updateInputsConfig, updateOutputsConfig } from '../services/contentApi';
 import { getTransportDefinitions } from '../services/transportsApi';
-import {
-  getSubsonicStatus,
-  updateSubsonicConfig,
-  SubsonicConfigError,
-  type SubsonicStatus,
-} from '../services/subsonicApi';
 import { useGlobalAlert } from '../components/GlobalAlert';
 import { useConfirm } from '../components/ConfirmDialog';
 import InlineState from '../components/InlineState';
-import { copyText } from '../utils/clipboard';
 import type { RootConfig } from '../types/config';
 import type { TransportConfigDefinition } from '@/ports/OutputsTypes';
 
@@ -143,15 +136,6 @@ export default function ProtocolsView(): JSX.Element {
   const [outputDefs, setOutputDefs] = React.useState<TransportConfigDefinition[] | null>(null);
   const [inputsSaving, setInputsSaving] = React.useState(false);
   const [outputsSaving, setOutputsSaving] = React.useState<string | null>(null);
-  const [serversSaving, setServersSaving] = React.useState<string | null>(null);
-  // Subsonic has its own admin endpoint that resolves more than the raw config
-  // (client URL, per-bridge service catalogue, bounds), so it is loaded and
-  // written separately from the rest of the content config.
-  const [subsonic, setSubsonic] = React.useState<SubsonicStatus | null>(null);
-  const [subsonicDraft, setSubsonicDraft] = React.useState({ directoryLimit: '' });
-  const [subsonicDirty, setSubsonicDirty] = React.useState(false);
-  const [subsonicError, setSubsonicError] = React.useState<string | null>(null);
-  const [urlCopied, setUrlCopied] = React.useState(false);
 
   const refreshConfig = React.useCallback(async (): Promise<void> => {
     setError(null);
@@ -174,29 +158,13 @@ export default function ProtocolsView(): JSX.Element {
     }
   }, []);
 
-  const refreshSubsonic = React.useCallback(async (): Promise<void> => {
-    try {
-      setSubsonic(await getSubsonicStatus());
-    } catch {
-      setSubsonic(null);
-    }
-  }, []);
-
   React.useEffect(() => {
     void refreshConfig();
     void refreshOutputs();
-    void refreshSubsonic();
-  }, [refreshConfig, refreshOutputs, refreshSubsonic]);
+  }, [refreshConfig, refreshOutputs]);
 
   const cfg = data?.config ?? {};
   const inputs = cfg.inputs ?? {};
-  const content = cfg.content ?? {};
-  const standalone = cfg.system?.audioserver?.mode === 'standalone';
-  React.useEffect(() => {
-    if (!subsonicDirty && subsonic) {
-      setSubsonicDraft({ directoryLimit: String(subsonic.directoryLimit) });
-    }
-  }, [subsonic, subsonicDirty]);
 
   // How many zones each output type is configured on: shown on the tile, and
   // used to warn before an in-use output is taken out of the picker.
@@ -215,8 +183,6 @@ export default function ProtocolsView(): JSX.Element {
   const airplayEnabled = Boolean(inputs.airplay?.enabled ?? false);
   const spotifyEnabled = Boolean(inputs.spotify?.enabled ?? false);
   const dlnaEnabled = Boolean(inputs.dlna?.enabled ?? false);
-  const mediaServerEnabled = Boolean(content.mediaServer?.enabled);
-  const subsonicEnabled = subsonic?.enabled ?? false;
 
   async function toggleInput(key: InputKey, next: boolean): Promise<void> {
     if (inputsSaving) return;
@@ -265,115 +231,6 @@ export default function ProtocolsView(): JSX.Element {
     }
   }
 
-  async function toggleMediaServer(next: boolean): Promise<void> {
-    if (serversSaving) return;
-    setServersSaving('mediaServer');
-    try {
-      await updateContentConfig({ mediaServer: { enabled: next } });
-      await refreshConfig();
-    } catch (err) {
-      pushAlert({
-        tone: 'error',
-        title: t('protocols.servers.failedTitle'),
-        message: err instanceof Error ? err.message : t('protocols.servers.failedMessage'),
-      });
-    } finally {
-      setServersSaving(null);
-    }
-  }
-
-  /**
-   * Maps the endpoint's validation codes onto copy. `credentials-required` is
-   * the expected one: the server refuses to enable an API that would answer
-   * every client with "not authorized", so we say what is missing instead of
-   * reporting a generic failure.
-   */
-  function subsonicErrorText(err: unknown): string {
-    if (err instanceof SubsonicConfigError) {
-      switch (err.code) {
-        case 'no-usable-credentials':
-          return t('protocols.servers.subsonicNoCredentials');
-        case 'invalid-directory-limit':
-          return t('protocols.servers.subsonicLimitRange', {
-            min: err.detail.min ?? subsonic?.directoryLimitBounds.min,
-            max: err.detail.max ?? subsonic?.directoryLimitBounds.max,
-          });
-        case 'unknown-provider':
-          return t('protocols.servers.subsonicUnknownProvider', {
-            providers: Array.isArray(err.detail.providers) ? err.detail.providers.join(', ') : '',
-          });
-        default:
-          return err.message;
-      }
-    }
-    return err instanceof Error ? err.message : t('protocols.servers.failedMessage');
-  }
-
-  /** Every Subsonic write goes through here; the response IS the fresh status. */
-  async function writeSubsonic(payload: Parameters<typeof updateSubsonicConfig>[0]): Promise<boolean> {
-    setServersSaving('subsonic');
-    setSubsonicError(null);
-    try {
-      setSubsonic(await updateSubsonicConfig(payload));
-      return true;
-    } catch (err) {
-      const text = subsonicErrorText(err);
-      setSubsonicError(text);
-      // The inline note lives inside the panel, which is only rendered while
-      // Subsonic is on — so a refused *enable* would otherwise fail silently.
-      // Nothing here can fix it either (accounts live under Users), so say it
-      // where it is always visible.
-      if (!subsonic?.enabled) {
-        pushAlert({ tone: 'warn', title: t('protocols.servers.failedTitle'), message: text });
-      }
-      return false;
-    } finally {
-      setServersSaving(null);
-    }
-  }
-
-  async function toggleSubsonic(next: boolean): Promise<void> {
-    if (serversSaving) return;
-    // Enabling is only refused when no credential source exists at all, which is
-    // fixed under Users rather than here — writeSubsonic surfaces the reason.
-    if (await writeSubsonic({ enabled: next })) setSubsonicDirty(false);
-  }
-
-  async function toggleServiceProvider(provider: string, next: boolean): Promise<void> {
-    if (!subsonic || serversSaving) return;
-    const selected = new Set(
-      subsonic.providerOptions.filter((option) => option.enabled).map((option) => option.provider),
-    );
-    if (next) selected.add(provider);
-    else selected.delete(provider);
-    // All of them selected is stored as "no restriction", so a bridge added
-    // later is exposed too instead of silently missing from a frozen list.
-    const all = subsonic.providerOptions.length;
-    await writeSubsonic({ providers: selected.size === all ? null : [...selected] });
-  }
-
-  async function copyClientUrl(): Promise<void> {
-    if (!subsonic) return;
-    const ok = await copyText(subsonic.url);
-    if (!ok) return;
-    setUrlCopied(true);
-    window.setTimeout(() => setUrlCopied(false), 2000);
-  }
-
-  async function saveSubsonicSettings(event: React.FormEvent<HTMLFormElement>): Promise<void> {
-    event.preventDefault();
-    if (serversSaving || !subsonic) return;
-    const limit = Number(subsonicDraft.directoryLimit);
-    if (!Number.isFinite(limit) || limit === subsonic.directoryLimit) return;
-    if (await writeSubsonic({ directoryLimit: limit })) {
-      setSubsonicDirty(false);
-      pushAlert({
-        tone: 'success',
-        title: t('protocols.servers.settingsSavedTitle'),
-        message: t('protocols.servers.settingsSavedMessage'),
-      });
-    }
-  }
 
   if (loading) {
     return (
@@ -507,206 +364,6 @@ export default function ProtocolsView(): JSX.Element {
           </div>
         </section>
 
-        {/* ===== Servers: what this box exposes to the network ===== */}
-        <section className="setup-section setup-section--full">
-          <header className="setup-section__head">
-            <div className="setup-section__head-main">
-              <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('protocols.servers.eyebrow')}</span>
-              <h2 className="setup-section__title">{t('protocols.servers.title')}</h2>
-              <p className="setup-section__desc">{t('protocols.servers.desc')}</p>
-            </div>
-          </header>
-
-          <div className="setup-rows">
-            {/* Driven by the deployment mode, not by a switch: Loxone mode always
-                runs the protocol server, and standalone gates the whole Loxone
-                role off ("uit is uit"), so there is nothing to toggle either way. */}
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('protocols.servers.loxoneLabel')}</div>
-                <div className="setup-row__desc">
-                  {standalone
-                    ? t('protocols.servers.loxoneDescStandalone')
-                    : t('protocols.servers.loxoneDescLoxone')}
-                </div>
-              </div>
-              <div className="setup-row__control">
-                <span className={`setup-badge${standalone ? '' : ' setup-badge--ok'}`}>
-                  {standalone ? t('protocols.servers.loxoneOff') : t('protocols.servers.required')}
-                </span>
-                <button
-                  type="button"
-                  className={`setup-toggle${standalone ? '' : ' is-on'}`}
-                  aria-label={t('protocols.servers.loxoneLabel')}
-                  aria-pressed={!standalone}
-                  disabled
-                  title={standalone ? t('protocols.servers.loxoneOffHint') : t('protocols.servers.requiredHint')}
-                />
-              </div>
-            </div>
-
-            {/* DLNA MediaServer — the inverse of the DLNA output: we serve content. */}
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('protocols.servers.dlnaLabel')}</div>
-                <div className="setup-row__desc">{t('protocols.servers.dlnaDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <button
-                  type="button"
-                  className={`setup-toggle${mediaServerEnabled ? ' is-on' : ''}`}
-                  aria-label={t('protocols.servers.dlnaLabel')}
-                  aria-pressed={mediaServerEnabled}
-                  disabled={serversSaving !== null}
-                  onClick={() => void toggleMediaServer(!mediaServerEnabled)}
-                />
-              </div>
-            </div>
-
-            {/* Subsonic API server. */}
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('protocols.servers.subsonicLabel')}</div>
-                <div className="setup-row__desc">{t('protocols.servers.subsonicDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <button
-                  type="button"
-                  className={`setup-toggle${subsonicEnabled ? ' is-on' : ''}`}
-                  aria-label={t('protocols.servers.subsonicLabel')}
-                  aria-pressed={subsonicEnabled}
-                  disabled={serversSaving !== null}
-                  onClick={() => void toggleSubsonic(!subsonicEnabled)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* The status endpoint resolves the client URL and the per-bridge service
-              catalogue, so this panel shows what the server actually exposes
-              rather than a second interpretation of the raw config. */}
-          {subsonicEnabled && subsonic ? (
-            <div className="setup-subpanel">
-              <div className="setup-facts">
-                <div className="setup-facts__item">
-                  <span className="setup-facts__label">{t('protocols.servers.subsonicUrl')}</span>
-                  <span className="setup-facts__value setup-facts__value--link">
-                    {subsonic.url}
-                    <button type="button" className="setup-linkcopy" onClick={() => void copyClientUrl()}>
-                      {urlCopied ? t('protocols.servers.copied') : t('protocols.servers.copy')}
-                    </button>
-                  </span>
-                </div>
-                <div className="setup-facts__item">
-                  <span className="setup-facts__label">{t('protocols.servers.subsonicSignIn')}</span>
-                  <span
-                    className={`setup-facts__value ${subsonic.configured ? 'setup-status' : 'setup-status setup-status--warn'}`}
-                  >
-                    {subsonic.auth.loxone
-                      ? t('protocols.servers.authLoxone')
-                      : subsonic.auth.localUsers
-                        ? t('protocols.servers.authLocal')
-                        : t('protocols.servers.authNone')}
-                  </span>
-                </div>
-                <div className="setup-facts__item">
-                  <span className="setup-facts__label">{t('protocols.servers.subsonicLimit')}</span>
-                  <form
-                    className="setup-inlineform"
-                    onSubmit={(event) => void saveSubsonicSettings(event)}
-                  >
-                    <div className="setup-input" style={{ width: 110 }}>
-                      <input
-                        type="number"
-                        min={subsonic.directoryLimitBounds.min}
-                        max={subsonic.directoryLimitBounds.max}
-                        aria-label={t('protocols.servers.subsonicLimit')}
-                        value={subsonicDraft.directoryLimit}
-                        onChange={(event) => {
-                          setSubsonicDraft({ directoryLimit: event.target.value });
-                          setSubsonicDirty(true);
-                        }}
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="setup-btn setup-btn--primary"
-                      disabled={serversSaving !== null || !subsonicDirty}
-                    >
-                      {serversSaving === 'subsonic'
-                        ? t('protocols.servers.saving')
-                        : t('protocols.servers.subsonicSave')}
-                    </button>
-                  </form>
-                </div>
-              </div>
-
-              {subsonicError ? (
-                <div className="setup-note setup-note--warn">
-                  <InfoGlyph />
-                  <span>{subsonicError}</span>
-                </div>
-              ) : null}
-
-              {/* Most clients default to salted-token auth, which the Miniserver
-                  cannot answer — say so before someone debugs a login loop. */}
-              {!subsonic.auth.tokenAuthSupported ? (
-                <div className="setup-note setup-note--warn">
-                  <InfoGlyph />
-                  <span>{t('protocols.servers.subsonicTokenWarning')}</span>
-                </div>
-              ) : null}
-
-              {/* One control per provider: the allowlist works at provider level,
-                  and the caption carries what the resolved services underneath
-                  can actually do — so the same names are not listed twice. */}
-              <div className="setup-fieldlabel">{t('protocols.servers.subsonicExposed')}</div>
-              <div className="setup-tiles setup-tiles--compact">
-                {subsonic.providerOptions.map((option) => {
-                  const owned = subsonic.services.filter((service) => service.provider === option.provider);
-                  const searchable = owned.some((service) => service.searchable);
-                  const caption = !option.enabled
-                    ? t('protocols.servers.serviceHidden')
-                    : searchable
-                      ? t('protocols.servers.serviceBrowseSearch')
-                      : t('protocols.servers.serviceBrowseOnly');
-                  return (
-                    <div
-                      key={option.provider}
-                      className={`setup-tile setup-tile--compact${option.enabled ? ' is-on' : ''}`}
-                    >
-                      <div className="setup-tile__head">
-                        <span className="setup-tile__icon" aria-hidden="true">
-                          <ProviderMark id={option.provider} />
-                        </span>
-                        <span className="setup-tile__name">{option.label}</span>
-                        <button
-                          type="button"
-                          className={`setup-toggle${option.enabled ? ' is-on' : ''}`}
-                          aria-label={option.label}
-                          aria-pressed={option.enabled}
-                          disabled={serversSaving !== null}
-                          onClick={() => void toggleServiceProvider(option.provider, !option.enabled)}
-                        />
-                      </div>
-                      <div className="setup-tile__caption">
-                        {caption}
-                        {owned.length > 1 ? ` · ${t('protocols.servers.serviceSources', { count: owned.length })}` : ''}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-
-              {!subsonic.limitations.persistsStarsAndRatings || !subsonic.limitations.writablePlaylists ? (
-                <div className="setup-note">
-                  <InfoGlyph />
-                  <span>{t('protocols.servers.subsonicLimitations')}</span>
-                </div>
-              ) : null}
-            </div>
-          ) : null}
-        </section>
       </div>
     </div>
   );
