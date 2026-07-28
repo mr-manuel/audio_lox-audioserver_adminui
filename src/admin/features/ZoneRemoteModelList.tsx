@@ -41,9 +41,7 @@ export default function ZoneRemoteModelList({
   const oneEnabled = config?.enabled === true;
 
   const oneSummary = oneEnabled
-    ? config?.bridgeId
-      ? t('zones.beoremote.summaryOn')
-      : t('zones.beoremote.summaryNoRemote')
+    ? t('zones.beoremote.summaryOn')
     : t('zones.beoremote.summaryOff');
 
   return (

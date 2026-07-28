@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ZoneBeoremoteKeys from './ZoneBeoremoteKeys';
-import { getBeoremoteBridges, type BeoremoteBridge } from '../services/beoremoteApi';
 import type { ZoneBeoremoteConfig } from '@/domain/config/types';
 
 /** The submenu choices a zone can pick. The remote's firmware allows exactly one. */
@@ -29,8 +28,9 @@ function RemoteGlyph(): JSX.Element {
  * Beoremote One for one zone.
  *
  * A Bang & Olufsen remote is Bluetooth, so it reaches the server through a small
- * bridge that pairs with it. The zone picks which bridge drives it — that way the
- * remote belongs to the room, the same as its AirPlay or Spotify receiver.
+ * bridge that pairs with it. The bridge names the room it drives in its own config,
+ * so there is nothing to pair up here — however many remotes a room has, they all
+ * read these settings.
  *
  * The remote's screen is narrow and its firmware allows a single sub-list, so the
  * only real choice here is what goes in that list. Everything else about the menu
@@ -44,30 +44,11 @@ export default function ZoneBeoremoteSection({
 }: ZoneBeoremoteSectionProps): JSX.Element {
   const { t } = useTranslation();
   const enabled = config?.enabled === true;
-  const selectedBridgeId = config?.bridgeId ?? '';
   const submenuKind: SubmenuKind = config?.submenuSource?.kind === 'radio'
     ? 'radio'
     : config?.submenuSource?.kind === 'favorites'
       ? 'favorites'
       : 'none';
-
-  const [bridges, setBridges] = React.useState<BeoremoteBridge[] | null>(null);
-  const [loadFailed, setLoadFailed] = React.useState(false);
-
-  const loadBridges = React.useCallback(async (): Promise<void> => {
-    setLoadFailed(false);
-    try {
-      setBridges(await getBeoremoteBridges());
-    } catch {
-      setBridges([]);
-      setLoadFailed(true);
-    }
-  }, []);
-
-  React.useEffect(() => {
-    if (!enabled) return;
-    void loadBridges();
-  }, [enabled, loadBridges]);
 
   function update(patch: Partial<ZoneBeoremoteConfig>): void {
     onChange({ enabled, ...(config ?? {}), ...patch });
@@ -75,35 +56,12 @@ export default function ZoneBeoremoteSection({
 
   function toggle(next: boolean): void {
     // Turning it off drops the whole block rather than leaving a disabled remnant
-    // that would still claim its bridge.
+    // carrying key bindings for a remote nobody is using.
     onChange(next ? { ...(config ?? {}), enabled: true } : null);
   }
 
   function changeSubmenu(kind: SubmenuKind): void {
     update({ submenuSource: kind === 'none' ? null : { kind } });
-  }
-
-  /**
-   * The line under the picker carries what the chip used to: whether the chosen
-   * remote is actually answering, and why the list might be empty.
-   */
-  function describeSelectedBridge(): string {
-    if (bridges === null) {
-      return t('zones.beoremote.loading');
-    }
-    if (loadFailed) {
-      return t('zones.beoremote.loadFailed');
-    }
-    if (bridges.length === 0) {
-      return t('zones.beoremote.noBridges');
-    }
-    const selected = bridges.find((bridge) => bridge.bridge_id === selectedBridgeId);
-    if (!selected) {
-      return t('zones.beoremote.pickPrompt');
-    }
-    return selected.connected
-      ? t('zones.beoremote.connectedSince', { mac: selected.remote_mac || selected.bridge_id })
-      : t('zones.beoremote.offlineHint');
   }
 
   return (
@@ -128,35 +86,6 @@ export default function ZoneBeoremoteSection({
             onClick={() => toggle(!enabled)}
           />
         </div>
-
-        {enabled && (
-          <div className="zset-row">
-            <div className="zset-row__text">
-              <span className="zset-row__title">{t('zones.beoremote.pickTitle')}</span>
-              <span className="zset-row__desc">{describeSelectedBridge()}</span>
-            </div>
-            <select
-              className="zones-hub__select"
-              value={selectedBridgeId}
-              disabled={saving || !bridges?.length}
-              aria-label={t('zones.beoremote.pickTitle')}
-              onChange={(event) => update({ bridgeId: event.target.value })}
-            >
-              <option value="">{t('zones.beoremote.pickNone')}</option>
-              {(bridges ?? []).map((bridge) => {
-                // A bridge another room already uses would be driven from two places.
-                const claimedElsewhere =
-                  bridge.assigned_zone_id !== null && bridge.assigned_zone_id !== zoneId;
-                return (
-                  <option key={bridge.bridge_id} value={bridge.bridge_id} disabled={claimedElsewhere}>
-                    {(bridge.hostname || bridge.bridge_id) +
-                      (claimedElsewhere ? ` — ${t('zones.beoremote.inUse')}` : '')}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
-        )}
       </div>
 
       {enabled && (

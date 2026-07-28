@@ -1625,9 +1625,7 @@ function ZoneModal({
     if (cfg?.enabled !== true) {
       return t('zones.beoremote.summaryNone');
     }
-    return cfg.bridgeId
-      ? t('zones.beoremote.models.one')
-      : t('zones.beoremote.summaryNoRemote');
+    return t('zones.beoremote.models.one');
   })();
 
   const powerSummary = (() => {
