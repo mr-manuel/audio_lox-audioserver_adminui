@@ -176,7 +176,7 @@
     },
     "library": {
       "title": "Library",
-      "desc": "Loxone supports local and network libraries — we emulate the same experience. Drop files under <1>data/music/local</1>, upload audio here, or add network shares.",
+      "desc": "Music stored on this server and on network shares. Pick a source to browse what's indexed, or add a share.",
       "rescan": "↻ Rescan library",
       "addShare": "+ Add share",
       "summary": {
@@ -272,6 +272,67 @@
         "albumStatusUnavailable": "Failed to load library status",
         "coversFailed": "Failed to load library covers",
         "loadSharesFailed": "Failed to load shares"
+      },
+      "browser": {
+        "aria": "Library entity",
+        "kind": {
+          "albums": "Albums",
+          "artists": "Artists",
+          "tracks": "Tracks"
+        },
+        "searchPlaceholder": {
+          "albums": "Search albums…",
+          "artists": "Search artists…",
+          "tracks": "Search tracks…"
+        },
+        "clearSearch": "Clear search",
+        "loading": "Loading…",
+        "loadFailed": "Could not load the library.",
+        "empty": "Nothing here yet. Drop audio files below to add music.",
+        "noMatches": "No matches for “{{query}}”.",
+        "matches_one": "{{count}} match",
+        "matches_other": "{{count}} matches",
+        "truncated": "showing the first results — narrow your search to see more",
+        "totalOf": {
+          "albums_one": "{{count}} album",
+          "albums_other": "{{count}} albums",
+          "artists_one": "{{count}} artist",
+          "artists_other": "{{count}} artists",
+          "tracks_one": "{{count}} track",
+          "tracks_other": "{{count}} tracks"
+        },
+        "trackCount_one": "{{count}} track",
+        "trackCount_other": "{{count}} tracks",
+        "selectAll": "Select all on this page",
+        "selected_one": "{{count}} selected",
+        "selected_other": "{{count}} selected",
+        "clearSelection": "Clear",
+        "deleteSelected": "Delete from disk",
+        "deleting": "Deleting…",
+        "deleteFailed_one": "{{count}} item could not be deleted.",
+        "deleteFailed_other": "{{count}} items could not be deleted.",
+        "confirmTitle": "Delete from disk?",
+        "confirmMessage": "{{scope}} ({{count}} tracks) will be permanently deleted from this server's music folder. This cannot be undone.",
+        "confirmDelete": "Delete",
+        "scope": {
+          "albums_one": "{{count}} album",
+          "albums_other": "{{count}} albums",
+          "artists_one": "{{count}} artist",
+          "artists_other": "{{count}} artists",
+          "tracks_one": "{{count}} track",
+          "tracks_other": "{{count}} tracks"
+        },
+        "prev": "Previous",
+        "next": "Next",
+        "pageOf": "Page {{page}} of {{pages}}",
+        "title": "Browse and manage",
+        "desc": "Everything indexed on this server. Select items to remove them from disk.",
+        "emptyShare": "Nothing indexed on this share yet. Run a scan to index its audio files."
+      },
+      "sources": {
+        "aria": "Music source",
+        "rescan": "Rescan",
+        "localEmpty": "No audio indexed yet. Drop files below to add music."
       }
     },
     "linein": {
@@ -837,7 +898,14 @@
     "alerts": {
       "eyebrow": "Built-in alerts",
       "title": "Bundled MP3 files",
-      "desc": "Preview and replace the siren, bell and buzzer MP3 files that ship with the AudioServer."
+      "desc": "Preview and replace the siren, bell and buzzer MP3 files that ship with the AudioServer.",
+      "loading": "Loading alerts…",
+      "loadFailed": "Could not load the alert sounds.",
+      "empty": "No alert sounds found.",
+      "uploading": "Uploading…",
+      "drop": "Drop MP3 here",
+      "dropHint": "or click to upload",
+      "revert": "Revert to original"
     },
     "updates": {
       "eyebrow": "Status",
@@ -1284,9 +1352,11 @@
       "editGroupSub": "This updates the global group used by linked zones.",
       "localEyebrow": "Zone-local power",
       "localTitle": "Local timing & action",
-      "localSubtitle": "Keep zone-specific wake-up timing here, plus any optional local trigger.",
-      "preDelay": "Amplifier wake-up delay (ms)",
-      "offDelay": "Off delay (ms)",
+      "localSubtitle": "Keep zone-specific wake-up timing here, plus any optional local trigger. The timing below also applies to speakers that switch themselves on, such as active speakers with line sensing.",
+      "preDelay": "Speaker wake-up delay (ms)",
+      "preDelayHelp": "Silence added before playback starts, so the speaker is awake before the first sound. Skipped while the zone counts as still on (see the standby timeout).",
+      "offDelay": "Standby timeout (ms)",
+      "offDelayHelp": "How long the zone counts as still on after playback stops. Within this window the wake-up delay is skipped. With a relay this is also when it switches off; with self-switching speakers, match it to how long they stay awake.",
       "switchingMethod": "Switching method",
       "method": {
         "disabled": "Disabled",
@@ -1323,7 +1393,7 @@
         "relay": "Relay",
         "serialPlaceholder": "optional"
       },
-      "noLocal": "No local relay configured. This zone can still use a shared power group and playback pre-delay.",
+      "noLocal": "No local relay configured. The wake-up delay and standby timeout above still apply, which is what active speakers with line sensing need.",
       "cancel": "Cancel",
       "save": "Save",
       "name": "Name",
@@ -1438,6 +1508,10 @@
         "purpose": "A complete Loxone Audioserver implementation: it integrates fully into your Loxone setup and behaves like the real thing.",
         "waiting": "On — waiting to pair",
         "hint": "Switch this on under Players, by choosing Loxone integrated."
+      },
+      "webdav": {
+        "name": "Network drive",
+        "purpose": "Adds the music folder to your computer as a network drive, so you can drag albums in and organise them with Finder or Explorer. Connect to the address below and sign in with your account. New files are picked up automatically."
       }
     }
   }

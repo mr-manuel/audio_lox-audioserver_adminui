@@ -9,7 +9,7 @@ import {
   fetchLibraryStatus,
   fetchLibraryStorageCovers,
   fetchLibraryStorageStatus,
-  uploadLibraryAudio,
+  uploadLibraryFile,
   triggerLibraryRescan,
   deleteLibraryAlbum,
   deleteSpotifyAccount,
@@ -42,6 +42,7 @@ import { useGlobalAlert } from '../components/GlobalAlert';
 import { useConfirm } from '../components/ConfirmDialog';
 import InlineState from '../components/InlineState';
 import { InlineForm, InlineFormField } from '../components/InlineForm';
+import LibraryBrowser from './content/LibraryBrowser';
 import SubTabs from '../components/SubTabs';
 import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
 import Row from '../components/Row';
@@ -79,6 +80,7 @@ type LineInInputConfig = {
   name?: string;
   iconType?: LineInIconType;
   metadataEnabled?: boolean;
+  controllable?: boolean;
   autoPlayZoneId?: number;
   source?: {
     type?: LineInSourceType;
@@ -131,6 +133,7 @@ type LineInFormState = {
   iconType: LineInIconType;
   sourceType: LineInSourceType;
   metadataEnabled: boolean;
+  controllable: boolean;
   autoPlayZoneId: string;
   draftId: string;
   sendspinClientId: string;
@@ -427,12 +430,20 @@ function isAudioFilename(name: string): boolean {
   return AUDIO_EXTENSIONS.has(`.${parts.pop()}`);
 }
 
+/**
+ * Cleans a dropped path without renaming anything.
+ *
+ * Folder and file names are kept verbatim — accents, spaces and non-Latin
+ * scripts included — so an album dropped here lands on disk under the same name
+ * it has locally, matching what the network drive produces. Only traversal
+ * segments are dropped; the server validates the path again on arrival.
+ */
 function normalizeRelativePath(pathValue: string | undefined | null): string | undefined {
   if (!pathValue) return undefined;
   const cleaned = pathValue.replace(/\\/g, '/').replace(/^\/+/, '');
   const parts = cleaned.split('/').filter((part) => part && part !== '.' && part !== '..');
   if (parts.length === 0) return undefined;
-  return parts.map((part) => part.replace(/[^A-Za-z0-9._-]/g, '_')).join('/');
+  return parts.join('/');
 }
 
 async function readAllEntries(reader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> {
@@ -582,6 +593,7 @@ const createEmptyLineInForm = (): LineInFormState => ({
   iconType: LineInIconType.CdPlayer,
   sourceType: 'ingest',
   metadataEnabled: true,
+  controllable: false,
   autoPlayZoneId: '',
   draftId: createLineInId(),
   sendspinClientId: '',
@@ -602,6 +614,7 @@ const normalizeLineInInputs = (inputs: LineInInputConfig[]): LineInInputConfig[]
     name: entry.name,
     iconType: typeof entry.iconType === 'number' ? entry.iconType : LineInIconType.CdPlayer,
     metadataEnabled: typeof entry.metadataEnabled === 'boolean' ? entry.metadataEnabled : true,
+    controllable: Boolean(entry.controllable),
     autoPlayZoneId:
       typeof entry.autoPlayZoneId === 'number' && Number.isFinite(entry.autoPlayZoneId)
         ? Math.floor(entry.autoPlayZoneId)
@@ -868,6 +881,11 @@ export default function ContentView(): JSX.Element {
   const [libraryDeletingAlbumId, setLibraryDeletingAlbumId] = React.useState<string | null>(null);
   const [libraryDragActive, setLibraryDragActive] = React.useState(false);
   const libraryFileInputRef = React.useRef<HTMLInputElement | null>(null);
+  // Bumped whenever the indexed content changes (scan, upload, delete) so the
+  // library browser refetches its current page.
+  const [libraryBrowseToken, setLibraryBrowseToken] = React.useState(0);
+  /** Which library source the browser below is showing ('local' or a share id). */
+  const [librarySourceId, setLibrarySourceId] = React.useState('local');
   const [libraryStorages, setLibraryStorages] = React.useState<LibraryStorage[]>([]);
   const [libraryStorageStats, setLibraryStorageStats] = React.useState<Record<string, StorageLibraryStats>>({});
   const [libraryStorageCovers, setLibraryStorageCovers] = React.useState<Record<string, LibraryCoverSample[]>>({});
@@ -921,7 +939,6 @@ export default function ContentView(): JSX.Element {
   const { push: pushAlert } = useGlobalAlert();
   const { confirm } = useConfirm();
   const modalOpen = customRadioModalOpen || bridgeModalOpen || storageModalOpen || lineInModalOpen;
-  const libraryCoverSlots = 6;
   const shareCoverSlots = 6;
 
   React.useEffect(() => {
@@ -1301,10 +1318,12 @@ export default function ContentView(): JSX.Element {
     window.setTimeout(() => {
       void refreshLibraryStatus(false);
       void refreshLibraryCovers(false);
+      setLibraryBrowseToken((v) => v + 1);
     }, 2500);
     window.setTimeout(() => {
       void refreshLibraryStatus(false);
       void refreshLibraryCovers(false);
+      setLibraryBrowseToken((v) => v + 1);
     }, 7000);
   }, [refreshLibraryCovers, refreshLibraryStatus]);
 
@@ -1565,6 +1584,7 @@ export default function ContentView(): JSX.Element {
         iconType: typeof input.iconType === 'number' ? input.iconType : LineInIconType.CdPlayer,
         sourceType: input.source?.type ?? 'ingest',
         metadataEnabled: typeof input.metadataEnabled === 'boolean' ? input.metadataEnabled : true,
+        controllable: Boolean(input.controllable),
         autoPlayZoneId,
         draftId: input.id ?? createLineInId(),
         sendspinClientId,
@@ -1821,11 +1841,11 @@ export default function ContentView(): JSX.Element {
     setLibraryError(null);
     try {
       for (const entry of audioFiles) {
-        const base64 = await fileToBase64(entry.file);
-        const relativePath = normalizeRelativePath(
-          entry.relativePath ?? entry.file.webkitRelativePath,
-        );
-        await uploadLibraryAudio(entry.file.name, base64, relativePath);
+        // Keep the folder structure the user dropped; fall back to the bare
+        // filename for a loose file. The path is preserved verbatim server-side.
+        const dropped = entry.relativePath ?? entry.file.webkitRelativePath ?? '';
+        const relativePath = dropped.replace(/\\/g, '/').replace(/^\/+/, '') || entry.file.name;
+        await uploadLibraryFile(entry.file, relativePath);
       }
       const skipped = files.length - audioFiles.length;
       const suffix = skipped > 0 ? t('content.library.feedback.skipped', { count: skipped }) : '';
@@ -2005,16 +2025,6 @@ export default function ContentView(): JSX.Element {
     return () => window.removeEventListener('message', onMessage);
   }, [appleAuthOpen]);
 
-  const fileToBase64 = async (file: File): Promise<string> => {
-    const buffer = await file.arrayBuffer();
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    bytes.forEach((b) => {
-      binary += String.fromCharCode(b);
-    });
-    return window.btoa(binary);
-  };
-
   const handleDropFiles = async (dataTransfer: DataTransfer): Promise<void> => {
     const files = await collectFilesFromDataTransfer(dataTransfer);
     if (files.length === 0) {
@@ -2168,6 +2178,7 @@ export default function ContentView(): JSX.Element {
             name: entry.name,
             iconType: entry.iconType,
             metadataEnabled: entry.metadataEnabled,
+            controllable: entry.controllable,
             autoPlayZoneId: entry.autoPlayZoneId,
             source: entry.source ?? {},
           })),
@@ -2331,6 +2342,7 @@ export default function ContentView(): JSX.Element {
           name,
           iconType: lineInForm.iconType ?? LineInIconType.CdPlayer,
           metadataEnabled: lineInForm.metadataEnabled,
+          controllable: lineInForm.controllable || undefined,
           autoPlayZoneId,
           source: nextSource,
         };
@@ -2391,6 +2403,7 @@ export default function ContentView(): JSX.Element {
           name,
           iconType: lineInForm.iconType ?? LineInIconType.CdPlayer,
           metadataEnabled: lineInForm.metadataEnabled,
+          controllable: lineInForm.controllable || undefined,
           autoPlayZoneId,
           source: nextSource,
         });
@@ -2499,6 +2512,46 @@ export default function ContentView(): JSX.Element {
     [lineInInputs, persistLineInInputs, pushAlert, t],
   );
 
+  // Local folder and network shares are presented as one list of interchangeable
+  // sources: same row, same stats, same browser. `storage` is null for the local
+  // one, which is what makes it non-editable and upload-capable.
+  const librarySources = React.useMemo(() => {
+    const local = {
+      id: 'local',
+      name: t('content.library.summary.local'),
+      tracks: libraryTrackCount ?? 0,
+      albums: libraryAlbumCount ?? 0,
+      artists: libraryArtistCount ?? 0,
+      indexed: (libraryTrackCount ?? 0) > 0,
+      path: 'data/music/local',
+      storage: null as LibraryStorage | null,
+    };
+    const shares = libraryStorages.map((storage) => {
+      const stats = libraryStorageStats[storage.id];
+      return {
+        id: storage.id,
+        name: storage.name || storage.server || t('content.library.share.default'),
+        tracks: stats?.tracks ?? 0,
+        albums: stats?.albums ?? 0,
+        artists: stats?.artists ?? 0,
+        indexed: (stats?.tracks ?? 0) > 0,
+        path: `${storage.server ?? ''}${storage.folder ? `/${storage.folder.replace(/^\//, '')}` : ''}`,
+        storage,
+      };
+    });
+    return [local, ...shares];
+  }, [libraryAlbumCount, libraryArtistCount, libraryStorageStats, libraryStorages, libraryTrackCount, t]);
+
+  const activeLibrarySource =
+    librarySources.find((source) => source.id === librarySourceId) ?? librarySources[0];
+
+  // A removed share must not leave the browser pointing at a source that is gone.
+  React.useEffect(() => {
+    if (!librarySources.some((source) => source.id === librarySourceId)) {
+      setLibrarySourceId('local');
+    }
+  }, [librarySourceId, librarySources]);
+
   if (loading) {
     return (
       <div className="content-layout">
@@ -2605,11 +2658,6 @@ export default function ContentView(): JSX.Element {
       account.user ||
       account.email,
   );
-  const visibleLibraryCovers = libraryCovers;
-  const libraryCoverPlaceholderCount = libraryCoversLoading
-    ? Math.max(libraryCoverSlots - visibleLibraryCovers.length, 0)
-    : 0;
-
   const SUB_TABS: Array<{ key: ContentFilterKey; label: string }> = [
     { key: 'radio', label: t('content.subTabs.radio') },
     { key: 'library', label: t('content.subTabs.library') },
@@ -2916,58 +2964,12 @@ export default function ContentView(): JSX.Element {
           <aside className="source-aside">
             <span className="source-aside__eyebrow">{t('content.aside.eyebrow')}</span>
             <h2 className="source-aside__title">{t('content.library.title')}</h2>
-            <p className="source-aside__desc">
-              <Trans i18nKey="content.library.desc">
-                Loxone supports local and network libraries — we emulate the same experience. Drop files under{' '}
-                <code>data/music/local</code>, upload audio here, or add network shares.
-              </Trans>
-            </p>
-            <div className="source-aside__actions">
-              <button type="button" className="content-btn" onClick={() => void handleLibraryRescan()}>
-                {t('content.library.rescan')}
-              </button>
-              <button
-                type="button"
-                className="content-btn content-btn--primary"
-                onClick={() => openStorageModal()}
-                disabled={storageModalOpen}
-              >
-                {t('content.library.addShare')}
-              </button>
-            </div>
-
+            <p className="source-aside__desc">{t('content.library.desc')}</p>
             <div className="library-summary">
-              <div className="library-summary__row">
-                <span
-                  className={`library-summary__dot${(libraryTrackCount ?? 0) > 0 ? '' : ' is-warn'}`}
-                />
-                <span className="library-summary__label">
-                  <strong>{t('content.library.summary.local')}</strong> · {(libraryTrackCount ?? 0) > 0 ? t('content.library.summary.indexed') : t('content.library.summary.empty')}
-                </span>
-              </div>
-              {libraryStorages.map((storage) => {
-                const stats = libraryStorageStats[storage.id];
-                const indexed = (stats?.tracks ?? 0) > 0;
-                return (
-                  <div key={storage.id} className="library-summary__row">
-                    <span
-                      className={`library-summary__dot${indexed ? '' : ' is-warn'}`}
-                    />
-                    <span className="library-summary__label">
-                      <strong>{storage.name || storage.server}</strong> ·{' '}
-                      {indexed ? t('content.library.summary.indexed') : t('content.library.summary.notScanned')}
-                    </span>
-                  </div>
-                );
-              })}
               <div className="library-summary__foot">
                 {t('content.library.summary.sources', {
-                  count: libraryStorages.length + 1,
-                  tracks: (libraryTrackCount ?? 0) +
-                    libraryStorages.reduce(
-                      (sum, s) => sum + (libraryStorageStats[s.id]?.tracks ?? 0),
-                      0,
-                    ),
+                  count: librarySources.length,
+                  tracks: librarySources.reduce((sum, source) => sum + source.tracks, 0),
                 })}
               </div>
             </div>
@@ -3088,182 +3090,142 @@ export default function ContentView(): JSX.Element {
               </div>
             </InlineForm>
 
+            {/* One source picker for every library source — the built-in local
+                folder and network shares are the same kind of thing here, so they
+                get the same row, the same stats and the same browser below. */}
             <div className="source-card">
-              <div className="source-card__head">
-                <div>
-                  <h3 className="source-card__title">{t('content.library.local.title')}</h3>
-                  <p className="source-card__desc">{t('content.library.local.desc')}</p>
+              <div className="library-sources">
+                <div className="library-sources__tabs" role="tablist" aria-label={t('content.library.sources.aria')}>
+                  {librarySources.map((source) => (
+                    <button
+                      key={source.id}
+                      type="button"
+                      role="tab"
+                      aria-selected={librarySourceId === source.id}
+                      className={`library-source${librarySourceId === source.id ? ' is-active' : ''}`}
+                      onClick={() => setLibrarySourceId(source.id)}
+                    >
+                      <span
+                        className={`library-source__dot${source.indexed ? '' : ' is-warn'}`}
+                        aria-hidden="true"
+                      />
+                      <span className="library-source__name">{source.name}</span>
+                      <span className="library-source__count">{source.tracks}</span>
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    className="library-source library-source--add"
+                    onClick={() => openStorageModal()}
+                    disabled={storageModalOpen}
+                  >
+                    {t('content.library.addShare')}
+                  </button>
                 </div>
-                <span
-                  className={`card-status${(libraryTrackCount ?? 0) > 0 ? ' is-ok' : ' is-warn'}`}
-                >
-                  <span className="card-status__dot" />
-                  {(libraryTrackCount ?? 0) > 0 ? t('content.library.local.indexed') : t('content.library.local.empty')}
-                </span>
+
+                <div className="library-sources__detail">
+                  <div className="library-sources__facts">
+                    <span className="library-sources__stat">
+                      <strong>{activeLibrarySource?.tracks ?? 0}</strong>{' '}
+                      {t('content.library.local.stats.tracks').toLowerCase()}
+                    </span>
+                    <span className="library-sources__stat">
+                      <strong>{activeLibrarySource?.albums ?? 0}</strong>{' '}
+                      {t('content.library.local.stats.albums').toLowerCase()}
+                    </span>
+                    <span className="library-sources__stat">
+                      <strong>{activeLibrarySource?.artists ?? 0}</strong>{' '}
+                      {t('content.library.local.stats.artists').toLowerCase()}
+                    </span>
+                    {activeLibrarySource?.path ? (
+                      <span className="library-sources__path" title={activeLibrarySource.path}>
+                        {activeLibrarySource.path}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="library-sources__actions">
+                    <button
+                      type="button"
+                      className="content-btn content-btn--sm"
+                      onClick={() => void handleLibraryRescan()}
+                      disabled={libraryActionPending}
+                    >
+                      {t('content.library.sources.rescan')}
+                    </button>
+                    {activeLibrarySource && activeLibrarySource.storage ? (
+                      <>
+                        <button
+                          type="button"
+                          className="content-btn content-btn--sm"
+                          onClick={() => openStorageModal(activeLibrarySource.storage ?? undefined)}
+                          disabled={storageModalOpen}
+                        >
+                          {t('content.library.share.edit')}
+                        </button>
+                        <button
+                          type="button"
+                          className="content-btn content-btn--sm content-btn--danger"
+                          onClick={() =>
+                            void handleDeleteLibraryStorage(activeLibrarySource.id)
+                          }
+                        >
+                          {t('content.library.share.remove')}
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+                </div>
+
+                {activeLibrarySource && !activeLibrarySource.indexed ? (
+                  <div className="library-sources__hint">
+                    {activeLibrarySource.storage
+                      ? t('content.library.share.scanPromptSub')
+                      : t('content.library.sources.localEmpty')}
+                  </div>
+                ) : null}
+
+                {/* Upload only ever lands in the local folder — a network share is
+                    owned by whatever host exports it. */}
+                {activeLibrarySource && !activeLibrarySource.storage ? (
+                  <label className="content-drop-zone content-drop-zone--slim">
+                    <input
+                      type="file"
+                      multiple
+                      accept="audio/*,.mp3,.flac,.m4a,.aac,.ogg,.wav"
+                      onChange={(event) => {
+                        handleDropZoneFiles(event.target.files);
+                        event.target.value = '';
+                      }}
+                    />
+                    <span className="content-drop-zone__icon" aria-hidden="true">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="17 8 12 3 7 8" />
+                        <line x1="12" y1="3" x2="12" y2="15" />
+                      </svg>
+                    </span>
+                    <div className="content-drop-zone__text">
+                      <div className="content-drop-zone__title">{t('content.library.drop.title')}</div>
+                      <div className="content-drop-zone__sub">{t('content.library.drop.formats')}</div>
+                    </div>
+                  </label>
+                ) : null}
               </div>
-
-              {visibleLibraryCovers.length > 0 ? (
-                <div className="album-strip">
-                  {visibleLibraryCovers.slice(0, libraryCoverSlots).map((cover, idx) => {
-                    const initial = (cover.album || '').charAt(0).toUpperCase() || '?';
-                    return (
-                      <div key={`${cover.album}-${cover.artist}`} className="album-tile">
-                        <div className={`album-cover album-cover--c${(idx % 4) + 1}`}>
-                          {cover.coverurl ? (
-                            <img src={cover.coverurl} alt={`${cover.album} by ${cover.artist}`} />
-                          ) : (
-                            <>
-                              <span className="album-cover__disc" />
-                              <span className="album-cover__initial">{initial}</span>
-                            </>
-                          )}
-                        </div>
-                        <div className="album-tile__caption">{cover.album}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : null}
-
-              <div className="stat-strip">
-                <div className="stat-cell">
-                  <span className="stat-cell__label">{t('content.library.local.stats.tracks')}</span>
-                  <span className="stat-cell__value">{libraryTrackCount ?? 0}</span>
-                </div>
-                <div className="stat-cell">
-                  <span className="stat-cell__label">{t('content.library.local.stats.albums')}</span>
-                  <span className="stat-cell__value">{libraryAlbumCount ?? 0}</span>
-                </div>
-                <div className="stat-cell">
-                  <span className="stat-cell__label">{t('content.library.local.stats.artists')}</span>
-                  <span className="stat-cell__value">{libraryArtistCount ?? 0}</span>
-                </div>
-              </div>
-
-              <label className="content-drop-zone">
-                <input
-                  type="file"
-                  multiple
-                  accept="audio/*,.mp3,.flac,.m4a,.aac,.ogg,.wav"
-                  onChange={(event) => {
-                    handleDropZoneFiles(event.target.files);
-                    event.target.value = '';
-                  }}
-                />
-                <span className="content-drop-zone__icon" aria-hidden="true">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                    <polyline points="17 8 12 3 7 8" />
-                    <line x1="12" y1="3" x2="12" y2="15" />
-                  </svg>
-                </span>
-                <div className="content-drop-zone__text">
-                  <div className="content-drop-zone__title">{t('content.library.drop.title')}</div>
-                  <div className="content-drop-zone__sub">{t('content.library.drop.sub')}</div>
-                  <div className="content-drop-zone__formats">{t('content.library.drop.formats')}</div>
-                </div>
-              </label>
             </div>
 
-            {libraryStorages.map((storage) => {
-              const stats = libraryStorageStats[storage.id];
-              const indexed = (stats?.tracks ?? 0) > 0;
-              return (
-                <div key={storage.id} className="share-card">
-                  <div className="share-card__head">
-                    <div className="share-card__head-left">
-                      <h3 className="share-card__name">{storage.name || storage.server || t('content.library.share.default')}</h3>
-                      <div className="share-card__path">
-                        {storage.server}
-                        {storage.folder ? `/${storage.folder.replace(/^\//, '')}` : ''}
-                      </div>
-                      <div className="share-card__meta">
-                        <span className={`card-status${indexed ? ' is-ok' : ' is-warn'}`}>
-                          <span className="card-status__dot" />
-                          {indexed ? t('content.library.share.indexed') : t('content.library.share.notScanned')}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="share-card__actions">
-                      <button
-                        type="button"
-                        className="content-btn content-btn--sm"
-                        onClick={() => openStorageModal(storage)}
-                        disabled={storageModalOpen}
-                      >
-                        {t('content.library.share.edit')}
-                      </button>
-                      <button
-                        type="button"
-                        className="content-btn content-btn--sm content-btn--danger"
-                        onClick={() => void handleDeleteLibraryStorage(storage.id)}
-                      >
-                        {t('content.library.share.remove')}
-                      </button>
-                    </div>
-                  </div>
-
-                  {indexed ? (
-                    <div className="stat-strip">
-                      <div className="stat-cell">
-                        <span className="stat-cell__label">{t('content.library.local.stats.tracks')}</span>
-                        <span className="stat-cell__value">{stats?.tracks ?? 0}</span>
-                      </div>
-                      <div className="stat-cell">
-                        <span className="stat-cell__label">{t('content.library.local.stats.albums')}</span>
-                        <span className="stat-cell__value">{stats?.albums ?? 0}</span>
-                      </div>
-                      <div className="stat-cell">
-                        <span className="stat-cell__label">{t('content.library.local.stats.artists')}</span>
-                        <span className="stat-cell__value">{stats?.artists ?? 0}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="scan-prompt">
-                      <span className="scan-prompt__icon" aria-hidden="true">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                        </svg>
-                      </span>
-                      <div className="scan-prompt__text">
-                        <div className="scan-prompt__title">{t('content.library.share.scanPromptTitle')}</div>
-                        <div className="scan-prompt__sub">
-                          {t('content.library.share.scanPromptSub')}
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        className="content-btn content-btn--sm content-btn--primary"
-                        onClick={() => void handleLibraryRescan()}
-                      >
-                        {t('content.library.share.scanNow')}
-                      </button>
-                    </div>
-                  )}
-
-                  <div className="share-card__details">
-                    <div>
-                      <div className="share-card__detail-label">{t('content.library.share.server')}</div>
-                      <div className="share-card__detail-value">{storage.server || '—'}</div>
-                    </div>
-                    <div>
-                      <div className="share-card__detail-label">{t('content.library.share.shareFolder')}</div>
-                      <div className="share-card__detail-value">{storage.folder || '—'}</div>
-                    </div>
-                    <div>
-                      <div className="share-card__detail-label">{t('content.library.share.access')}</div>
-                      <div className="share-card__detail-value">
-                        {storage.guest
-                          ? t('content.library.share.accessGuest')
-                          : storage.username
-                            ? t('content.library.share.accessUser', { username: storage.username })
-                            : t('content.library.share.accessAnonymous')}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            <div className="source-card">
+              <LibraryBrowser
+                storageId={librarySourceId}
+                isShare={Boolean(activeLibrarySource?.storage)}
+                refreshToken={libraryBrowseToken}
+                onMutated={() => {
+                  void refreshLibraryStatus(false);
+                  void refreshLibraryCovers(false);
+                  void refreshLibraryStorageDetails(libraryStorages);
+                }}
+              />
+            </div>
           </div>
         </div>
       ) : null}
@@ -4741,6 +4703,21 @@ export default function ContentView(): JSX.Element {
                       />
                     </div>
                     <span className="linein-modal__help">{t('content.linein.modal.fingerprintHelp')}</span>
+                  </div>
+                  <div className="linein-modal__pref">
+                    <div className="linein-modal__pref-head">
+                      <span className="linein-modal__pref-title">{t('content.linein.modal.controllableTitle')}</span>
+                      <button
+                        type="button"
+                        className={`linein-modal__toggle${lineInForm.controllable ? ' is-on' : ''}`}
+                        aria-label={t('content.linein.modal.controllableTitle')}
+                        aria-pressed={lineInForm.controllable}
+                        onClick={() =>
+                          setLineInForm((prev) => ({ ...prev, controllable: !prev.controllable }))
+                        }
+                      />
+                    </div>
+                    <span className="linein-modal__help">{t('content.linein.modal.controllableHelp')}</span>
                   </div>
                 </div>
 

@@ -35,6 +35,10 @@ export type ContentUpdatePayload = {
     enabled?: boolean;
     friendlyName?: string;
   };
+  /** WebDAV share over the music folder, mountable as a network drive. */
+  webdav?: {
+    enabled?: boolean;
+  };
 };
 
 /** Server-wide input settings. Receivers are per player (see zonesApi), not here. */
@@ -112,15 +116,76 @@ export async function fetchLibraryStorageCovers(
   );
 }
 
-export async function uploadLibraryAudio(
-  filename: string,
-  base64Data: string,
-  relativePath?: string,
+export type LibraryBrowseKind = 'albums' | 'artists' | 'tracks';
+
+export type LibraryBrowseItem = {
+  id: string;
+  name: string;
+  kind?: string;
+  coverurl?: string;
+  /** Track count for an album/artist row. */
+  items?: number;
+  /** Present on tracks — the id the track delete endpoint takes. */
+  audiopath?: string;
+  artist?: string;
+  album?: string;
+  duration?: number;
+};
+
+export type LibraryBrowseResponse = {
+  kind: LibraryBrowseKind;
+  storageId: string;
+  query: string;
+  items: LibraryBrowseItem[];
+  offset: number;
+  limit: number;
+  total: number;
+  /** Set when a search hit the server's per-type cap, so more matches exist. */
+  truncated: boolean;
+};
+
+export async function fetchLibraryBrowse(params: {
+  kind: LibraryBrowseKind;
+  storageId?: string;
+  query?: string;
+  offset?: number;
+  limit?: number;
+}): Promise<LibraryBrowseResponse> {
+  const search = new URLSearchParams({ kind: params.kind });
+  if (params.storageId) search.set('storageId', params.storageId);
+  if (params.query) search.set('q', params.query);
+  if (params.offset) search.set('offset', String(params.offset));
+  if (params.limit) search.set('limit', String(params.limit));
+  return requestJson(`${API_BASE}/content/library/browse?${search.toString()}`, {
+    errorMessage: 'Failed to browse the library',
+  });
+}
+
+/**
+ * Streams one file into the library.
+ *
+ * Sends the file as the raw request body rather than base64 in JSON: no ~33%
+ * size inflation, no whole-file buffering in memory, and no practical size cap.
+ * It writes through the same server-side path as the network drive, so a folder
+ * dropped here lands on disk exactly as one copied over WebDAV — names intact.
+ */
+export async function uploadLibraryFile(
+  file: File,
+  relativePath: string,
+  signal?: AbortSignal,
 ): Promise<void> {
-  await requestOk(`${API_BASE}/content/library/upload`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filename, relativePath, data: base64Data }),
+  // Encode each segment so spaces and non-ASCII survive the URL, while the
+  // separators stay real separators.
+  const encoded = relativePath
+    .split('/')
+    .filter(Boolean)
+    .map((segment) => encodeURIComponent(segment))
+    .join('/');
+  await requestOk(`${API_BASE}/content/library/files/${encoded}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type || 'application/octet-stream' },
+    body: file,
+    signal,
     errorMessage: 'Failed to upload audio',
   });
 }

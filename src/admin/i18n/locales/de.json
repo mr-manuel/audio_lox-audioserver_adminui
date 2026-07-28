@@ -176,7 +176,7 @@
     },
     "library": {
       "title": "Bibliothek",
-      "desc": "Loxone unterstützt lokale und Netzwerkbibliotheken — wir bilden das gleiche Verhalten nach. Dateien unter <1>data/music/local</1> ablegen, Audio hochladen oder Netzwerkfreigaben hinzufügen.",
+      "desc": "Musik auf diesem Server und auf Netzwerkfreigaben. Wähle eine Quelle, um den Index zu durchsuchen, oder füge eine Freigabe hinzu.",
       "rescan": "↻ Bibliothek neu einlesen",
       "addShare": "+ Freigabe hinzufügen",
       "summary": {
@@ -272,6 +272,67 @@
         "albumStatusUnavailable": "Bibliotheksstatus konnte nicht geladen werden",
         "coversFailed": "Bibliothek-Cover konnten nicht geladen werden",
         "loadSharesFailed": "Freigaben konnten nicht geladen werden"
+      },
+      "browser": {
+        "aria": "Bibliothekstyp",
+        "kind": {
+          "albums": "Alben",
+          "artists": "Künstler",
+          "tracks": "Titel"
+        },
+        "searchPlaceholder": {
+          "albums": "Alben durchsuchen…",
+          "artists": "Künstler durchsuchen…",
+          "tracks": "Titel durchsuchen…"
+        },
+        "clearSearch": "Suche zurücksetzen",
+        "loading": "Wird geladen…",
+        "loadFailed": "Die Bibliothek konnte nicht geladen werden.",
+        "empty": "Noch nichts vorhanden. Lege unten Audiodateien ab, um Musik hinzuzufügen.",
+        "noMatches": "Keine Treffer für „{{query}}“.",
+        "matches_one": "{{count}} Treffer",
+        "matches_other": "{{count}} Treffer",
+        "truncated": "nur die ersten Treffer — Suche eingrenzen für mehr",
+        "totalOf": {
+          "albums_one": "{{count}} Album",
+          "albums_other": "{{count}} Alben",
+          "artists_one": "{{count}} Künstler",
+          "artists_other": "{{count}} Künstler",
+          "tracks_one": "{{count}} Titel",
+          "tracks_other": "{{count}} Titel"
+        },
+        "trackCount_one": "{{count}} Titel",
+        "trackCount_other": "{{count}} Titel",
+        "selectAll": "Alle auf dieser Seite auswählen",
+        "selected_one": "{{count}} ausgewählt",
+        "selected_other": "{{count}} ausgewählt",
+        "clearSelection": "Aufheben",
+        "deleteSelected": "Von Datenträger löschen",
+        "deleting": "Wird gelöscht…",
+        "deleteFailed_one": "{{count}} Eintrag konnte nicht gelöscht werden.",
+        "deleteFailed_other": "{{count}} Einträge konnten nicht gelöscht werden.",
+        "confirmTitle": "Von Datenträger löschen?",
+        "confirmMessage": "{{scope}} ({{count}} Titel) werden endgültig aus dem Musikordner dieses Servers gelöscht. Das lässt sich nicht rückgängig machen.",
+        "confirmDelete": "Löschen",
+        "scope": {
+          "albums_one": "{{count}} Album",
+          "albums_other": "{{count}} Alben",
+          "artists_one": "{{count}} Künstler",
+          "artists_other": "{{count}} Künstler",
+          "tracks_one": "{{count}} Titel",
+          "tracks_other": "{{count}} Titel"
+        },
+        "prev": "Zurück",
+        "next": "Weiter",
+        "pageOf": "Seite {{page}} von {{pages}}",
+        "title": "Durchsuchen und verwalten",
+        "desc": "Alles, was auf diesem Server indexiert ist. Wähle Einträge aus, um sie vom Datenträger zu entfernen.",
+        "emptyShare": "Auf dieser Freigabe ist noch nichts indexiert. Starte einen Scan, um die Audiodateien zu erfassen."
+      },
+      "sources": {
+        "aria": "Musikquelle",
+        "rescan": "Neu scannen",
+        "localEmpty": "Noch keine Audiodateien indexiert. Lege unten Dateien ab, um Musik hinzuzufügen."
       }
     },
     "linein": {
@@ -837,7 +898,14 @@
     "alerts": {
       "eyebrow": "Eingebaute Alarme",
       "title": "Mitgelieferte MP3-Dateien",
-      "desc": "Sirenen-, Glocken- und Summer-MP3-Dateien des AudioServers anhören und ersetzen."
+      "desc": "Sirenen-, Glocken- und Summer-MP3-Dateien des AudioServers anhören und ersetzen.",
+      "loading": "Alarmtöne werden geladen…",
+      "loadFailed": "Die Alarmtöne konnten nicht geladen werden.",
+      "empty": "Keine Alarmtöne gefunden.",
+      "uploading": "Wird hochgeladen…",
+      "drop": "MP3 hier ablegen",
+      "dropHint": "oder zum Hochladen klicken",
+      "revert": "Original wiederherstellen"
     },
     "updates": {
       "eyebrow": "Status",
@@ -1282,9 +1350,11 @@
       "editGroupSub": "Aktualisiert die globale Gruppe für alle verknüpften Zonen.",
       "localEyebrow": "Zonen-lokale Energie",
       "localTitle": "Lokales Timing & Aktion",
-      "localSubtitle": "Zonenspezifische Aufweck-Zeiten und optionalen lokalen Trigger hier eintragen.",
-      "preDelay": "Verstärker-Aufwärmzeit (ms)",
-      "offDelay": "Ausschaltverzögerung (ms)",
+      "localSubtitle": "Zonenspezifische Aufweck-Zeiten und optionalen lokalen Trigger hier eintragen. Die Zeiten unten gelten auch für Lautsprecher, die sich selbst einschalten, etwa Aktivlautsprecher mit Signalerkennung.",
+      "preDelay": "Lautsprecher-Aufwachzeit (ms)",
+      "preDelayHelp": "Stille vor dem Start der Wiedergabe, damit der Lautsprecher vor dem ersten Ton wach ist. Wird übersprungen, solange die Zone noch als eingeschaltet gilt (siehe Standby-Zeit).",
+      "offDelay": "Standby-Zeit (ms)",
+      "offDelayHelp": "Wie lange die Zone nach dem Stoppen noch als eingeschaltet gilt. In diesem Zeitraum entfällt die Aufwachzeit. Mit Relais wird dann auch abgeschaltet; bei selbstschaltenden Lautsprechern auf deren Wachzeit einstellen.",
       "switchingMethod": "Schaltmethode",
       "method": {
         "disabled": "Deaktiviert",
@@ -1321,7 +1391,7 @@
         "relay": "Relay",
         "serialPlaceholder": "optional"
       },
-      "noLocal": "Kein lokales Relais konfiguriert. Diese Zone kann trotzdem eine gemeinsame Power-Gruppe und Wiedergabe-Vorverzögerung nutzen.",
+      "noLocal": "Kein lokales Relais konfiguriert. Aufwachzeit und Standby-Zeit oben gelten trotzdem — genau das brauchen Aktivlautsprecher mit Signalerkennung.",
       "cancel": "Abbrechen",
       "save": "Speichern",
       "name": "Name",
@@ -1436,6 +1506,10 @@
         "purpose": "Eine vollwertige Loxone-Audioserver-Implementierung: fügt sich vollständig in dein Loxone-Setup ein und verhält sich wie ein echtes Gerät.",
         "waiting": "An — warte auf Kopplung",
         "hint": "Einschalten kannst du das unter Player, mit der Option „Loxone integriert“."
+      },
+      "webdav": {
+        "name": "Netzlaufwerk",
+        "purpose": "Bindet den Musikordner als Netzlaufwerk auf deinem Computer ein, sodass du Alben per Drag-and-drop hinzufügen und im Finder oder Explorer verwalten kannst. Verbinde dich mit der Adresse unten und melde dich mit deinem Konto an. Neue Dateien werden automatisch erkannt."
       }
     }
   }

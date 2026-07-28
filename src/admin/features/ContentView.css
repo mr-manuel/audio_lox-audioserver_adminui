@@ -1,6 +1,6 @@
 .content-layout {
   width: 100%;
-  max-width: 1360px;
+  max-width: var(--workspace-max);
   margin: 0 auto;
 }
 
@@ -63,9 +63,13 @@
 }
 
 .content-stat {
+  /* Each stat takes an equal share of the bar, but its label and number stay
+     together at the left of that share — on a wide screen a space-between
+     layout would strand the number half a metre from what it counts. */
   flex: 1;
   display: flex;
   align-items: baseline;
+  justify-content: flex-start;
   gap: 10px;
   padding: 0 14px;
   position: relative;
@@ -107,7 +111,6 @@
   letter-spacing: -0.3px;
   color: var(--text);
   font-weight: 700;
-  margin-left: auto;
 }
 
 @media (max-width: 768px) {
@@ -285,6 +288,7 @@
   color: var(--text-muted);
   line-height: 1.55;
   margin: 4px 0 0;
+  max-width: var(--prose-max);
 }
 
 .source-card__desc a {
@@ -2453,7 +2457,9 @@
 
 .linein-modal {
   width: 100%;
-  max-width: 780px;
+  /* Two columns of settings, several with a select and a hint line — 780px left
+     the right column cramped once bridge options grew. */
+  max-width: 920px;
   max-height: calc(100vh - 48px);
   background: var(--bg-card, #15181d);
   border: 1px solid var(--border, var(--border));
@@ -2998,4 +3004,129 @@
   .linein-modal__title {
     font-size: 20px;
   }
+}
+
+/* ============================================================
+   Library source picker
+   ------------------------------------------------------------
+   The built-in local folder and every network share are the same
+   kind of thing here: one selectable row each, feeding the single
+   browser below. Replaces the old per-source cards.
+   ============================================================ */
+
+.library-sources {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.library-sources__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.library-source {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface-soft);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.library-source:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.library-source.is-active {
+  background: var(--accent-soft);
+  border-color: var(--border-accent-strong);
+  color: var(--text);
+}
+
+.library-source__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex: 0 0 6px;
+}
+
+.library-source__dot.is-warn {
+  background: var(--warn);
+}
+
+.library-source__name {
+  font-weight: 500;
+}
+
+.library-source__count {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.library-source--add {
+  border-style: dashed;
+  color: var(--text-dim);
+}
+
+/* ---- selected source detail ---- */
+
+.library-sources__detail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.library-sources__facts {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.library-sources__stat strong {
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.library-sources__path {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.library-sources__actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+.library-sources__hint {
+  font-size: var(--text-sm);
+  color: var(--warn);
+}
+
+/* Compact dropzone — the browser below is the main event now. */
+.content-drop-zone--slim {
+  padding: 10px 14px;
+  gap: 10px;
 }

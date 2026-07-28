@@ -1,0 +1,203 @@
+/* ============================================================
+   Library browser — paged album/artist/track management inside
+   the Content › Library screen. Built on the redesign tokens
+   (--bg-card / --text / --accent), no legacy --color-* aliases.
+   ============================================================ */
+
+.library-browser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.library-browser__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.library-browser__kinds {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* ---- selection action bar ---- */
+
+.library-browser__selection {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+}
+
+.library-browser__selection-count {
+  flex: 1;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.library-browser__error {
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  border-radius: var(--radius-md);
+  background: rgba(239, 68, 68, 0.08);
+  color: var(--danger-bright);
+  font-size: var(--text-sm);
+}
+
+.library-browser__state {
+  padding: var(--space-9) var(--space-4);
+  text-align: center;
+  color: var(--text-dim);
+  font-size: var(--text-sm);
+}
+
+/* ---- list header ---- */
+
+.library-browser__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: 0 var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.library-browser__check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.library-browser__count {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+}
+
+/* ---- rows ---- */
+
+.library-browser__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.library-browser__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-2);
+  border-bottom: 1px solid var(--border-faint);
+  transition: background 0.14s ease;
+}
+
+.library-browser__row:hover {
+  background: var(--surface-soft);
+}
+
+.library-browser__row.is-selected {
+  background: var(--accent-soft);
+}
+
+.library-browser__row-check {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.library-browser__art {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface);
+  display: grid;
+  place-items: center;
+}
+
+.library-browser__art.is-round {
+  border-radius: 50%;
+}
+
+.library-browser__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.library-browser__art-initial {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-dim);
+}
+
+.library-browser__main {
+  flex: 1;
+  min-width: 0;
+}
+
+.library-browser__name {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.library-browser__meta {
+  margin-top: 1px;
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.library-browser__duration {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- pager ---- */
+
+.library-browser__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding-top: var(--space-2);
+}
+
+.library-browser__pager-label {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 640px) {
+  .library-browser__bar {
+    align-items: stretch;
+  }
+
+  .library-browser__kinds {
+    justify-content: space-between;
+  }
+}

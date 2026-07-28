@@ -22,11 +22,11 @@ type ConfigResponse = { config: RootConfig };
 /** Every way content can be served. Adding one means adding an entry to `ORDER`
  *  plus its `access.services.<id>` copy — and, only if it has settings of its own,
  *  a block in `renderExtras`. */
-type ServiceId = 'loxone' | 'dlna' | 'subsonic';
+type ServiceId = 'loxone' | 'dlna' | 'subsonic' | 'webdav';
 
 // Loxone leads: this server started life as a pure Loxone Audioserver, and that
 // implementation is still its most complete integration.
-const ORDER: readonly ServiceId[] = ['loxone', 'dlna', 'subsonic'];
+const ORDER: readonly ServiceId[] = ['loxone', 'dlna', 'subsonic', 'webdav'];
 
 function PhoneGlyph(): JSX.Element {
   return (
@@ -62,6 +62,7 @@ export default function AccessView(): JSX.Element {
   const [saving, setSaving] = React.useState<ServiceId | null>(null);
   const [subsonic, setSubsonic] = React.useState<SubsonicStatus | null>(null);
   const [urlCopied, setUrlCopied] = React.useState(false);
+  const [davCopied, setDavCopied] = React.useState(false);
 
   const refreshConfig = React.useCallback(async (): Promise<void> => {
     setError(null);
@@ -93,10 +94,13 @@ export default function AccessView(): JSX.Element {
   const mediaServerEnabled = Boolean(cfg.content?.mediaServer?.enabled);
   const subsonicEnabled = subsonic?.enabled ?? false;
 
+  const webdavEnabled = Boolean(cfg.content?.webdav?.enabled);
+
   const isOn: Record<ServiceId, boolean> = {
     loxone: loxoneEnabled,
     dlna: mediaServerEnabled,
     subsonic: subsonicEnabled,
+    webdav: webdavEnabled,
   };
   const enabledCount = ORDER.filter((id) => isOn[id]).length;
 
@@ -127,12 +131,21 @@ export default function AccessView(): JSX.Element {
         await refreshConfig();
       } else if (id === 'subsonic') {
         setSubsonic(await updateSubsonicConfig({ enabled: next }));
+      } else if (id === 'webdav') {
+        await updateContentConfig({ webdav: { enabled: next } });
+        await refreshConfig();
       }
     } catch (err) {
       pushAlert({ tone: 'error', title: t('access.failedTitle'), message: errorText(err) });
     } finally {
       setSaving(null);
     }
+  }
+
+  async function copyDavUrl(url: string): Promise<void> {
+    if (!(await copyText(url))) return;
+    setDavCopied(true);
+    window.setTimeout(() => setDavCopied(false), 2000);
   }
 
   async function copyClientUrl(): Promise<void> {
@@ -154,6 +167,24 @@ export default function AccessView(): JSX.Element {
             onClick={() => void copyClientUrl()}
           >
             {urlCopied ? t('access.servers.copied') : t('access.servers.copy')}
+          </button>
+        </div>
+      );
+    }
+
+    if (id === 'webdav' && webdavEnabled) {
+      // Shown so the address can be pasted straight into Finder's "Connect to
+      // Server" or mapped as a drive in Explorer.
+      const davUrl = `${window.location.protocol}//${window.location.host}/dav/`;
+      return (
+        <div className="access-url" title={davUrl}>
+          <code className="access-url__text">{davUrl}</code>
+          <button
+            type="button"
+            className={`access-url__copy${davCopied ? ' is-done' : ''}`}
+            onClick={() => void copyDavUrl(davUrl)}
+          >
+            {davCopied ? t('access.servers.copied') : t('access.servers.copy')}
           </button>
         </div>
       );
