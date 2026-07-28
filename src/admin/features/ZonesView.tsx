@@ -1689,8 +1689,23 @@ function ZoneModal({
 
   const inSubView = tab === 'settings' && settingsView !== 'main';
 
+  // The power panel carries its own Save/Cancel row, but `.zones-modal` hides it
+  // (the modal supplies the footer instead). Without this the footer's "Save" only
+  // navigated back and the panel's edits were silently dropped — issue #319.
+  const powerSaveRef = React.useRef<(() => Promise<void>) | null>(null);
+  const registerPowerSave = React.useCallback((fn: (() => Promise<void>) | null) => {
+    powerSaveRef.current = fn;
+  }, []);
+
   const handleBackToMain = (): void =>
     setSettingsView(settingsView === 'remote-one' ? 'remote' : 'main');
+
+  const handleSubViewSave = async (): Promise<void> => {
+    if (settingsView === 'power' && powerSaveRef.current) {
+      await powerSaveRef.current();
+    }
+    handleBackToMain();
+  };
 
   return createPortal(
     <div
@@ -1951,6 +1966,7 @@ function ZoneModal({
                 await onPowerManagerChange(powerManager);
               }}
               onSavePowerGroups={onPowerGroupsSave}
+              registerSave={registerPowerSave}
               onCancel={onClose}
             />
           ) : (
@@ -2000,7 +2016,7 @@ function ZoneModal({
               <button
                 type="button"
                 className="zones-modal__btn zones-modal__btn--primary"
-                onClick={inSubView ? handleBackToMain : onClose}
+                onClick={inSubView ? () => void handleSubViewSave() : onClose}
                 disabled={saving}
               >
                 {inSubView ? t('zones.modal.save') : t('zones.modal.apply')}
@@ -2159,6 +2175,8 @@ type ZonePowerManagerProps = {
   saving: boolean;
   onChange: (config: ZonePowerManagerConfig | null) => void | Promise<void>;
   onSavePowerGroups: (groups: PowerGroupConfig[]) => Promise<boolean>;
+  /** Lets the enclosing modal footer trigger this panel's save (its own row is hidden). */
+  registerSave?: (save: (() => Promise<void>) | null) => void;
   onCancel: () => void;
 };
 
@@ -4627,6 +4645,7 @@ function ZonePowerManagerSection({
   saving,
   onChange,
   onSavePowerGroups,
+  registerSave,
   onCancel,
 }: ZonePowerManagerProps): JSX.Element {
   const { t } = useTranslation();
@@ -4661,6 +4680,13 @@ function ZonePowerManagerSection({
   const save = async (): Promise<void> => {
     await onChange(normalizePowerManagerForSave(clonePowerManager(draft)));
   };
+
+  // Keep the registered callback pointing at the current draft, so the modal footer
+  // saves what is on screen rather than a stale closure.
+  React.useEffect(() => {
+    registerSave?.(save);
+    return () => registerSave?.(null);
+  }, [registerSave, draft]);
   const methodDescriptions: Record<'gpio' | 'url' | 'udp' | 'crelay', string> = {
     gpio: t('zones.power.descriptions.gpio'),
     url: t('zones.power.descriptions.url'),
