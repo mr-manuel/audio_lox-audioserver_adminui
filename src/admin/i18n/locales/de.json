@@ -369,7 +369,9 @@
         "cancel": "Abbrechen",
         "save": "Line-in speichern",
         "add": "Line-in hinzufügen",
-        "saving": "Speichern…"
+        "saving": "Speichern…",
+        "controllableTitle": "Dieses Gerät lässt sich steuern",
+        "controllableHelp": "Für Geräte, die Befehle annehmen – etwa ein CD-Player am MasterLink-Bus. Der Server startet es bei Auswahl der Quelle, stoppt es beim Wechsel und leitet Fernbedienungstasten weiter. Er sendet diese an den on_command-Hook der Bridge, das Skript auf jenem Rechner entscheidet also, was damit an der Hardware geschieht. Bei Plattenspielern oder einfachen Eingängen aus lassen – dann wird nichts gesendet."
       },
       "feedback": {
         "selectBridge": "Vor dem Speichern eine Bridge für diesen Line-in-Eingang auswählen.",
@@ -1151,7 +1153,8 @@
       "groupPrefix": "Gruppe: {{name}}",
       "groupPlayback": "Wiedergabe",
       "groupAudio": "Audio",
-      "groupSystem": "Power & System"
+      "groupSystem": "Power & System",
+      "groupControl": "Steuerung"
     },
     "eq": {
       "provider": "Anbieter",
@@ -1339,6 +1342,62 @@
       "powerFailedDefault": "Energieverwaltung konnte nicht aktualisiert werden: {{error}}",
       "equalizerFailedDefault": "Equalizer-Forwarding konnte nicht aktualisiert werden: {{error}}",
       "powerGroupsFailedDefault": "Gemeinsame Power-Gruppen konnten nicht aktualisiert werden: {{error}}"
+    },
+    "beoremote": {
+      "title": "Bang & Olufsen Fernbedienung",
+      "copy": "Diesen Raum mit einer Beoremote One steuern.",
+      "loading": "Suche nach Fernbedienungen…",
+      "noBridges": "Es hat sich noch keine Fernbedienung gemeldet. Richte das kleine Hilfsprogramm ein, das sich mit der Beoremote verbindet – dann erscheint sie hier.",
+      "loadFailed": "Die Liste der Fernbedienungen konnte nicht geladen werden. Öffne diesen Bereich erneut.",
+      "inUse": "Wird bereits von einem anderen Raum genutzt",
+      "connected": "Verbunden",
+      "offline": "Antwortet nicht",
+      "submenuTitle": "Zusatzliste auf der Fernbedienung",
+      "submenuCopy": "Eine Quelle kann eine zweite Liste öffnen. Wähle, was darin steht.",
+      "submenuNone": "Nichts",
+      "submenuRadio": "Radiosender",
+      "submenuFavorites": "Favoriten",
+      "lineInsTitle": "Plattenspieler, CD-Player und andere Eingänge",
+      "lineInsCopy": "An diesen Server angeschlossene Geräte als Quellen auf der Fernbedienung zeigen.",
+      "keysTitle": "Tasten",
+      "keysCopy": "Jede Taste startet etwas in diesem Raum. Auf Standard spielt sie den Favoriten an der passenden Position.",
+      "keysLoading": "Tasten werden geladen…",
+      "keysFailed": "Die Tasten für diesen Raum konnten nicht geladen werden. Öffne diesen Bereich erneut.",
+      "keyDefault": "Standard",
+      "keyNone": "Nichts tun",
+      "keyDefaultIs": "Spielt normalerweise {{name}}",
+      "keyDefaultEmpty": "Noch kein Favorit an dieser Position",
+      "groupFavorites": "Favoriten",
+      "groupLineIns": "Angeschlossene Geräte",
+      "groupRadio": "Radiosender",
+      "button": {
+        "red": "Rot",
+        "green": "Grün",
+        "yellow": "Gelb",
+        "blue": "Blau",
+        "dot1": "Punkt, oben links",
+        "dot2": "Punkt, oben rechts",
+        "dot3": "Punkt, unten links",
+        "dot4": "Punkt, unten rechts"
+      },
+      "pickTitle": "Welche Fernbedienung",
+      "pickNone": "Noch keine",
+      "pickPrompt": "Wähle die Fernbedienung dieses Raums.",
+      "connectedSince": "Verbunden · gekoppelt mit {{mac}}",
+      "offlineHint": "Antwortet nicht. Prüfe, ob das Hilfsprogramm läuft.",
+      "summaryNoRemote": "Keine Fernbedienung gewählt",
+      "groupMenu": "Was die Fernbedienung zeigt",
+      "groupTitle": "Bang & Olufsen Fernbedienungen",
+      "summaryNone": "Keine",
+      "notSupported": "Noch nicht unterstützt",
+      "models": {
+        "essence": "Beoremote Essence",
+        "one": "Beoremote One",
+        "halo": "Beoremote Halo"
+      },
+      "useTitle": "Beoremote One hier verwenden",
+      "summaryOff": "Aus",
+      "summaryOn": "Ein"
     }
   },
   "access": {

@@ -4661,6 +4661,123 @@ button.zones-hub__toggle:disabled {
   border-top: none;
   padding-top: 4px;
 }
+/* A row for something this server cannot drive yet. Listed rather than hidden, so
+   dimmed rather than absent — and not clickable, since there is nothing to set. */
+.zset-row.is-disabled,
+.zset-drill.is-disabled {
+  opacity: 0.45;
+}
+.zset-drill.is-disabled {
+  /* No chevron and no pointer: there is nothing behind these rows to open. */
+  cursor: default;
+}
+.zset-row.is-disabled .zones-hub__toggle {
+  cursor: not-allowed;
+}
+/* A summary that reports a limitation rather than a setting, so it must not read as
+   the accent-coloured value the other drill rows show. */
+.zset-drill__sum--muted {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* The remote's own button, drawn where a row icon would go. Eight identical rows
+   are hard to scan; the actual colour is the fastest way to find the one you mean.
+   Sized to the icon slot so rows keep their rhythm. */
+.beokey {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 9px;
+  background: var(--surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.07));
+  position: relative;
+}
+.beokey::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: currentColor;
+}
+/* B&O's own four; deliberately literal so they match the remote in your hand. */
+.beokey--red { color: #d64550; }
+.beokey--green { color: #4caf72; }
+.beokey--yellow { color: #d7a533; }
+.beokey--blue { color: #4a80c4; }
+/* The four dot keys are printed as a 2×2 square of dots with exactly ONE filled,
+   and which one is filled says which key it is — the filled dot sits in the same
+   corner as the key itself on the remote. So each mark here is that same square,
+   drawn faithfully rather than as a count.
+
+   Four background layers, one per corner: three hollow rings and one solid, with
+   the solid moved per variant. */
+.beokey--dot1,
+.beokey--dot2,
+.beokey--dot3,
+.beokey--dot4 {
+  color: var(--text-dim, #8b93a1);
+}
+.beokey--dot1::after,
+.beokey--dot2::after,
+.beokey--dot3::after,
+.beokey--dot4::after {
+  width: 14px;
+  height: 14px;
+  border-radius: 0;
+  background-color: transparent;
+  background-repeat: no-repeat;
+  /* Rings at all four corners; the filled one is layered on top per variant. */
+  background-image:
+    radial-gradient(circle 2.6px at 3px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 3px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0);
+}
+/* Top-left filled. */
+.beokey--dot1::after {
+  background-image:
+    radial-gradient(circle 2.6px at 3px 3px, currentColor 100%, transparent 0),
+    radial-gradient(circle 2.6px at 11px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 3px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0);
+}
+/* Top-right filled. */
+.beokey--dot2::after {
+  background-image:
+    radial-gradient(circle 2.6px at 3px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 3px, currentColor 100%, transparent 0),
+    radial-gradient(circle 2.6px at 3px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0);
+}
+/* Bottom-left filled. */
+.beokey--dot3::after {
+  background-image:
+    radial-gradient(circle 2.6px at 3px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 3px 11px, currentColor 100%, transparent 0),
+    radial-gradient(circle 2.6px at 11px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0);
+}
+/* Bottom-right filled. */
+.beokey--dot4::after {
+  background-image:
+    radial-gradient(circle 2.6px at 3px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 3px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 3px 11px, transparent 1.1px, currentColor 1.2px 2.6px, transparent 0),
+    radial-gradient(circle 2.6px at 11px 11px, currentColor 100%, transparent 0);
+}
+
+/* Standalone explanatory line inside a block row — used where there is no control
+   to hang a description on (empty states, "this is how it will appear"). */
+.zset-note {
+  margin: 6px 0 2px;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.4;
+}
 
 .spk-mainlatency {
   display: flex;

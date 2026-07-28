@@ -369,7 +369,9 @@
         "cancel": "Cancel",
         "save": "Save line-in",
         "add": "Add line-in",
-        "saving": "Saving…"
+        "saving": "Saving…",
+        "controllableTitle": "This device can be controlled",
+        "controllableHelp": "For gear that takes commands, like a CD player on a MasterLink bus. The server starts it when the source is picked, stops it when the room moves on, and passes remote buttons through. It sends these to the bridge's on_command hook, so the script on that machine decides what each one does to the hardware. Leave off for a turntable or a plain input — nothing will be sent."
       },
       "feedback": {
         "selectBridge": "Select a bridge before saving this line-in input.",
@@ -1151,7 +1153,8 @@
       "groupPrefix": "Group: {{name}}",
       "groupPlayback": "Playback",
       "groupAudio": "Audio",
-      "groupSystem": "Power & system"
+      "groupSystem": "Power & system",
+      "groupControl": "Control"
     },
     "eq": {
       "provider": "Provider",
@@ -1341,6 +1344,62 @@
       "powerFailedDefault": "Failed to update power management: {{error}}",
       "equalizerFailedDefault": "Failed to update equalizer forwarding: {{error}}",
       "powerGroupsFailedDefault": "Failed to update shared power groups: {{error}}"
+    },
+    "beoremote": {
+      "title": "Bang & Olufsen remote",
+      "copy": "Control this room with a Beoremote One.",
+      "loading": "Looking for remotes…",
+      "noBridges": "No remote has connected yet. Set up the small helper program that pairs with your Beoremote, and it will appear here.",
+      "loadFailed": "Could not load the list of remotes. Try reopening this screen.",
+      "inUse": "Already used by another room",
+      "connected": "Connected",
+      "offline": "Not responding",
+      "submenuTitle": "Extra list on the remote",
+      "submenuCopy": "One source can open a second list. Pick what goes in it.",
+      "submenuNone": "Nothing",
+      "submenuRadio": "Radio stations",
+      "submenuFavorites": "Favourites",
+      "lineInsTitle": "Turntable, CD player and other inputs",
+      "lineInsCopy": "Show devices plugged into this server as sources on the remote.",
+      "keysTitle": "Buttons",
+      "keysCopy": "Each button starts something in this room. On Default it plays the favourite it lines up with.",
+      "keysLoading": "Loading buttons…",
+      "keysFailed": "Could not load the buttons for this room. Try reopening this screen.",
+      "keyDefault": "Default",
+      "keyNone": "Do nothing",
+      "keyDefaultIs": "Normally plays {{name}}",
+      "keyDefaultEmpty": "No favourite in this position yet",
+      "groupFavorites": "Favourites",
+      "groupLineIns": "Connected devices",
+      "groupRadio": "Radio stations",
+      "button": {
+        "red": "Red",
+        "green": "Green",
+        "yellow": "Yellow",
+        "blue": "Blue",
+        "dot1": "Dot, top left",
+        "dot2": "Dot, top right",
+        "dot3": "Dot, bottom left",
+        "dot4": "Dot, bottom right"
+      },
+      "pickTitle": "Which remote",
+      "pickNone": "None yet",
+      "pickPrompt": "Pick the remote that belongs to this room.",
+      "connectedSince": "Connected · paired with {{mac}}",
+      "offlineHint": "Not responding. Check that the helper program is running.",
+      "summaryNoRemote": "No remote picked",
+      "groupMenu": "What the remote shows",
+      "groupTitle": "Bang & Olufsen remotes",
+      "summaryNone": "None",
+      "notSupported": "Not supported yet",
+      "models": {
+        "essence": "Beoremote Essence",
+        "one": "Beoremote One",
+        "halo": "Beoremote Halo"
+      },
+      "useTitle": "Use a Beoremote One here",
+      "summaryOff": "Off",
+      "summaryOn": "On"
     }
   },
   "access": {

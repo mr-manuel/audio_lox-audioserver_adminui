@@ -13,6 +13,8 @@ import Modal from '../components/Modal';
 import SearchInput from '../components/SearchInput';
 import Row from '../components/Row';
 import SelectMenu from '../components/SelectMenu';
+import ZoneBeoremoteSection from './ZoneBeoremoteSection';
+import ZoneRemoteModelList from './ZoneRemoteModelList';
 import {
   getTransportDefinitions,
   discoverAirplayDevices,
@@ -38,6 +40,7 @@ import {
 } from '../services/transportsApi';
 import type {
   PowerGroupConfig,
+  ZoneBeoremoteConfig,
   ZoneEqualizerConfig,
   ZoneEqualizerProvider,
   ZoneInputConfig,
@@ -1394,6 +1397,11 @@ export default function ZonesView(): JSX.Element {
           hasSpotifyAccounts={hasSpotifyAccounts}
           onSpotifyDiscover={() => handleSpotifyDiscovery(modalZone.id)}
           onSpotifyDeviceApply={(device) => handleSpotifyDeviceApply(modalZone, device)}
+          onBeoremoteChange={(beoremote) => {
+            const next = deriveZoneInputs(modalZone);
+            next.beoremote = beoremote;
+            void handleInputChange(modalZone.id, next);
+          }}
           onPowerManagerChange={async (config) => {
             const ok = await handlePowerManagerChange(modalZone.id, config);
             return ok;
@@ -1552,6 +1560,7 @@ type ZoneModalProps = {
   hasSpotifyAccounts: boolean;
   onSpotifyDiscover: () => void;
   onSpotifyDeviceApply: (device: SpotifyDevice) => void;
+  onBeoremoteChange: (config: ZoneBeoremoteConfig | null) => void;
   onPowerManagerChange: (config: ZonePowerManagerConfig | null) => Promise<boolean>;
   onPowerGroupsSave: (groups: PowerGroupConfig[]) => Promise<boolean>;
   onPlaybackChange: (config: ZonePlaybackConfig | null) => Promise<boolean>;
@@ -1579,6 +1588,7 @@ function ZoneModal({
   hasSpotifyAccounts,
   onSpotifyDiscover,
   onSpotifyDeviceApply,
+  onBeoremoteChange,
   onPowerManagerChange,
   onPowerGroupsSave,
   onPlaybackChange,
@@ -1598,7 +1608,7 @@ function ZoneModal({
       effectiveTransportId(currentTransport)
     : null;
 
-  type SettingsView = 'main' | 'power' | 'eq';
+  type SettingsView = 'main' | 'power' | 'eq' | 'remote' | 'remote-one';
   const [settingsView, setSettingsView] = React.useState<SettingsView>('main');
 
   const powerCfg = zone.powerManager ?? null;
@@ -1608,6 +1618,20 @@ function ZoneModal({
       powerCfg?.udp?.enabled ||
       powerCfg?.crelay?.enabled,
   );
+  /**
+   * One line for the folded row. It now covers three models, so the summary names
+   * the one that is actually in use rather than just saying "on".
+   */
+  const beoremoteSummary = (() => {
+    const cfg = deriveZoneInputs(zone).beoremote;
+    if (cfg?.enabled !== true) {
+      return t('zones.beoremote.summaryNone');
+    }
+    return cfg.bridgeId
+      ? t('zones.beoremote.models.one')
+      : t('zones.beoremote.summaryNoRemote');
+  })();
+
   const powerSummary = (() => {
     if (powerCfg?.powerGroupId) {
       const group = powerGroups.find((g) => g.id === powerCfg.powerGroupId);
@@ -1660,6 +1684,8 @@ function ZoneModal({
         </>
       );
     }
+    if (settingsView === 'remote') return t('zones.beoremote.groupTitle');
+    if (settingsView === 'remote-one') return t('zones.beoremote.models.one');
     if (settingsView === 'power') return t('zones.modal.powerStateSub');
     if (settingsView === 'eq') return t('zones.modal.eqSub');
     return t('zones.modal.zoneId', { id: zone.id });
@@ -1667,7 +1693,8 @@ function ZoneModal({
 
   const inSubView = tab === 'settings' && settingsView !== 'main';
 
-  const handleBackToMain = (): void => setSettingsView('main');
+  const handleBackToMain = (): void =>
+    setSettingsView(settingsView === 'remote-one' ? 'remote' : 'main');
 
   return createPortal(
     <div
@@ -1809,6 +1836,61 @@ function ZoneModal({
                 />
               </div>
 
+              {/* Control — who drives this zone: a remote in the room, or another
+                  system that owns its playback state. */}
+              <div className="zset-group">
+                <p className="zset-group__head">{t('zones.modal.groupControl')}</p>
+                {/* One row, like Power and EQ: a remote is set up once, so the whole
+                    thing folds away and the summary says whether it is on. */}
+                <button type="button" className="zset-drill" onClick={() => setSettingsView('remote')}>
+                  <span className="zset-row__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="7" y="2" width="10" height="20" rx="3" />
+                      <circle cx="12" cy="7" r="1.4" />
+                      <line x1="9.5" y1="12" x2="14.5" y2="12" />
+                      <line x1="9.5" y1="15.5" x2="14.5" y2="15.5" />
+                    </svg>
+                  </span>
+                  <span className="zset-drill__text">
+                    <span className="zset-drill__lab">{t('zones.beoremote.groupTitle')}</span>
+                    <b className="zset-drill__sum">{beoremoteSummary}</b>
+                  </span>
+                  <svg className="zset-drill__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
+                <div className="zset-row">
+                  <span className="zset-row__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="4" y="4" width="16" height="16" rx="2" />
+                      <rect x="9" y="9" width="6" height="6" />
+                      <line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" />
+                      <line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" />
+                      <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
+                      <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
+                    </svg>
+                  </span>
+                  <div className="zset-row__text">
+                    <span className="zset-row__title">{t('zones.modal.stateController')}</span>
+                    <span className="zset-row__desc">{t('zones.modal.stateControllerDesc')}</span>
+                  </div>
+                  <select
+                    className="zones-hub__select"
+                    value={stateController}
+                    disabled={saving}
+                    aria-label={t('zones.stateController.ariaLabel')}
+                    onChange={(event) => {
+                      void onStateControllerChange(event.target.value);
+                    }}
+                  >
+                    <option value="internal">{t('zones.stateController.internal')}</option>
+                    <option value="beolink">{t('zones.stateController.beolink')}</option>
+                    <option value="sonos">{t('zones.stateController.sonos')}</option>
+                    <option value="musicassistant">{t('zones.stateController.musicassistant')}</option>
+                  </select>
+                </div>
+              </div>
+
               {/* Audio */}
               <div className="zset-group">
                 <p className="zset-group__head">{t('zones.modal.groupAudio')}</p>
@@ -1849,38 +1931,20 @@ function ZoneModal({
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
-                <div className="zset-row">
-                  <span className="zset-row__icon" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="4" y="4" width="16" height="16" rx="2" />
-                      <rect x="9" y="9" width="6" height="6" />
-                      <line x1="9" y1="1" x2="9" y2="4" /><line x1="15" y1="1" x2="15" y2="4" />
-                      <line x1="9" y1="20" x2="9" y2="23" /><line x1="15" y1="20" x2="15" y2="23" />
-                      <line x1="20" y1="9" x2="23" y2="9" /><line x1="20" y1="14" x2="23" y2="14" />
-                      <line x1="1" y1="9" x2="4" y2="9" /><line x1="1" y1="14" x2="4" y2="14" />
-                    </svg>
-                  </span>
-                  <div className="zset-row__text">
-                    <span className="zset-row__title">{t('zones.modal.stateController')}</span>
-                    <span className="zset-row__desc">{t('zones.modal.stateControllerDesc')}</span>
-                  </div>
-                  <select
-                    className="zones-hub__select"
-                    value={stateController}
-                    disabled={saving}
-                    aria-label={t('zones.stateController.ariaLabel')}
-                    onChange={(event) => {
-                      void onStateControllerChange(event.target.value);
-                    }}
-                  >
-                    <option value="internal">{t('zones.stateController.internal')}</option>
-                    <option value="beolink">{t('zones.stateController.beolink')}</option>
-                    <option value="sonos">{t('zones.stateController.sonos')}</option>
-                    <option value="musicassistant">{t('zones.stateController.musicassistant')}</option>
-                  </select>
-                </div>
               </div>
             </div>
+          ) : settingsView === 'remote' ? (
+            <ZoneRemoteModelList
+              config={deriveZoneInputs(zone).beoremote}
+              onOpenOne={() => setSettingsView('remote-one')}
+            />
+          ) : settingsView === 'remote-one' ? (
+            <ZoneBeoremoteSection
+              zoneId={zone.id}
+              config={deriveZoneInputs(zone).beoremote}
+              saving={saving}
+              onChange={onBeoremoteChange}
+            />
           ) : settingsView === 'power' ? (
             <ZonePowerManagerSection
               zone={zone}
@@ -4761,6 +4825,7 @@ function ZonePowerManagerSection({
               onChange={(event) => setNumber('playbackPreDelayMs', event.target.value)}
               disabled={saving}
             />
+            <small className="zone-output-field__hint">{t('zones.power.preDelayHelp')}</small>
           </label>
           <label className="zone-output-field">
             <span>{t('zones.power.offDelay')}</span>
@@ -4771,6 +4836,7 @@ function ZonePowerManagerSection({
               onChange={(event) => setNumber('offDelayMs', event.target.value)}
               disabled={saving}
             />
+            <small className="zone-output-field__hint">{t('zones.power.offDelayHelp')}</small>
           </label>
           <label className="zone-output-field">
             <span>{t('zones.power.switchingMethod')}</span>
@@ -5547,7 +5613,7 @@ function describePowerManager(
   if (powerManager.crelay?.enabled) active.push('CRelay');
   if (powerManager.powerGroupId?.trim()) active.push(`Group ${powerManager.powerGroupId.trim()}`);
   if (typeof powerManager.playbackPreDelayMs === 'number' && powerManager.playbackPreDelayMs > 0) {
-    active.push(`Pre-delay ${Math.round(powerManager.playbackPreDelayMs)}ms`);
+    active.push(`Wake-up ${Math.round(powerManager.playbackPreDelayMs)}ms`);
   }
   if (active.length < 1) {
     return runtimeState;
