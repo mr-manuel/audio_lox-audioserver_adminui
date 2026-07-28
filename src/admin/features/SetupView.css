@@ -1,6 +1,6 @@
 .setup-layout {
   width: 100%;
-  max-width: 1360px;
+  max-width: var(--workspace-max);
   margin: 0 auto;
 }
 
@@ -53,6 +53,7 @@
   color: var(--text-muted);
   margin: 0;
   line-height: 1.45;
+  max-width: var(--prose-max);
 }
 
 /* ---- Sub-tabs (Config / Alert engine / Updates) ---- */

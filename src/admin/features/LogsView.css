@@ -41,7 +41,7 @@ body.is-logs-locked .sub-panel.is-leaving {
 
 .logs-layout {
   width: 100%;
-  max-width: 1360px;
+  max-width: var(--workspace-max);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -95,6 +95,7 @@ body.is-logs-locked .sub-panel.is-leaving {
   color: var(--text-muted);
   margin: 0;
   line-height: 1.45;
+  max-width: var(--prose-max);
 }
 
 /* ---- Controls bar (filter + level pills + Live toggle) ---- */

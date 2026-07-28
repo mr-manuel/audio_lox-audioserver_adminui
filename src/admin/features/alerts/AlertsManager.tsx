@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import './AlertsManager.css';
 import InlineState from '../../components/InlineState';
 import { useGlobalAlert } from '../../components/GlobalAlert';
@@ -29,6 +30,7 @@ function AlertPlaybackRow({
   onUpload,
   onRevert,
 }: AlertPlaybackRowProps): JSX.Element {
+  const { t } = useTranslation();
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const pendingSeekRef = React.useRef<number | null>(null);
   const [currentTime, setCurrentTime] = React.useState(0);
@@ -231,8 +233,10 @@ function AlertPlaybackRow({
           void onUpload(alert.id, file);
         }}
       >
-        <div className="alerts-dropzone__title">{saving ? 'Uploading…' : 'Drop MP3 here'}</div>
-        <div className="alerts-dropzone__meta">or click to upload</div>
+        <div className="alerts-dropzone__title">
+          {saving ? t('setup.alerts.uploading') : t('setup.alerts.drop')}
+        </div>
+        <div className="alerts-dropzone__meta">{t('setup.alerts.dropHint')}</div>
         <input
           type="file"
           accept="audio/mpeg,audio/mp3"
@@ -253,7 +257,7 @@ function AlertPlaybackRow({
             void onRevert(alert.id);
           }}
         >
-          Revert to original
+          {t('setup.alerts.revert')}
         </button>
       </div>
     </div>
@@ -271,6 +275,7 @@ async function fileToBase64(file: File): Promise<string> {
 }
 
 export default function AlertsManager(): JSX.Element {
+  const { t } = useTranslation();
   const { push: pushAlert } = useGlobalAlert();
   const [alerts, setAlerts] = React.useState<AlertFile[]>([]);
   const [loading, setLoading] = React.useState(true);
@@ -332,23 +337,22 @@ export default function AlertsManager(): JSX.Element {
 
   return (
     <div className="alerts-manager">
-      <div className="setup-system-header">
-        <h4>Built-in alerts</h4>
-        <p>Preview and replace the siren, bell, and buzzer MP3 files that ship with the AudioServer.</p>
-      </div>
-
+      {/* No heading here: the Setup section that embeds this already renders a
+          translated eyebrow, title and description. This used to repeat both in
+          hardcoded English, so the page showed the same sentence twice — and the
+          copy stayed English on a German UI. */}
       {loading ? (
-        <InlineState kind="loading" title="Loading alerts…" compact />
+        <InlineState kind="loading" title={t('setup.alerts.loading')} compact />
       ) : loadError ? (
         <InlineState
           kind="error"
-          title="Failed to load alerts"
+          title={t('setup.alerts.loadFailed')}
           message={loadError}
           compact
           action={{ label: 'Retry', onClick: () => void refresh(), variant: 'secondary' }}
         />
       ) : alerts.length === 0 ? (
-        <InlineState kind="empty" title="No alerts found" compact />
+        <InlineState kind="empty" title={t('setup.alerts.empty')} compact />
       ) : (
         <div className="alerts-grid">
           {alerts.map((alert) => (

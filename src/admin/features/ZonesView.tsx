@@ -1293,9 +1293,7 @@ export default function ZonesView(): JSX.Element {
                                   <span className="zones-card__status-dot" />
                                   {outputStatusOk ? t('zones.card.connected') : t('zones.card.idleShort')}
                                 </span>
-                              ) : (
-                                <span className="zones-card__set-output">{t('zones.card.setOutput')}</span>
-                              )}
+                              ) : null}
                               <svg className="zones-card__output-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                 <polyline points="9 18 15 12 9 6" />
                               </svg>

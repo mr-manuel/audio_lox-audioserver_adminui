@@ -1265,9 +1265,8 @@ export default function SetupView(): JSX.Element {
             </div>
           </section>
 
-          {/* ===== Authentication (Loxone only — credentials come from the Miniserver) ===== */}
           {/* ===== Unpair ===== */}
-          <section className="setup-section">
+          <section className="setup-section setup-section--full">
             <header className="setup-section__head">
               <div className="setup-section__head-main">
                 <span className="setup-section__eyebrow setup-section__eyebrow--info">{t('setup.unpair.eyebrow')}</span>

@@ -1,6 +1,6 @@
 .zones-layout {
   width: 100%;
-  max-width: 1360px;
+  max-width: var(--workspace-max);
   margin: 0 auto;
 }
 
@@ -61,6 +61,7 @@
   color: var(--text-muted);
   margin: 0;
   line-height: 1.45;
+  max-width: var(--prose-max);
 }
 
 /* ---- Device groups list ---- */
@@ -167,8 +168,17 @@
 /* ---- Zones grid inside a device ---- */
 .zones-device__zones {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
-  gap: 14px;
+  /* Fixed tile size, not `1fr`: the fractional form let a wider window add
+     columns *and* shrink them below the stated minimum, so tiles got narrower on
+     a bigger screen. Leftover space stays as empty tracks — a few zones should
+     not stretch to fill the row.
+     316px is measured, not guessed: the three receiver chips (AirPlay, Spotify
+     Connect, DLNA) need 274px plus the card's 34px of padding to sit on one
+     line, and four of these plus their gaps still fit the 1314px the card
+     leaves. Narrower and the receiver row wraps; wider and the fourth column
+     drops to a second row. */
+  grid-template-columns: repeat(auto-fill, 316px);
+  gap: 12px;
 }
 
 /* ---- Zone card ---- */
@@ -412,6 +422,14 @@
   border-color: rgba(245, 158, 11, 0.5);
   background: rgba(245, 158, 11, 0.07);
 }
+/* Unassigned output: the whole chip is the button, so the chevron carries the
+   affordance on its own. A separate "Set output" pill used to sit here, but at
+   92px it left only ~50px for the label inside a 290px tile — the text it was
+   prompting you to read got truncated to "No o…". */
+.zones-card__output--btn.is-empty .zones-card__output-chev {
+  color: var(--warn);
+}
+
 .zones-card__output--btn .zones-card__output-chev {
   flex: none;
   color: var(--text-faint, #4b5563);
@@ -463,6 +481,12 @@
   font-weight: 700;
   color: var(--text-dim);
   margin-top: 2px;
+  /* One line, truncated. The unassigned-output hint is a full sentence and would
+     otherwise wrap to four lines inside a 290px tile, crushing the label above
+     it into a couple of characters. */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* needs-output variant — amber dashed */
@@ -483,27 +507,6 @@
 
 .zones-card__output.is-empty .zones-card__output-proto {
   color: #fbbf24;
-}
-
-.zones-card__set-output {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 1.4px;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: var(--accent-on, #062812);
-  background: var(--accent);
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.15s;
-  flex-shrink: 0;
-}
-
-.zones-card__set-output:hover {
-  background: var(--accent-bright, #86efac);
-  transform: translateY(-1px);
 }
 
 /* Inputs row with mono label + chip group */
@@ -3828,6 +3831,13 @@ button.zones-hub__toggle:disabled {
   font-weight: 750;
   letter-spacing: 0.01em;
   color: var(--color-muted);
+}
+
+.zone-output-field__hint {
+  font-size: 0.72rem;
+  color: var(--color-subtle);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .zone-power-panel__fields input,

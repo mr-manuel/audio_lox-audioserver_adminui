@@ -112,6 +112,20 @@
   --card-bg: var(--bg-card);
   --card-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.04);
   --panel-sheen: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  /* How wide the workspace may grow — one token, where six hardcoded caps used
+     to be scattered across the shell and every view.
+     Full width was tried and rejected: only the log console genuinely gained,
+     while the fixed-size zone tiles left a large empty field beside them on a
+     wide monitor, which reads emptier than a centred column. Set to `none` to
+     go edge-to-edge again. */
+  --workspace-max: 1360px;
+  /** Outer frame, a touch wider than the content it holds. */
+  --shell-max: 1440px;
+  --workspace-gutter: clamp(1rem, 0.6rem + 1.4vw, 2.5rem);
+  /* Reading width for running text. Panels, tables and tile grids use the full
+     workspace, but a sentence stretched across an ultrawide monitor is hard to
+     read — the eye loses the start of the next line. Roughly 75 characters. */
+  --prose-max: 68ch;
   --page-width: min(1400px, 94vw);
   --page-padding: clamp(1.1rem, 0.9rem + 0.8vw, 1.8rem);
   --space-0: 0;
@@ -608,7 +622,7 @@ main#app {
 
 .tab-shell__inner {
   width: 100%;
-  max-width: 1360px;
+  max-width: var(--workspace-max);
   background: transparent;
   border: none;
   border-radius: 0;
