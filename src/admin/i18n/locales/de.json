@@ -1078,44 +1078,44 @@
     "ariaLabel": "Admin-Navigation"
   },
   "zones": {
-    "eyebrow": "Players",
-    "title": "Players",
-    "subtitle": "Ein Player ist ein einzelnes Gerät, auf dem du Musik abspielst. Gruppiere mehrere, um synchron zu spielen, und lass Telefone und Apps über AirPlay, Spotify Connect oder DLNA darauf casten — auch Geräte, die das selbst nicht können.",
+    "eyebrow": "Zonen",
+    "title": "Zonen",
+    "subtitle": "Eine Zone ist ein einzelnes Gerät, auf dem du Musik abspielst. Gruppiere mehrere, um synchron zu spielen, und lass Telefone und Apps über AirPlay, Spotify Connect oder DLNA darauf casten — auch Geräte, die das selbst nicht können.",
     "setup": {
-      "title": "Wie werden Player eingerichtet?",
+      "title": "Wie werden Zonen eingerichtet?",
       "desc": "Wähle eine Option. Du kannst das später ändern.",
       "active": "Aktiv",
       "none": {
         "label": "Deaktiviert",
-        "desc": "Keine Player. Dieser Server teilt deine Musik nur über Access mit anderen Apps."
+        "desc": "Keine Zonen. Dieser Server teilt deine Musik nur über Access mit anderen Apps."
       },
       "pairing": "Kopplung…",
       "manual": {
         "label": "Hier einrichten",
-        "desc": "Du legst Player selbst an — Lautsprecher und Räume, die du benennst, gruppierst und bespielst."
+        "desc": "Du legst Zonen selbst an — die Lautsprecher und Räume, die du benennst, gruppierst und bespielst."
       },
       "loxone": {
         "label": "Loxone integriert",
-        "desc": "Dein Miniserver sendet, welche Player es gibt, und ihre Namen — Ausgang und Empfänger legst du hier fest."
+        "desc": "Dein Miniserver sendet, welche Zonen es gibt, und ihre Namen — Ausgang und Empfänger legst du hier fest."
       },
       "confirmSwitch": "Wechseln",
-      "confirmManualTitle": "Player stattdessen hier einrichten?",
-      "confirmManualMessage": "Damit wird die Loxone-Integration getrennt. Der Miniserver liefert keine Player mehr und du verwaltest sie hier.",
-      "confirmOffTitle": "Player ausschalten?",
+      "confirmManualTitle": "Zonen stattdessen hier einrichten?",
+      "confirmManualMessage": "Damit wird die Loxone-Integration getrennt. Der Miniserver liefert keine Zonen mehr und du verwaltest sie hier.",
+      "confirmOffTitle": "Zonen ausschalten?",
       "confirmOffMessage": "Damit wird die Loxone-Integration getrennt und der Server teilt nur noch Inhalte."
     },
     "managed": {
-      "failedTitle": "Player konnten nicht aktualisiert werden"
+      "failedTitle": "Zonen konnten nicht aktualisiert werden"
     },
     "loxone": {
-      "descWaiting": "Verbunden — warte darauf, dass der Miniserver seine Player sendet.",
-      "descPaired": "Verbunden — die Player kommen von deinem Miniserver. Ausgang und Empfänger legst du hier fest.",
+      "descWaiting": "Verbunden — warte darauf, dass der Miniserver seine Zonen sendet.",
+      "descPaired": "Verbunden — die Zonen kommen von deinem Miniserver. Ausgang und Empfänger legst du hier fest.",
       "connect": "Verbinden",
       "disconnect": "Trennen",
       "modalTitle": "Loxone Miniserver",
-      "modalConnectSub": "Kopple diesen Server mit einem Loxone Miniserver. Er beginnt sofort zu lauschen und wartet darauf, dass der Miniserver seine Player sendet. Hier eingerichtete Player werden beiseitegelegt, solange Loxone verbunden ist.",
+      "modalConnectSub": "Kopple diesen Server mit einem Loxone Miniserver. Er beginnt sofort zu lauschen und wartet darauf, dass der Miniserver seine Zonen sendet. Hier eingerichtete Zonen werden beiseitegelegt, solange Loxone verbunden ist.",
       "modalWaitingSub": "Verbunden. Warte darauf, dass der Miniserver seine Konfiguration sendet — folge den Schritten unten in Loxone Config.",
-      "modalPairedSub": "Verbunden. Dein Miniserver liefert die Player und ihre Namen; Ausgang und Empfänger konfigurierst du hier. Trennen, um Player lokal zu verwalten.",
+      "modalPairedSub": "Verbunden. Dein Miniserver liefert die Zonen und ihre Namen; Ausgang und Empfänger konfigurierst du hier. Trennen, um Zonen lokal zu verwalten.",
       "serial": "Seriennummer",
       "host": "IP / Host",
       "step1": "Füge den AudioServer in Loxone Config mit Seriennummer und Host von oben hinzu.",
@@ -1124,15 +1124,15 @@
       "failedTitle": "Loxone-Verbindung konnte nicht aktualisiert werden"
     },
     "add": {
-      "button": "Player hinzufügen",
-      "title": "Player hinzufügen",
+      "button": "Zone hinzufügen",
+      "title": "Zone hinzufügen",
       "sub": "Gib der Zone einen Namen. Ausgang und Eingänge konfigurierst du danach.",
       "placeholder": "Zonenname (z. B. Küche)",
       "create": "Erstellen",
       "creating": "Wird erstellt…",
       "cancel": "Abbrechen",
       "errorTitle": "Zone konnte nicht erstellt werden",
-      "emptyTitle": "Noch keine Player",
+      "emptyTitle": "Noch keine Zonen",
       "emptySub": "Füge deine erste Zone hinzu, um Ausgänge und Eingänge zu konfigurieren.",
       "limitReached": "Maximal {{max}} Zonen erreicht."
     },

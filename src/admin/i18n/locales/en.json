@@ -1078,44 +1078,44 @@
     "ariaLabel": "Admin navigation"
   },
   "zones": {
-    "eyebrow": "Players",
-    "title": "Players",
-    "subtitle": "A player is a single device you play music on. Group several to play in sync, and let phones and apps cast to one over AirPlay, Spotify Connect or DLNA — even devices that don't support those themselves.",
+    "eyebrow": "Zones",
+    "title": "Zones",
+    "subtitle": "A zone is a single device you play music on. Group several to play in sync, and let phones and apps cast to one over AirPlay, Spotify Connect or DLNA — even devices that don't support those themselves.",
     "setup": {
-      "title": "How are players set up?",
+      "title": "How are zones set up?",
       "desc": "Pick one. You can change it later.",
       "active": "Active",
       "none": {
         "label": "Disabled",
-        "desc": "No players. This server only shares your music with other apps through Access."
+        "desc": "No zones. This server only shares your music with other apps through Access."
       },
       "pairing": "Pairing…",
       "manual": {
         "label": "Set up here",
-        "desc": "You add players yourself — speakers and rooms you name, group and cast to."
+        "desc": "You add zones yourself — the speakers and rooms you name, group and cast to."
       },
       "loxone": {
         "label": "Loxone integrated",
-        "desc": "Your Miniserver pushes which players exist and their names — you still set each one's output and receivers here."
+        "desc": "Your Miniserver pushes which zones exist and their names — you still set each one's output and receivers here."
       },
       "confirmSwitch": "Switch",
-      "confirmManualTitle": "Set up players here instead?",
-      "confirmManualMessage": "This disconnects the Loxone integration. The Miniserver stops supplying players and you manage them here.",
-      "confirmOffTitle": "Turn players off?",
+      "confirmManualTitle": "Set up zones here instead?",
+      "confirmManualMessage": "This disconnects the Loxone integration. The Miniserver stops supplying zones and you manage them here.",
+      "confirmOffTitle": "Turn zones off?",
       "confirmOffMessage": "This disconnects the Loxone integration and leaves the server sharing content only."
     },
     "managed": {
-      "failedTitle": "Could not update players"
+      "failedTitle": "Could not update zones"
     },
     "loxone": {
-      "descWaiting": "Connected — waiting for the Miniserver to push its players.",
-      "descPaired": "Connected — players come from your Miniserver. Set each one's output and receivers here.",
+      "descWaiting": "Connected — waiting for the Miniserver to push its zones.",
+      "descPaired": "Connected — zones come from your Miniserver. Set each one's output and receivers here.",
       "connect": "Connect",
       "disconnect": "Disconnect",
       "modalTitle": "Loxone Miniserver",
-      "modalConnectSub": "Pair this server with a Loxone Miniserver. It starts listening right away and waits for the Miniserver to push its players. Any players you set up here are set aside while Loxone is connected.",
+      "modalConnectSub": "Pair this server with a Loxone Miniserver. It starts listening right away and waits for the Miniserver to push its zones. Any zones you set up here are set aside while Loxone is connected.",
       "modalWaitingSub": "Connected. Waiting for the Miniserver to push its configuration — follow the steps below in Loxone Config.",
-      "modalPairedSub": "Connected. Your Miniserver supplies the players and their names; you configure each one's output and receivers here. Disconnect to manage players locally instead.",
+      "modalPairedSub": "Connected. Your Miniserver supplies the zones and their names; you configure each one's output and receivers here. Disconnect to manage zones locally instead.",
       "serial": "Serial",
       "host": "IP / host",
       "step1": "Add the AudioServer in Loxone Config using the serial and host above.",
@@ -1124,16 +1124,16 @@
       "failedTitle": "Could not update the Loxone connection"
     },
     "add": {
-      "button": "Add player",
-      "title": "Add a player",
-      "sub": "Give the player a name. You can set its output and receivers afterwards.",
+      "button": "Add zone",
+      "title": "Add a zone",
+      "sub": "Give the zone a name. You can set its output and receivers afterwards.",
       "placeholder": "Zone name (e.g. Kitchen)",
       "create": "Create",
       "creating": "Creating…",
       "cancel": "Cancel",
       "errorTitle": "Could not create zone",
-      "emptyTitle": "No players yet",
-      "emptySub": "Add your first player to start configuring outputs and receivers.",
+      "emptyTitle": "No zones yet",
+      "emptySub": "Add your first zone to start configuring outputs and receivers.",
       "limitReached": "Maximum of {{max}} zones reached."
     },
     "delete": {
@@ -1142,7 +1142,7 @@
       "confirm": "Delete zone",
       "errorTitle": "Could not delete zone"
     },
-    "emptyTitle": "No players yet",
+    "emptyTitle": "No zones yet",
     "emptySub": "Pair the AudioServer with a Miniserver and assign zones in Loxone Config to populate this view.",
     "audioServer": "AudioServer",
     "extension": "Extension",
