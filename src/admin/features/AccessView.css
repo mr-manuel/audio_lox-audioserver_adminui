@@ -196,14 +196,13 @@
   color: var(--accent);
 }
 
-/* MQTT settings, inline in its card.
-   Its own layout rather than SetupView's `setup-row`: that row puts label and control
-   side by side, which needs page width. In a ~300px card it squeezed the label to one
-   word per line. Here everything stacks and every field is full width. */
+/* MQTT. The card shows only a summary and a button: four labelled fields made it
+   twice the height of every other card and broke the grid, so the settings live in a
+   dialog. */
 .access-mqtt {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 
 /* Whether the broker connection is actually up. Stated plainly because a wrong
@@ -214,6 +213,7 @@
   font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 .access-mqtt__state.is-ok {
   color: var(--accent);
@@ -224,55 +224,10 @@
   background: color-mix(in srgb, var(--color-muted) 12%, transparent);
 }
 
-.access-field {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  min-width: 0;
-}
-.access-field__label {
-  font-size: 0.8rem;
-  font-weight: 650;
-  color: var(--text);
-}
-.access-field__hint {
-  font-size: 0.74rem;
-  line-height: 1.4;
-  color: var(--color-muted);
-}
-.access-field__input {
-  width: 100%;
-  min-width: 0;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: 9px;
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
-  font-size: 0.82rem;
-}
-.access-field__input:focus-visible {
-  outline: none;
-  border-color: var(--accent);
-}
-/* Host + port and username + password each belong on one line, but must still wrap
-   rather than overflow when the card is narrow. */
-.access-field__pair {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  min-width: 0;
-}
-.access-field__pair .access-field__input {
-  flex: 1 1 120px;
-}
-.access-field__input--port {
-  flex: 0 0 86px;
-}
-
-.access-mqtt__save {
+.access-mqtt__configure {
   align-self: flex-start;
-  padding: 8px 16px;
+  max-width: 100%;
+  padding: 8px 14px;
   border: 1px solid var(--border);
   border-radius: 9px;
   background: var(--surface);
@@ -281,41 +236,104 @@
   font-size: 0.78rem;
   font-weight: 650;
   cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.access-mqtt__save:hover:not(:disabled) {
+.access-mqtt__configure:hover:not(:disabled) {
   border-color: var(--accent);
   color: var(--accent);
 }
-.access-mqtt__save:disabled {
+.access-mqtt__configure:disabled {
   opacity: 0.45;
   cursor: default;
 }
 
-/* Where to find the topics, once it is publishing. */
-.access-mqtt__where {
-  margin: 0;
-  padding: 8px 10px;
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--color-muted) 8%, transparent);
-  font-size: 0.74rem;
+/* The dialog form. Stacked labels rather than SetupView's `setup-row`, which puts
+   label and control side by side and needs more width than this dialog has. */
+.access-mqtt-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.access-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.access-field__label {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--text);
+}
+.access-field__hint {
+  font-size: 0.76rem;
   line-height: 1.45;
   color: var(--color-muted);
-  overflow-wrap: anywhere;
+}
+.access-field__input {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+.access-field__input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+/* Host + port and username + password each belong on one line, but must wrap rather
+   than overflow on a narrow screen. */
+.access-field__pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+}
+.access-field__pair .access-field__input {
+  flex: 1 1 140px;
+}
+.access-field__input--port {
+  flex: 0 0 96px;
 }
 
-/* A setting with its own toggle: text on the left, control on the right, wrapping
-   before the control gets squeezed. */
+/* A setting with its own toggle, which writes immediately instead of waiting for Save. */
 .access-mqtt__option {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
 }
 .access-mqtt__option-text {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  flex: 1 1 160px;
+  flex: 1 1 200px;
   min-width: 0;
+}
+
+/* Where to find the topics, once it is publishing. */
+.access-mqtt__where {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--color-muted) 8%, transparent);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+/* This dialog holds a short form, not a wizard, so it should not stretch as wide as
+   the bridge setup flow it borrows its shell from. */
+.bridge-modal.bridge-modal--narrow {
+  max-width: 520px;
 }

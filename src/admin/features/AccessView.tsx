@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 // Shares the admin form language (inputs, buttons, notes) with Setup; the card
 // grid is this view's own.
 import './SetupView.css';
+// Reuses the shared dialog shell (`bridge-modal`), whose styles live with Content.
+import './ContentView.css';
 import './AccessView.css';
 import { getConfig } from '../services/setupApi';
 import { updateContentConfig } from '../services/contentApi';
@@ -24,6 +26,7 @@ import {
 } from '../services/mqttApi';
 import { useGlobalAlert } from '../components/GlobalAlert';
 import InlineState from '../components/InlineState';
+import Modal from '../components/Modal';
 import { copyText } from '../utils/clipboard';
 import type { RootConfig } from '../types/config';
 
@@ -75,6 +78,7 @@ export default function AccessView(): JSX.Element {
   const [subsonic, setSubsonic] = React.useState<SubsonicStatus | null>(null);
   const [mqtt, setMqtt] = React.useState<MqttStatus | null>(null);
   const [brokerDraft, setBrokerDraft] = React.useState<MqttBrokerDraft>(brokerDraftFrom(null));
+  const [brokerOpen, setBrokerOpen] = React.useState(false);
   const [urlCopied, setUrlCopied] = React.useState(false);
   const [davCopied, setDavCopied] = React.useState(false);
 
@@ -180,6 +184,12 @@ export default function AccessView(): JSX.Element {
     }
   }
 
+  /** Opens the dialog on the saved values, so abandoning an edit leaves nothing behind. */
+  function openBrokerDialog(): void {
+    setBrokerDraft(brokerDraftFrom(mqtt));
+    setBrokerOpen(true);
+  }
+
   /** Saves the broker fields. Reported by the server's fresh status, so the connection
    *  result is visible immediately rather than after a manual refresh. */
   async function saveBroker(): Promise<void> {
@@ -189,6 +199,7 @@ export default function AccessView(): JSX.Element {
       const status = await updateMqttConfig(brokerPayload(brokerDraft));
       setMqtt(status);
       setBrokerDraft(brokerDraftFrom(status));
+      setBrokerOpen(false);
     } catch (err) {
       pushAlert({ tone: 'error', title: t('access.failedTitle'), message: errorText(err) });
     } finally {
@@ -256,9 +267,9 @@ export default function AccessView(): JSX.Element {
       );
     }
 
-    // Shown whether or not it is switched on: the broker has to be filled in *before*
-    // enabling, since enabling without one is refused.
     if (id === 'mqtt' && mqtt) {
+      // Only a summary here. Four labelled fields made this card twice the height of
+      // every other one and broke the grid; the settings live in a dialog instead.
       return (
         <div className="access-mqtt">
           {mqttEnabled ? (
@@ -271,105 +282,16 @@ export default function AccessView(): JSX.Element {
                 : (mqtt.lastError ?? t('access.services.mqtt.disconnected'))}
             </div>
           ) : null}
-
-          <label className="access-field">
-            <span className="access-field__label">{t('access.services.mqtt.brokerLabel')}</span>
-            <span className="access-field__hint">{t('access.services.mqtt.brokerDesc')}</span>
-            <span className="access-field__pair">
-              <input
-                className="access-field__input"
-                type="text"
-                value={brokerDraft.host}
-                placeholder="192.168.1.10"
-                onChange={(e) => setBrokerDraft({ ...brokerDraft, host: e.target.value })}
-              />
-              <input
-                className="access-field__input access-field__input--port"
-                type="number"
-                value={brokerDraft.port}
-                placeholder="1883"
-                aria-label={t('access.services.mqtt.portLabel')}
-                onChange={(e) => setBrokerDraft({ ...brokerDraft, port: e.target.value })}
-              />
-            </span>
-          </label>
-
-          <label className="access-field">
-            <span className="access-field__label">{t('access.services.mqtt.authLabel')}</span>
-            <span className="access-field__hint">{t('access.services.mqtt.authDesc')}</span>
-            <span className="access-field__pair">
-              <input
-                className="access-field__input"
-                type="text"
-                value={brokerDraft.username}
-                placeholder={t('access.services.mqtt.usernamePlaceholder')}
-                onChange={(e) => setBrokerDraft({ ...brokerDraft, username: e.target.value })}
-              />
-              <input
-                className="access-field__input"
-                type="password"
-                value={brokerDraft.password}
-                // Says a password is stored without revealing it: the server never
-                // sends it back, and an untouched field must not clear it.
-                placeholder={
-                  mqtt.hasPassword
-                    ? t('access.services.mqtt.passwordStored')
-                    : t('access.services.mqtt.passwordPlaceholder')
-                }
-                onChange={(e) => setBrokerDraft({ ...brokerDraft, password: e.target.value })}
-              />
-            </span>
-          </label>
-
-          <label className="access-field">
-            <span className="access-field__label">{t('access.services.mqtt.prefixLabel')}</span>
-            <span className="access-field__hint">{t('access.services.mqtt.prefixDesc')}</span>
-            <input
-              className="access-field__input"
-              type="text"
-              value={brokerDraft.topicPrefix}
-              placeholder="sonn"
-              onChange={(e) => setBrokerDraft({ ...brokerDraft, topicPrefix: e.target.value })}
-            />
-          </label>
-
           <button
             type="button"
-            className="access-mqtt__save"
-            disabled={saving !== null || !brokerDirty}
-            onClick={() => void saveBroker()}
+            className="access-mqtt__configure"
+            disabled={saving !== null}
+            onClick={() => openBrokerDialog()}
           >
-            {saving === 'mqtt'
-              ? t('access.services.mqtt.saving')
-              : t('access.services.mqtt.save')}
+            {mqtt.host
+              ? t('access.services.mqtt.editBroker', { host: mqtt.host })
+              : t('access.services.mqtt.setBroker')}
           </button>
-
-          {mqttEnabled ? (
-            <>
-              <p className="access-mqtt__where">
-                {t('access.services.mqtt.topicDesc', { prefix: mqtt.topicPrefix })}
-              </p>
-              <div className="access-mqtt__option">
-                <span className="access-mqtt__option-text">
-                  <span className="access-field__label">
-                    {t('access.services.mqtt.progressLabel')}
-                  </span>
-                  <span className="access-field__hint">
-                    {t('access.services.mqtt.progressDesc')}
-                  </span>
-                </span>
-                <button
-                  type="button"
-                  className={`setup-toggle${mqtt.publishProgress ? ' is-on' : ''}`}
-                  aria-pressed={mqtt.publishProgress}
-                  disabled={saving !== null}
-                  onClick={() => void setProgress(!mqtt.publishProgress)}
-                >
-                  {mqtt.publishProgress ? t('access.on') : t('access.off')}
-                </button>
-              </div>
-            </>
-          ) : null}
         </div>
       );
     }
@@ -463,6 +385,157 @@ export default function AccessView(): JSX.Element {
           );
         })}
       </div>
+
+      {brokerOpen && mqtt ? (
+        <Modal
+          open
+          onClose={() => setBrokerOpen(false)}
+          backdropClassName="bridge-modal-backdrop"
+          dialogClassName="bridge-modal bridge-modal--narrow"
+          ariaLabelledBy="mqtt-broker-title"
+          closeOnBackdrop
+          closeOnEscape
+          bodyClasses={['modal-open']}
+        >
+          <header className="bridge-modal__head">
+            <div className="bridge-modal__head-text">
+              <span className="bridge-modal__eyebrow">{t('access.services.mqtt.name')}</span>
+              <h3 id="mqtt-broker-title" className="bridge-modal__title">
+                {t('access.services.mqtt.dialogTitle')}
+              </h3>
+              <p className="bridge-modal__subtitle">
+                {t('access.services.mqtt.dialogSubtitle')}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="bridge-modal__close"
+              aria-label={t('access.services.mqtt.close')}
+              onClick={() => setBrokerOpen(false)}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </header>
+
+          <div className="bridge-modal__body access-mqtt-form">
+            <label className="access-field">
+              <span className="access-field__label">{t('access.services.mqtt.brokerLabel')}</span>
+              <span className="access-field__hint">{t('access.services.mqtt.brokerDesc')}</span>
+              <span className="access-field__pair">
+                <input
+                  className="access-field__input"
+                  type="text"
+                  data-autofocus
+                  value={brokerDraft.host}
+                  placeholder="192.168.1.10"
+                  onChange={(e) => setBrokerDraft({ ...brokerDraft, host: e.target.value })}
+                />
+                <input
+                  className="access-field__input access-field__input--port"
+                  type="number"
+                  value={brokerDraft.port}
+                  placeholder="1883"
+                  aria-label={t('access.services.mqtt.portLabel')}
+                  onChange={(e) => setBrokerDraft({ ...brokerDraft, port: e.target.value })}
+                />
+              </span>
+            </label>
+
+            <label className="access-field">
+              <span className="access-field__label">{t('access.services.mqtt.authLabel')}</span>
+              <span className="access-field__hint">{t('access.services.mqtt.authDesc')}</span>
+              <span className="access-field__pair">
+                <input
+                  className="access-field__input"
+                  type="text"
+                  value={brokerDraft.username}
+                  placeholder={t('access.services.mqtt.usernamePlaceholder')}
+                  onChange={(e) => setBrokerDraft({ ...brokerDraft, username: e.target.value })}
+                />
+                <input
+                  className="access-field__input"
+                  type="password"
+                  value={brokerDraft.password}
+                  // Says a password is stored without revealing it: the server never
+                  // sends it back, and an untouched field must not clear it.
+                  placeholder={
+                    mqtt.hasPassword
+                      ? t('access.services.mqtt.passwordStored')
+                      : t('access.services.mqtt.passwordPlaceholder')
+                  }
+                  onChange={(e) => setBrokerDraft({ ...brokerDraft, password: e.target.value })}
+                />
+              </span>
+            </label>
+
+            <label className="access-field">
+              <span className="access-field__label">{t('access.services.mqtt.prefixLabel')}</span>
+              <span className="access-field__hint">{t('access.services.mqtt.prefixDesc')}</span>
+              <input
+                className="access-field__input"
+                type="text"
+                value={brokerDraft.topicPrefix}
+                placeholder="sonn"
+                onChange={(e) => setBrokerDraft({ ...brokerDraft, topicPrefix: e.target.value })}
+              />
+            </label>
+
+            {/* Only meaningful once it is publishing, and it writes immediately rather
+                than waiting for Save — it is a switch, not part of the broker form. */}
+            {mqttEnabled ? (
+              <div className="access-mqtt__option">
+                <span className="access-mqtt__option-text">
+                  <span className="access-field__label">
+                    {t('access.services.mqtt.progressLabel')}
+                  </span>
+                  <span className="access-field__hint">
+                    {t('access.services.mqtt.progressDesc')}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  className={`setup-toggle${mqtt.publishProgress ? ' is-on' : ''}`}
+                  aria-pressed={mqtt.publishProgress}
+                  disabled={saving !== null}
+                  onClick={() => void setProgress(!mqtt.publishProgress)}
+                >
+                  {mqtt.publishProgress ? t('access.on') : t('access.off')}
+                </button>
+              </div>
+            ) : null}
+
+            {mqttEnabled ? (
+              <p className="access-mqtt__where">
+                {t('access.services.mqtt.topicDesc', { prefix: mqtt.topicPrefix })}
+              </p>
+            ) : null}
+          </div>
+
+          <footer className="bridge-modal__foot">
+            <button
+              type="button"
+              className="bridge-modal__btn bridge-modal__btn--ghost"
+              onClick={() => setBrokerOpen(false)}
+            >
+              {t('access.services.mqtt.cancel')}
+            </button>
+            <span style={{ flex: 1 }} />
+            <button
+              type="button"
+              className="bridge-modal__btn"
+              disabled={saving !== null || !brokerDirty}
+              onClick={() => void saveBroker()}
+            >
+              {saving === 'mqtt'
+                ? t('access.services.mqtt.saving')
+                : t('access.services.mqtt.save')}
+            </button>
+          </footer>
+        </Modal>
+      ) : null}
     </div>
   );
 }

@@ -1520,7 +1520,13 @@
         "hostRequired": "Trage die Broker-Adresse ein, bevor du das einschaltest.",
         "save": "Speichern",
         "saving": "Speichern…",
-        "portLabel": "Port"
+        "portLabel": "Port",
+        "dialogTitle": "Dein MQTT-Broker",
+        "dialogSubtitle": "Wohin veröffentlicht wird und wie sich angemeldet wird.",
+        "setBroker": "Broker einrichten",
+        "editBroker": "Broker: {{host}}",
+        "cancel": "Abbrechen",
+        "close": "Schließen"
       }
     }
   }

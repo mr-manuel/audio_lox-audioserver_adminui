@@ -1522,7 +1522,13 @@
         "hostRequired": "Fill in the broker address before switching this on.",
         "save": "Save",
         "saving": "Saving…",
-        "portLabel": "Port"
+        "portLabel": "Port",
+        "dialogTitle": "Your MQTT broker",
+        "dialogSubtitle": "Where to publish, and how to sign in.",
+        "setBroker": "Set up broker",
+        "editBroker": "Broker: {{host}}",
+        "cancel": "Cancel",
+        "close": "Close"
       }
     }
   }
