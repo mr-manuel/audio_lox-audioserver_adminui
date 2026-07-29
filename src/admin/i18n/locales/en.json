@@ -1503,7 +1503,7 @@
       },
       "mqtt": {
         "name": "Home automation (MQTT)",
-        "purpose": "Sends what each zone is playing to an MQTT broker, so home automation can show it and react to it without asking this server over and over. Fill in your broker below, then switch it on.",
+        "purpose": "Sends what each zone is playing to an MQTT broker, and takes instructions back the same way — so home automation can show what is on and control it without asking this server over and over.",
         "brokerLabel": "Broker address",
         "brokerDesc": "The address of your MQTT broker, and the port if it is not the usual 1883.",
         "authLabel": "Sign-in",
@@ -1514,7 +1514,7 @@
         "prefixLabel": "Topic name",
         "prefixDesc": "Everything is published under this name. Change it if another server already uses it on the same broker.",
         "topicLabel": "Where to find it",
-        "topicDesc": "Each zone is published at {{prefix}}/zones/<zone number> — both as one message with everything in it, and as separate values you can read one at a time.",
+        "topicDesc": "Each zone is published at {{prefix}}/zones/<zone number>, both as one message with everything in it and as separate values you can read one at a time. To control a zone, publish to that same address with /set/volume, /set/state and so on.",
         "progressLabel": "Send the playing time",
         "progressDesc": "Keeps a live counter of how far into the track each zone is. Off by default because it sends a message every second per zone; everything else is sent only when it changes.",
         "connected": "Connected — {{count}} updates sent",
@@ -1524,11 +1524,12 @@
         "saving": "Saving…",
         "portLabel": "Port",
         "dialogTitle": "Your MQTT broker",
-        "dialogSubtitle": "Where to publish, and how to sign in.",
+        "dialogSubtitle": "Where to publish and listen, and how to sign in.",
         "setBroker": "Set up broker",
         "editBroker": "Broker: {{host}}",
         "cancel": "Cancel",
-        "close": "Close"
+        "close": "Close",
+        "controlNote": "Anyone who can publish to your broker can control this server, just as anyone who can read it can see what is playing. Use your broker's own accounts and permissions to decide who that is."
       }
     }
   }

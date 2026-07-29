@@ -337,3 +337,12 @@
 .bridge-modal.bridge-modal--narrow {
   max-width: 520px;
 }
+
+/* Who can control this, stated where the broker is configured. Not a warning banner:
+   it is how MQTT normally works, and the reader is choosing a broker, not being scolded. */
+.access-mqtt__note {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}

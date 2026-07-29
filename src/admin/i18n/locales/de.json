@@ -1501,7 +1501,7 @@
       },
       "mqtt": {
         "name": "Hausautomation (MQTT)",
-        "purpose": "Sendet an einen MQTT-Broker, was in jeder Zone läuft, damit die Hausautomation es anzeigen und darauf reagieren kann, ohne diesen Server ständig abzufragen. Trage unten deinen Broker ein und schalte es dann ein.",
+        "purpose": "Sendet an einen MQTT-Broker, was in jeder Zone läuft, und nimmt auf demselben Weg Befehle an — so kann die Hausautomation anzeigen und steuern, ohne diesen Server ständig abzufragen.",
         "brokerLabel": "Broker-Adresse",
         "brokerDesc": "Die Adresse deines MQTT-Brokers und der Port, falls es nicht der üblich 1883 ist.",
         "authLabel": "Anmeldung",
@@ -1512,7 +1512,7 @@
         "prefixLabel": "Themenname",
         "prefixDesc": "Alles wird unter diesem Namen veröffentlicht. Ändere ihn, wenn ein anderer Server ihn auf demselben Broker schon verwendet.",
         "topicLabel": "Wo du es findest",
-        "topicDesc": "Jede Zone wird unter {{prefix}}/zones/<Zonennummer> veröffentlicht — als eine Nachricht mit allem darin und zusätzlich als einzelne Werte.",
+        "topicDesc": "Jede Zone wird unter {{prefix}}/zones/<Zonennummer> veröffentlicht, als eine Nachricht mit allem darin und zusätzlich als einzelne Werte. Zum Steuern veröffentlichst du an dieselbe Adresse mit /set/volume, /set/state und so weiter.",
         "progressLabel": "Spielzeit senden",
         "progressDesc": "Hält mit, wie weit jede Zone im Titel ist. Standardmäßig aus, weil dafür pro Zone jede Sekunde eine Nachricht nötig ist; alles andere wird nur bei Änderungen gesendet.",
         "connected": "Verbunden — {{count}} Aktualisierungen gesendet",
@@ -1522,11 +1522,12 @@
         "saving": "Speichern…",
         "portLabel": "Port",
         "dialogTitle": "Dein MQTT-Broker",
-        "dialogSubtitle": "Wohin veröffentlicht wird und wie sich angemeldet wird.",
+        "dialogSubtitle": "Wohin veröffentlicht und worauf gehört wird, und wie sich angemeldet wird.",
         "setBroker": "Broker einrichten",
         "editBroker": "Broker: {{host}}",
         "cancel": "Abbrechen",
-        "close": "Schließen"
+        "close": "Schließen",
+        "controlNote": "Wer an deinen Broker veröffentlichen darf, kann diesen Server steuern — genauso wie jeder, der mitlesen darf, sieht was läuft. Wer das ist, legst du über die Konten und Rechte deines Brokers fest."
       }
     }
   }

@@ -512,6 +512,10 @@ export default function AccessView(): JSX.Element {
                 {t('access.services.mqtt.topicDesc', { prefix: mqtt.topicPrefix })}
               </p>
             ) : null}
+
+            {/* Control is not gated by us — whoever may publish may steer the audio — so
+                say so where the broker is being set up rather than in a doc nobody opens. */}
+            <p className="access-mqtt__note">{t('access.services.mqtt.controlNote')}</p>
           </div>
 
           <footer className="bridge-modal__foot">
