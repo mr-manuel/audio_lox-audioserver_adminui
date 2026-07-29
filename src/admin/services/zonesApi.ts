@@ -19,14 +19,14 @@ export type ZoneUpdatePayload = {
   equalizer?: ZoneEqualizerConfig | null;
 };
 
+/**
+ * What /admin/api/zones/states returns: per-zone diagnostics. Now-playing metadata
+ * lives on /api/zones and /api/events, not here.
+ */
 export type ZonePlaybackState = {
   id: number;
   name: string;
-  title?: string;
-  artist?: string;
-  album?: string;
-  sourceName?: string;
-  station?: string;
+  /** 'playing' | 'paused' | 'stopped' — same vocabulary as /api/zones. */
   state?: string;
   updatedAt?: string | number | null;
   tech?: {

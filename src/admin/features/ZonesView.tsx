@@ -1167,8 +1167,8 @@ export default function ZonesView(): JSX.Element {
                       const groupLeaderName = groupRec?.leaderName ?? '';
 
                       // Playback mode
-                      const playMode = playback?.state ?? '';
-                      const isPlaying = playMode === 'play';
+                      // The diagnostics route reports playback the same way /api does.
+                      const isPlaying = playback?.state === 'playing';
 
                       // State controller — surfaced on the card only when it's not the default
                       // ('internal'); the interesting cases are BeoLink / Sonos / MA / Miniserver.
