@@ -188,6 +188,28 @@ export async function copyZoneFavorites(sourceZoneId: number, destinationZoneIds
   });
 }
 
+/**
+ * Which state controllers this server supports. Fetched rather than hardcoded so a
+ * controller added server-side shows up here without a matching UI edit — the list
+ * lives in STATE_CONTROLLER_DEFINITIONS and this is its one consumer.
+ */
+export type StateControllerDefinition = {
+  id: string;
+  label: string;
+  description?: string;
+};
+
+export async function fetchStateControllers(): Promise<StateControllerDefinition[]> {
+  const payload = await requestJson<{ stateControllers?: StateControllerDefinition[] }>(
+    `${API_BASE}/zones/state-controllers`,
+    {
+      includeBodyInError: false,
+      errorMessage: 'Failed to fetch state controllers',
+    },
+  );
+  return Array.isArray(payload?.stateControllers) ? payload.stateControllers : [];
+}
+
 export async function fetchZoneStates(): Promise<{ map: Record<number, ZonePlaybackState>; system?: ZoneStatesResponse['system'] }> {
   const payload = await requestJson<ZoneStatesResponse | ZonePlaybackState[]>(
     `${API_BASE}/zones/states`,

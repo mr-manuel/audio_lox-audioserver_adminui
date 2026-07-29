@@ -3,7 +3,16 @@ import { createPortal } from 'react-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import './ZonesView.css';
 import { getConfig, updateGroupsConfig, updateManagedPlayers, setLoxoneConnection } from '../services/setupApi';
-import { createZone, deleteZone, fetchZoneStates, setZoneOutputLatency, updateZones, type ZonePlaybackState } from '../services/zonesApi';
+import {
+  createZone,
+  deleteZone,
+  fetchStateControllers,
+  fetchZoneStates,
+  setZoneOutputLatency,
+  updateZones,
+  type StateControllerDefinition,
+  type ZonePlaybackState,
+} from '../services/zonesApi';
 import { fetchGroups, type GroupRecord } from '../services/groupsApi';
 import { SubPanel } from '../components/SubPanel';
 import { useGlobalAlert } from '../components/GlobalAlert';
@@ -68,12 +77,16 @@ interface Zone {
   transports?: ZoneTransportConfig[];
 }
 
-const STATE_CONTROLLER_OPTIONS = [
-  { value: 'internal', label: 'Internal' },
-  { value: 'beolink', label: 'BeoLink' },
-  { value: 'sonos', label: 'Sonos' },
-  { value: 'musicassistant', label: 'Music Assistant' },
-] as const;
+/**
+ * Used only until the server's list arrives (and if the request fails). The server
+ * owns the real list; this keeps the picker usable rather than empty.
+ */
+const STATE_CONTROLLER_FALLBACK: StateControllerDefinition[] = [
+  { id: 'internal', label: 'Internal' },
+  { id: 'beolink', label: 'BeoLink' },
+  { id: 'sonos', label: 'Sonos' },
+  { id: 'musicassistant', label: 'Music Assistant' },
+];
 
 type AudioServerExtension = {
   mac?: string;
@@ -166,6 +179,8 @@ export default function ZonesView(): JSX.Element {
   const [baseSerial, setBaseSerial] = React.useState<string>('');
   // "standalone" = Loxone not connected. When Loxone is connected, players are
   // pushed by the Miniserver and the local managed-players controls don't apply.
+  const [stateControllers, setStateControllers] =
+    React.useState<StateControllerDefinition[]>(STATE_CONTROLLER_FALLBACK);
   const [standalone, setStandalone] = React.useState(false);
   const [paired, setPaired] = React.useState(false);
   // Opt-in for the local player layer (only when Loxone is not connected). Off =
@@ -206,13 +221,17 @@ export default function ZonesView(): JSX.Element {
     if (!quiet) setLoading(true);
     setError(null);
     try {
-      const [cfg, definitions, states, groupList] = await Promise.all([
+      const [cfg, definitions, states, groupList, controllers] = await Promise.all([
         getConfig(),
         getTransportDefinitions(),
         fetchZoneStates().catch(() => null),
         fetchGroups().catch(() => [] as GroupRecord[]),
+        // Falls back to the built-in list, so an older server (or a failed request)
+        // still renders a usable picker rather than an empty one.
+        fetchStateControllers().catch(() => [] as StateControllerDefinition[]),
       ]);
       if (signal?.aborted) return;
+      if (controllers.length > 0) setStateControllers(controllers);
       const data = cfg as ConfigResponse;
       const rawZones = data.config?.zones ?? [];
       const spotifyAccounts = Array.isArray(data.config?.content?.spotify?.accounts)
@@ -1374,6 +1393,7 @@ export default function ZonesView(): JSX.Element {
           zone={modalZone}
           saving={saving}
           transports={transportDefinitions}
+          stateControllers={stateControllers}
           powerGroups={powerGroups}
           spotifyDiscovery={spotifyDiscovery[modalZone.id]}
           onClose={closeZoneModal}
@@ -1545,6 +1565,8 @@ type ZoneModalProps = {
   zone: Zone;
   saving: boolean;
   transports: TransportConfigDefinition[];
+  /** Supported state controllers, as reported by the server. */
+  stateControllers: StateControllerDefinition[];
   powerGroups: PowerGroupConfig[];
   spotifyDiscovery?: SpotifyDiscoveryState;
   onClose: () => void;
@@ -1573,6 +1595,7 @@ function ZoneModal({
   zone,
   saving,
   transports,
+  stateControllers,
   powerGroups,
   spotifyDiscovery,
   onClose,
@@ -1894,10 +1917,13 @@ function ZoneModal({
                       void onStateControllerChange(event.target.value);
                     }}
                   >
-                    <option value="internal">{t('zones.stateController.internal')}</option>
-                    <option value="beolink">{t('zones.stateController.beolink')}</option>
-                    <option value="sonos">{t('zones.stateController.sonos')}</option>
-                    <option value="musicassistant">{t('zones.stateController.musicassistant')}</option>
+                    {stateControllers.map((ctrl) => (
+                      <option key={ctrl.id} value={ctrl.id}>
+                        {/* Translated when we know the id; otherwise the server's own
+                            label, so a newly added controller is still readable. */}
+                        {t(`zones.stateController.${ctrl.id}`, { defaultValue: ctrl.label })}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
