@@ -99,6 +99,9 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
       .then((next) => {
         if (cancelled) return;
         setSession(next);
+        // Same reason as after an explicit login: the first /info read was
+        // unauthenticated and carries only the screen-choosing flags.
+        if (next) void refreshApiStatus();
       })
       .catch(() => {
         if (cancelled) return;
@@ -111,7 +114,7 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [requiresLogin]);
+  }, [requiresLogin, refreshApiStatus]);
 
   React.useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -187,12 +190,16 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
       setSession(nextSession);
       setAuthNotice(null);
       setForceLogin(false);
+      // Re-read status now that we have a session: /info answers an anonymous caller
+      // with only the flags that decide which screen to show, so everything else
+      // (the server name, versions, package inventory) arrives on this second read.
+      await refreshApiStatus();
     } catch (err) {
       setAuthError(err instanceof Error ? err.message : 'Unable to sign in. Try again.');
     } finally {
       setAuthSubmitting(false);
     }
-  }, []);
+  }, [refreshApiStatus]);
 
   const handleSignOut = React.useCallback(() => {
     logoutAdmin().catch(() => undefined);
