@@ -12,6 +12,16 @@ import {
   SubsonicConfigError,
   type SubsonicStatus,
 } from '../services/subsonicApi';
+import {
+  getMqttStatus,
+  updateMqttConfig,
+  MqttConfigError,
+  brokerDraftFrom,
+  brokerDraftDirty,
+  brokerPayload,
+  type MqttStatus,
+  type MqttBrokerDraft,
+} from '../services/mqttApi';
 import { useGlobalAlert } from '../components/GlobalAlert';
 import InlineState from '../components/InlineState';
 import { copyText } from '../utils/clipboard';
@@ -19,14 +29,15 @@ import type { RootConfig } from '../types/config';
 
 type ConfigResponse = { config: RootConfig };
 
-/** Every way content can be served. Adding one means adding an entry to `ORDER`
- *  plus its `access.services.<id>` copy — and, only if it has settings of its own,
- *  a block in `renderExtras`. */
-type ServiceId = 'loxone' | 'dlna' | 'subsonic' | 'webdav';
+/** Every way this server is reachable from outside. Adding one means adding an entry
+ *  to `ORDER` plus its `access.services.<id>` copy — and, only if it has settings of
+ *  its own, a block in `renderExtras`. */
+type ServiceId = 'loxone' | 'dlna' | 'subsonic' | 'webdav' | 'mqtt';
 
 // Loxone leads: this server started life as a pure Loxone Audioserver, and that
-// implementation is still its most complete integration.
-const ORDER: readonly ServiceId[] = ['loxone', 'dlna', 'subsonic', 'webdav'];
+// implementation is still its most complete integration. MQTT sits last because it
+// is the odd one out — it serves no content, it pushes state outward.
+const ORDER: readonly ServiceId[] = ['loxone', 'dlna', 'subsonic', 'webdav', 'mqtt'];
 
 function PhoneGlyph(): JSX.Element {
   return (
@@ -46,9 +57,10 @@ function ServiceMark({ id }: { id: ServiceId }): JSX.Element {
 }
 
 /**
- * Access — how this server's content is served to the outside. The inverse of
- * playback: one card per interface others can reach the library, radio and
- * streaming services through, each showing its state and its own settings inline.
+ * Access — how this server is reached from outside. The inverse of playback: one
+ * card per interface, each showing its state and its own settings inline. Most
+ * serve content (the library, radio, streaming services); MQTT is the exception,
+ * publishing zone state outward for home automation to consume.
  * Deliberately data-driven so a new interface slots in without touching the
  * layout, and a content-only deployment lives entirely here.
  */
@@ -61,6 +73,8 @@ export default function AccessView(): JSX.Element {
   const [error, setError] = React.useState<string | null>(null);
   const [saving, setSaving] = React.useState<ServiceId | null>(null);
   const [subsonic, setSubsonic] = React.useState<SubsonicStatus | null>(null);
+  const [mqtt, setMqtt] = React.useState<MqttStatus | null>(null);
+  const [brokerDraft, setBrokerDraft] = React.useState<MqttBrokerDraft>(brokerDraftFrom(null));
   const [urlCopied, setUrlCopied] = React.useState(false);
   const [davCopied, setDavCopied] = React.useState(false);
 
@@ -83,10 +97,24 @@ export default function AccessView(): JSX.Element {
     }
   }, []);
 
+  const refreshMqtt = React.useCallback(async (): Promise<void> => {
+    try {
+      const status = await getMqttStatus();
+      setMqtt(status);
+      // Only on load: re-seeding on every refresh would discard what someone is typing.
+      setBrokerDraft((current) =>
+        brokerDraftDirty(current, null) ? current : brokerDraftFrom(status),
+      );
+    } catch {
+      setMqtt(null);
+    }
+  }, []);
+
   React.useEffect(() => {
     void refreshConfig();
     void refreshSubsonic();
-  }, [refreshConfig, refreshSubsonic]);
+    void refreshMqtt();
+  }, [refreshConfig, refreshSubsonic, refreshMqtt]);
 
   const cfg = data?.config ?? {};
   const audioserver = cfg.system?.audioserver;
@@ -96,13 +124,17 @@ export default function AccessView(): JSX.Element {
 
   const webdavEnabled = Boolean(cfg.content?.webdav?.enabled);
 
+  const mqttEnabled = mqtt?.enabled ?? false;
+
   const isOn: Record<ServiceId, boolean> = {
     loxone: loxoneEnabled,
     dlna: mediaServerEnabled,
     subsonic: subsonicEnabled,
     webdav: webdavEnabled,
+    mqtt: mqttEnabled,
   };
   const enabledCount = ORDER.filter((id) => isOn[id]).length;
+  const brokerDirty = brokerDraftDirty(brokerDraft, mqtt);
 
   /** Only the state the toggle can't express: listening, but not paired yet. The
    *  plain on/off is already visible in the control itself. */
@@ -114,6 +146,10 @@ export default function AccessView(): JSX.Element {
   }
 
   function errorText(err: unknown): string {
+    if (err instanceof MqttConfigError) {
+      // The one refusal a user causes by switching on before filling the form in.
+      return err.code === 'host-required' ? t('access.services.mqtt.hostRequired') : err.message;
+    }
     if (err instanceof SubsonicConfigError) {
       return err.code === 'no-usable-credentials'
         ? t('access.servers.subsonicNoCredentials')
@@ -134,7 +170,37 @@ export default function AccessView(): JSX.Element {
       } else if (id === 'webdav') {
         await updateContentConfig({ webdav: { enabled: next } });
         await refreshConfig();
+      } else if (id === 'mqtt') {
+        setMqtt(await updateMqttConfig({ enabled: next }));
       }
+    } catch (err) {
+      pushAlert({ tone: 'error', title: t('access.failedTitle'), message: errorText(err) });
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  /** Saves the broker fields. Reported by the server's fresh status, so the connection
+   *  result is visible immediately rather than after a manual refresh. */
+  async function saveBroker(): Promise<void> {
+    if (saving) return;
+    setSaving('mqtt');
+    try {
+      const status = await updateMqttConfig(brokerPayload(brokerDraft));
+      setMqtt(status);
+      setBrokerDraft(brokerDraftFrom(status));
+    } catch (err) {
+      pushAlert({ tone: 'error', title: t('access.failedTitle'), message: errorText(err) });
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  async function setProgress(next: boolean): Promise<void> {
+    if (saving) return;
+    setSaving('mqtt');
+    try {
+      setMqtt(await updateMqttConfig({ publishProgress: next }));
     } catch (err) {
       pushAlert({ tone: 'error', title: t('access.failedTitle'), message: errorText(err) });
     } finally {
@@ -186,6 +252,124 @@ export default function AccessView(): JSX.Element {
           >
             {davCopied ? t('access.servers.copied') : t('access.servers.copy')}
           </button>
+        </div>
+      );
+    }
+
+    // Shown whether or not it is switched on: the broker has to be filled in *before*
+    // enabling, since enabling without one is refused.
+    if (id === 'mqtt' && mqtt) {
+      return (
+        <div className="access-mqtt">
+          {mqttEnabled ? (
+            /* The connection is worth stating plainly: everything else in this view
+               either works or is visibly absent, while a broker address can save
+               successfully and never connect. */
+            <div className={`access-mqtt__state${mqtt.connected ? ' is-ok' : ' is-bad'}`}>
+              {mqtt.connected
+                ? t('access.services.mqtt.connected', { count: mqtt.published })
+                : (mqtt.lastError ?? t('access.services.mqtt.disconnected'))}
+            </div>
+          ) : null}
+
+          <label className="access-field">
+            <span className="access-field__label">{t('access.services.mqtt.brokerLabel')}</span>
+            <span className="access-field__hint">{t('access.services.mqtt.brokerDesc')}</span>
+            <span className="access-field__pair">
+              <input
+                className="access-field__input"
+                type="text"
+                value={brokerDraft.host}
+                placeholder="192.168.1.10"
+                onChange={(e) => setBrokerDraft({ ...brokerDraft, host: e.target.value })}
+              />
+              <input
+                className="access-field__input access-field__input--port"
+                type="number"
+                value={brokerDraft.port}
+                placeholder="1883"
+                aria-label={t('access.services.mqtt.portLabel')}
+                onChange={(e) => setBrokerDraft({ ...brokerDraft, port: e.target.value })}
+              />
+            </span>
+          </label>
+
+          <label className="access-field">
+            <span className="access-field__label">{t('access.services.mqtt.authLabel')}</span>
+            <span className="access-field__hint">{t('access.services.mqtt.authDesc')}</span>
+            <span className="access-field__pair">
+              <input
+                className="access-field__input"
+                type="text"
+                value={brokerDraft.username}
+                placeholder={t('access.services.mqtt.usernamePlaceholder')}
+                onChange={(e) => setBrokerDraft({ ...brokerDraft, username: e.target.value })}
+              />
+              <input
+                className="access-field__input"
+                type="password"
+                value={brokerDraft.password}
+                // Says a password is stored without revealing it: the server never
+                // sends it back, and an untouched field must not clear it.
+                placeholder={
+                  mqtt.hasPassword
+                    ? t('access.services.mqtt.passwordStored')
+                    : t('access.services.mqtt.passwordPlaceholder')
+                }
+                onChange={(e) => setBrokerDraft({ ...brokerDraft, password: e.target.value })}
+              />
+            </span>
+          </label>
+
+          <label className="access-field">
+            <span className="access-field__label">{t('access.services.mqtt.prefixLabel')}</span>
+            <span className="access-field__hint">{t('access.services.mqtt.prefixDesc')}</span>
+            <input
+              className="access-field__input"
+              type="text"
+              value={brokerDraft.topicPrefix}
+              placeholder="sonn"
+              onChange={(e) => setBrokerDraft({ ...brokerDraft, topicPrefix: e.target.value })}
+            />
+          </label>
+
+          <button
+            type="button"
+            className="access-mqtt__save"
+            disabled={saving !== null || !brokerDirty}
+            onClick={() => void saveBroker()}
+          >
+            {saving === 'mqtt'
+              ? t('access.services.mqtt.saving')
+              : t('access.services.mqtt.save')}
+          </button>
+
+          {mqttEnabled ? (
+            <>
+              <p className="access-mqtt__where">
+                {t('access.services.mqtt.topicDesc', { prefix: mqtt.topicPrefix })}
+              </p>
+              <div className="access-mqtt__option">
+                <span className="access-mqtt__option-text">
+                  <span className="access-field__label">
+                    {t('access.services.mqtt.progressLabel')}
+                  </span>
+                  <span className="access-field__hint">
+                    {t('access.services.mqtt.progressDesc')}
+                  </span>
+                </span>
+                <button
+                  type="button"
+                  className={`setup-toggle${mqtt.publishProgress ? ' is-on' : ''}`}
+                  aria-pressed={mqtt.publishProgress}
+                  disabled={saving !== null}
+                  onClick={() => void setProgress(!mqtt.publishProgress)}
+                >
+                  {mqtt.publishProgress ? t('access.on') : t('access.off')}
+                </button>
+              </div>
+            </>
+          ) : null}
         </div>
       );
     }

@@ -1460,8 +1460,8 @@
   },
   "access": {
     "eyebrow": "Zugang",
-    "title": "Wie deine Inhalte geteilt werden",
-    "subtitle": "Stelle die eingerichteten Inhalte anderen Apps und Geräten im Netzwerk bereit — über einen Server. Schalte ein, was du nutzen willst; jede Variante funktioniert eigenständig.",
+    "title": "Wie dieser Server sich verbindet",
+    "subtitle": "Teile die eingerichteten Inhalte mit anderen Apps und Geräten im Netzwerk und sende an deine Hausautomation, was gerade läuft — alles über einen Server. Schalte ein, was du brauchst; alles funktioniert unabhängig.",
     "retry": "Erneut versuchen",
     "servers": {
       "failedMessage": "Die Servereinstellungen konnten nicht aktualisiert werden",
@@ -1498,6 +1498,29 @@
       "webdav": {
         "name": "Netzlaufwerk",
         "purpose": "Bindet den Musikordner als Netzlaufwerk auf deinem Computer ein, sodass du Alben per Drag-and-drop hinzufügen und im Finder oder Explorer verwalten kannst. Verbinde dich mit der Adresse unten und melde dich mit deinem Konto an. Neue Dateien werden automatisch erkannt."
+      },
+      "mqtt": {
+        "name": "Hausautomation (MQTT)",
+        "purpose": "Sendet an einen MQTT-Broker, was in jeder Zone läuft, damit die Hausautomation es anzeigen und darauf reagieren kann, ohne diesen Server ständig abzufragen. Trage unten deinen Broker ein und schalte es dann ein.",
+        "brokerLabel": "Broker-Adresse",
+        "brokerDesc": "Die Adresse deines MQTT-Brokers und der Port, falls es nicht der üblich 1883 ist.",
+        "authLabel": "Anmeldung",
+        "authDesc": "Lass beide Felder leer, wenn dein Broker Verbindungen ohne Passwort annimmt.",
+        "usernamePlaceholder": "Benutzername",
+        "passwordPlaceholder": "Passwort",
+        "passwordStored": "Gespeichert — zum Ersetzen tippen",
+        "prefixLabel": "Themenname",
+        "prefixDesc": "Alles wird unter diesem Namen veröffentlicht. Ändere ihn, wenn ein anderer Server ihn auf demselben Broker schon verwendet.",
+        "topicLabel": "Wo du es findest",
+        "topicDesc": "Jede Zone wird unter {{prefix}}/zones/<Zonennummer> veröffentlicht — als eine Nachricht mit allem darin und zusätzlich als einzelne Werte.",
+        "progressLabel": "Spielzeit senden",
+        "progressDesc": "Hält mit, wie weit jede Zone im Titel ist. Standardmäßig aus, weil dafür pro Zone jede Sekunde eine Nachricht nötig ist; alles andere wird nur bei Änderungen gesendet.",
+        "connected": "Verbunden — {{count}} Aktualisierungen gesendet",
+        "disconnected": "Noch nicht mit dem Broker verbunden.",
+        "hostRequired": "Trage die Broker-Adresse ein, bevor du das einschaltest.",
+        "save": "Speichern",
+        "saving": "Speichern…",
+        "portLabel": "Port"
       }
     }
   }

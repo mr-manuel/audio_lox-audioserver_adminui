@@ -195,3 +195,127 @@
 .access-url__copy.is-done {
   color: var(--accent);
 }
+
+/* MQTT settings, inline in its card.
+   Its own layout rather than SetupView's `setup-row`: that row puts label and control
+   side by side, which needs page width. In a ~300px card it squeezed the label to one
+   word per line. Here everything stacks and every field is full width. */
+.access-mqtt {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Whether the broker connection is actually up. Stated plainly because a wrong
+   address or password saves successfully and then simply never connects. */
+.access-mqtt__state {
+  padding: 8px 10px;
+  border-radius: 9px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.access-mqtt__state.is-ok {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.access-mqtt__state.is-bad {
+  color: var(--color-muted);
+  background: color-mix(in srgb, var(--color-muted) 12%, transparent);
+}
+
+.access-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.access-field__label {
+  font-size: 0.8rem;
+  font-weight: 650;
+  color: var(--text);
+}
+.access-field__hint {
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+.access-field__input {
+  width: 100%;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.82rem;
+}
+.access-field__input:focus-visible {
+  outline: none;
+  border-color: var(--accent);
+}
+/* Host + port and username + password each belong on one line, but must still wrap
+   rather than overflow when the card is narrow. */
+.access-field__pair {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.access-field__pair .access-field__input {
+  flex: 1 1 120px;
+}
+.access-field__input--port {
+  flex: 0 0 86px;
+}
+
+.access-mqtt__save {
+  align-self: flex-start;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+.access-mqtt__save:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.access-mqtt__save:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* Where to find the topics, once it is publishing. */
+.access-mqtt__where {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--color-muted) 8%, transparent);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+/* A setting with its own toggle: text on the left, control on the right, wrapping
+   before the control gets squeezed. */
+.access-mqtt__option {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.access-mqtt__option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 160px;
+  min-width: 0;
+}

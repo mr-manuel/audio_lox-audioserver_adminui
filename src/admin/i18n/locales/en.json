@@ -1462,8 +1462,8 @@
   },
   "access": {
     "eyebrow": "Access",
-    "title": "How your content is shared",
-    "subtitle": "Serve the content you set up to other apps and devices on your network — all through one server. Turn on the ways you want; each works on its own.",
+    "title": "How this server connects",
+    "subtitle": "Share the content you set up with other apps and devices on your network, and send what is playing to your home automation — all through one server. Turn on what you need; each works on its own.",
     "retry": "Retry",
     "servers": {
       "failedMessage": "Failed to update the server settings",
@@ -1500,6 +1500,29 @@
       "webdav": {
         "name": "Network drive",
         "purpose": "Adds the music folder to your computer as a network drive, so you can drag albums in and organise them with Finder or Explorer. Connect to the address below and sign in with your account. New files are picked up automatically."
+      },
+      "mqtt": {
+        "name": "Home automation (MQTT)",
+        "purpose": "Sends what each zone is playing to an MQTT broker, so home automation can show it and react to it without asking this server over and over. Fill in your broker below, then switch it on.",
+        "brokerLabel": "Broker address",
+        "brokerDesc": "The address of your MQTT broker, and the port if it is not the usual 1883.",
+        "authLabel": "Sign-in",
+        "authDesc": "Leave both empty if your broker accepts connections without a password.",
+        "usernamePlaceholder": "Username",
+        "passwordPlaceholder": "Password",
+        "passwordStored": "Saved — type to replace",
+        "prefixLabel": "Topic name",
+        "prefixDesc": "Everything is published under this name. Change it if another server already uses it on the same broker.",
+        "topicLabel": "Where to find it",
+        "topicDesc": "Each zone is published at {{prefix}}/zones/<zone number> — both as one message with everything in it, and as separate values you can read one at a time.",
+        "progressLabel": "Send the playing time",
+        "progressDesc": "Keeps a live counter of how far into the track each zone is. Off by default because it sends a message every second per zone; everything else is sent only when it changes.",
+        "connected": "Connected — {{count}} updates sent",
+        "disconnected": "Not connected to the broker yet.",
+        "hostRequired": "Fill in the broker address before switching this on.",
+        "save": "Save",
+        "saving": "Saving…",
+        "portLabel": "Port"
       }
     }
   }
