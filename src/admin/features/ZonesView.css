@@ -3841,7 +3841,8 @@ button.zones-hub__toggle:disabled {
 }
 
 .zone-power-panel__fields input,
-.zone-power-panel__fields select {
+.zone-power-panel__fields select,
+.zone-power-panel__fields textarea {
   min-height: 44px;
   padding-top: 0.46rem;
   padding-bottom: 0.46rem;
@@ -3852,17 +3853,26 @@ button.zones-hub__toggle:disabled {
 }
 
 .zone-power-panel__fields input:hover:not(:disabled),
-.zone-power-panel__fields select:hover:not(:disabled) {
+.zone-power-panel__fields select:hover:not(:disabled),
+.zone-power-panel__fields textarea:hover:not(:disabled) {
   border-color: color-mix(in srgb, var(--border-strong) 68%, transparent);
 }
 
 .zone-power-panel__fields input:focus-visible,
-.zone-power-panel__fields select:focus-visible {
+.zone-power-panel__fields select:focus-visible,
+.zone-power-panel__fields textarea:focus-visible {
   outline: none;
   border-color: color-mix(in srgb, var(--color-brand) 55%, var(--border-strong));
   box-shadow:
     0 0 0 4px color-mix(in srgb, var(--color-brand) 12%, transparent),
     inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.zone-power-panel__fields textarea {
+  min-height: 88px;
+  resize: vertical;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.78rem;
 }
 
 .zone-power-switching-select {

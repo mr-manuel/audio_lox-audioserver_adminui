@@ -1380,7 +1380,11 @@
       },
       "url": {
         "onUrl": "On URL",
-        "offUrl": "Off URL"
+        "offUrl": "Off URL",
+        "onMethod": "On method",
+        "offMethod": "Off method",
+        "onBody": "On JSON body",
+        "offBody": "Off JSON body"
       },
       "udp": {
         "host": "Host",

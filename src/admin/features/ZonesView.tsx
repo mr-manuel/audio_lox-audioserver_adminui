@@ -4976,6 +4976,46 @@ function ZonePowerManagerSection({
                     placeholder="http://device/off"
                   />
                 </label>
+                <label className="zone-output-field">
+                  <span>{t('zones.power.url.onMethod')}</span>
+                  <input
+                    type="text"
+                    value={draft.url?.onMethod ?? ''}
+                    onChange={(event) => setString('url.onMethod', event.target.value)}
+                    disabled={saving}
+                    placeholder="GET"
+                  />
+                </label>
+                <label className="zone-output-field">
+                  <span>{t('zones.power.url.offMethod')}</span>
+                  <input
+                    type="text"
+                    value={draft.url?.offMethod ?? ''}
+                    onChange={(event) => setString('url.offMethod', event.target.value)}
+                    disabled={saving}
+                    placeholder="GET"
+                  />
+                </label>
+                <label className="zone-output-field">
+                  <span>{t('zones.power.url.onBody')}</span>
+                  <textarea
+                    value={formatRequestBody(draft.url?.onBody)}
+                    onChange={(event) => setString('url.onBody', event.target.value)}
+                    disabled={saving}
+                    placeholder='{"power":"on"}'
+                    rows={3}
+                  />
+                </label>
+                <label className="zone-output-field">
+                  <span>{t('zones.power.url.offBody')}</span>
+                  <textarea
+                    value={formatRequestBody(draft.url?.offBody)}
+                    onChange={(event) => setString('url.offBody', event.target.value)}
+                    disabled={saving}
+                    placeholder='{"standby":{"powerState":"standby"}}'
+                    rows={3}
+                  />
+                </label>
               </div>
             )}
 
@@ -5262,6 +5302,78 @@ function PowerGroupEditorCard({
               disabled={saving}
             />
           </label>
+          <label className="zone-output-field">
+            <span>{t('zones.power.url.onMethod')}</span>
+            <input
+              type="text"
+              value={draft.powerManager?.url?.onMethod ?? ''}
+              onChange={(event) =>
+                updatePowerManager({
+                  url: {
+                    ...(draft.powerManager?.url ?? {}),
+                    enabled: true,
+                    onMethod: event.target.value,
+                  },
+                })
+              }
+              disabled={saving}
+              placeholder="GET"
+            />
+          </label>
+          <label className="zone-output-field">
+            <span>{t('zones.power.url.offMethod')}</span>
+            <input
+              type="text"
+              value={draft.powerManager?.url?.offMethod ?? ''}
+              onChange={(event) =>
+                updatePowerManager({
+                  url: {
+                    ...(draft.powerManager?.url ?? {}),
+                    enabled: true,
+                    offMethod: event.target.value,
+                  },
+                })
+              }
+              disabled={saving}
+              placeholder="GET"
+            />
+          </label>
+          <label className="zone-output-field">
+            <span>{t('zones.power.url.onBody')}</span>
+            <textarea
+              value={formatRequestBody(draft.powerManager?.url?.onBody)}
+              onChange={(event) =>
+                updatePowerManager({
+                  url: {
+                    ...(draft.powerManager?.url ?? {}),
+                    enabled: true,
+                    onBody: event.target.value,
+                  },
+                })
+              }
+              disabled={saving}
+              placeholder='{"power":"on"}'
+              rows={3}
+            />
+          </label>
+          <label className="zone-output-field">
+            <span>{t('zones.power.url.offBody')}</span>
+            <textarea
+              value={formatRequestBody(draft.powerManager?.url?.offBody)}
+              onChange={(event) =>
+                updatePowerManager({
+                  url: {
+                    ...(draft.powerManager?.url ?? {}),
+                    enabled: true,
+                    offBody: event.target.value,
+                  },
+                })
+              }
+              disabled={saving}
+              placeholder='{"standby":{"powerState":"standby"}}'
+              rows={3}
+            />
+          </label>
         </div>
       )}
 
@@ -5449,11 +5561,15 @@ function normalizeGroupPowerManagerForSave(
     };
   }
   if (config.url?.enabled === true) {
-    normalized.url = {
-      enabled: true,
-      onUrl: trimOrUndefined(config.url.onUrl),
-      offUrl: trimOrUndefined(config.url.offUrl),
-    };
+      normalized.url = {
+        enabled: true,
+        onUrl: trimOrUndefined(config.url.onUrl),
+        offUrl: trimOrUndefined(config.url.offUrl),
+        onMethod: trimOrUndefined(config.url.onMethod),
+        offMethod: trimOrUndefined(config.url.offMethod),
+        onBody: trimOrUndefined(config.url.onBody),
+        offBody: trimOrUndefined(config.url.offBody),
+      };
   }
   if (config.udp?.enabled === true) {
     normalized.udp = {
@@ -5556,6 +5672,20 @@ function stringifyNumber(value: unknown): string {
   return '';
 }
 
+function formatRequestBody(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value === undefined || value === null) {
+    return '';
+  }
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return '';
+  }
+}
+
 function normalizePowerManagerForSave(
   config: ZonePowerManagerConfig | null | undefined,
 ): ZonePowerManagerConfig | null {
@@ -5580,13 +5710,17 @@ function normalizePowerManagerForSave(
 
   const url = config.url ?? null;
   if (url?.enabled === true) {
-    normalized.url = {
-      enabled: true,
-      onUrl: trimOrUndefined(url.onUrl),
-      offUrl: trimOrUndefined(url.offUrl),
-      insecure: url.insecure,
-      curlPath: trimOrUndefined(url.curlPath),
-    };
+      normalized.url = {
+        enabled: true,
+        onUrl: trimOrUndefined(url.onUrl),
+        offUrl: trimOrUndefined(url.offUrl),
+        onMethod: trimOrUndefined(url.onMethod),
+        offMethod: trimOrUndefined(url.offMethod),
+        onBody: trimOrUndefined(url.onBody),
+        offBody: trimOrUndefined(url.offBody),
+        insecure: url.insecure,
+        curlPath: trimOrUndefined(url.curlPath),
+      };
   }
 
   const udp = config.udp ?? null;
