@@ -15,6 +15,6 @@ export const ADMIN_TABS: readonly TabConfig[] = [
   { key: 'setup', label: 'Setup', component: SetupView },
   { key: 'content', label: 'Content', component: ContentView },
   { key: 'access', label: 'Access', component: AccessView },
-  { key: 'zones', label: 'Players', component: ZonesView },
+  { key: 'zones', label: 'Zones', component: ZonesView },
   { key: 'logs', label: 'Logs', component: LogsView },
 ];
