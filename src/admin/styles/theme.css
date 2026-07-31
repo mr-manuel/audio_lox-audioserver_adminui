@@ -53,6 +53,23 @@
 .icon-ws-touch::before { content: "\\f102"; }
 .icon-ws-marketing::before { content: "\\f10a"; }
 
+/*
+ * The product is three surfaces, and moving between them is a navigation.
+ *
+ * The two players are one bundle and switch inside it; this console is a different app at a different url,
+ * so going there is a real page load and no DOM animation can cross it. `@view-transition` can:
+ * same-origin cross-document transitions let the browser snapshot the outgoing page, load the incoming one
+ * and animate between them — and a shared `view-transition-name` makes an element *fly* between its old and
+ * new positions across two different documents.
+ *
+ * `sonn-mark` is on this hero's mark and on the player's, so pressing the wordmark in either place sends
+ * the mark travelling to where the other one keeps it. Browsers without support get an ordinary
+ * navigation, which is what they had before.
+ */
+@view-transition {
+  navigation: auto;
+}
+
 :root {
   color-scheme: dark;
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;

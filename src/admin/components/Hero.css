@@ -27,6 +27,8 @@ body.is-workspace .hero-content {
 }
 
 .hero-mark {
+  /* The one element this console shares with both players — see `@view-transition` in `theme.css`. */
+  view-transition-name: sonn-mark;
   color: var(--accent);
   filter: drop-shadow(0 0 24px rgba(74, 222, 128, 0.3));
   margin-bottom: 24px;
@@ -184,6 +186,7 @@ body.is-unpaired .hero-mark {
  * `align-items: baseline` matters — the qualifier is 58% of the name's size and hangs off the same
  * baseline rather than being centred against it.
  */
+/* The wordmark is the way to the music, the same way the players' wordmark is the way here. */
 .hero-wordmark {
   display: inline-flex;
   align-items: baseline;
@@ -197,6 +200,19 @@ body.is-unpaired .hero-mark {
   transition: font-size 0.6s var(--spring), margin 0.6s var(--spring);
   animation: hero-fade-up 0.6s var(--spring) backwards;
   animation-delay: 1.7s;
+}
+
+.hero-wordmark__link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: inherit;
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.18s var(--spring);
+}
+
+.hero-wordmark__link:hover {
+  opacity: 0.78;
 }
 
 .hero-wordmark__sonn {

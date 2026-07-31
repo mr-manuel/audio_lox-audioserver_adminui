@@ -78,9 +78,16 @@ export default function Hero(): JSX.Element {
         </svg>
       </div>
 
+      {/*
+        The wordmark is the door to the player, as the player's wordmark is the door to here.
+        A real `<a href>` so the browser performs a real navigation, which is what lets the mark above fly
+        across it — see `@view-transition` in `theme.css`.
+      */}
       <h1 className="hero-wordmark" aria-label="sonn core">
-        <span className="hero-wordmark__sonn">sonn</span>
-        <span className="hero-wordmark__core">core</span>
+        <a className="hero-wordmark__link" href="/player/" title="Listen">
+          <span className="hero-wordmark__sonn">sonn</span>
+          <span className="hero-wordmark__core">core</span>
+        </a>
       </h1>
 
       <div className="diag-strip">
