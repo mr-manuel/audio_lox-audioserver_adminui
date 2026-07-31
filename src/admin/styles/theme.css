@@ -6,6 +6,34 @@
   font-display: swap;
 }
 
+/*
+ * The product's two brand faces, shared with both players.
+ *
+ * Hanken Grotesk for display, JetBrains Mono for every label and measurement — the same pair, from
+ * the same self-hosted variable files, as `player/src/styles.css` and the art player. Typography is
+ * the strongest signal that the admin UI and the players are one system: a console in the system sans
+ * beside a player in Hanken reads as two products that happen to share a server.
+ *
+ * One `@font-face` per family because both files are the variable font (100–900 in one binary), and
+ * self-hosted because an audioserver on a LAN with no route out must not fall back to Arial for its
+ * own wordmark.
+ */
+@font-face {
+  font-family: 'Hanken Grotesk';
+  src: url('../assets/fonts/hanken-grotesk-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../assets/fonts/jetbrains-mono-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 .icon-ws-miniserver::before,
 .icon-ws-extensions-v2::before,
 .icon-ws-audio-standing::before,
@@ -30,8 +58,10 @@
   font-family: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
   font-weight: 400;
   --font-sans: -apple-system, BlinkMacSystemFont, 'Inter', system-ui, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
-  --font-display: var(--font-sans);
+  /* The brand faces, with the previous stacks kept as fallbacks so a failed font load degrades to
+     what this UI looked like yesterday rather than to Times. */
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
+  --font-display: 'Hanken Grotesk', var(--font-sans);
 
   /* --- Redesign palette (mockup baseline). Use these in new CSS. --- */
   --bg: #0A0C10;
