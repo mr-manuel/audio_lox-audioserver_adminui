@@ -1536,5 +1536,131 @@
         "controlNote": "Anyone who can publish to your broker can control this server, just as anyone who can read it can see what is playing. Use your broker's own accounts and permissions to decide who that is."
       }
     }
+  },
+  "sonnClients": {
+    "eyebrow": "Speakers",
+    "title": "Devices",
+    "subtitle": "Small players you install on a Raspberry Pi. They take every setting from here, so nothing has to be configured on the device itself.",
+    "unnamed": "Unnamed device",
+    "versionLabel": "version {{version}}",
+    "save": "Save",
+    "saving": "Saving…",
+    "saved": "Saved. The device picks this up within a few seconds.",
+    "remove": "Remove",
+    "forget": "Forget",
+    "forgetTitle": "Forget this device?",
+    "forgetMessage": "{{name}} disappears from this list. Its settings are deleted; the device itself keeps running and will register again unless you switch it off.",
+    "expand": "Show settings",
+    "collapse": "Hide settings",
+    "deviceName": "Name",
+    "deviceNameDesc": "What you call this box. Only used here and in logs.",
+    "deviceEnabled": "In use",
+    "deviceEnabledDesc": "Switch off to silence everything on this device without losing how it is set up.",
+    "lastSeen": "Last heard from {{when}}",
+    "neverSeen": "Not heard from yet.",
+    "rtt": "{{ms}} ms to the server",
+    "copyCommand": "Copy",
+    "emptyTitle": "No devices yet",
+    "emptyBody": "Run this on the Raspberry Pi you want to play through. It finds this server by itself and then shows up here.",
+    "emptyNote": "Nothing else needs installing on the device: AirPlay, Spotify, radio and everything else stay on this server.",
+    "states": {
+      "idle": "idle",
+      "connecting": "connecting",
+      "connected": "ready",
+      "streaming": "playing",
+      "error": "problem"
+    },
+    "signal": {
+      "present": "audio detected",
+      "absent": "silent",
+      "unknown": "listening"
+    },
+    "components": {
+      "absent": "not installed",
+      "installed": "installed",
+      "running": "running",
+      "failed": "failed"
+    },
+    "pairing": {
+      "scanning": "Looking for a remote…",
+      "pairing": "Pairing…",
+      "paired": "Remote paired",
+      "failed": "Pairing failed",
+      "timeout": "No remote appeared"
+    },
+    "players": {
+      "title": "Speakers",
+      "desc": "One per sound card. Each one becomes an output you can assign to a room on the Zones screen.",
+      "add": "Add speaker",
+      "empty": "No speaker set up yet. Add one and pick the sound card it is wired to.",
+      "noCards": "This device has not reported any sound cards yet.",
+      "namePlaceholder": "Kitchen",
+      "idLabel": "Pick this on the Zones screen: {{id}}",
+      "card": "Sound card",
+      "cardDesc": "The output the speaker is wired to.",
+      "defaultCard": "Whatever the device uses by default",
+      "missingCard": "{{id}} (not currently connected)",
+      "delay": "Delay",
+      "delayDesc": "How much later the sound arrives at this speaker than at the others — for an amplifier or active speaker that adds its own delay.",
+      "volumeHook": "Volume script",
+      "volumeHookDesc": "For a speaker with its own volume control. Leave empty to let the device do the volume itself.",
+      "enabled": "In use",
+      "enabledDesc": "Switch off to keep the settings but stop this speaker playing."
+    },
+    "sources": {
+      "title": "Inputs",
+      "desc": "A turntable, CD player or anything else plugged into this device. It becomes a source you can play in any room.",
+      "add": "Add input",
+      "empty": "No input set up yet.",
+      "noCards": "This device has not reported any inputs yet.",
+      "namePlaceholder": "Turntable",
+      "idLabel": "Input id: {{id}}",
+      "card": "Input",
+      "cardDesc": "The socket the equipment is plugged into.",
+      "defaultCard": "Whatever the device uses by default",
+      "threshold": "Silence below",
+      "thresholdDesc": "Quieter than this counts as nothing playing. The default suits most equipment.",
+      "hold": "Wait before switching",
+      "holdDesc": "How long the sound has to keep going before this input counts as playing. Stops a quiet passage from ending it.",
+      "controlHook": "Control script",
+      "controlHookDesc": "Runs on the device to switch the equipment on and pass play, pause and skip to it.",
+      "linkNote": "To use this input, add a line-in on the Content screen and point it at {{id}}."
+    },
+    "remote": {
+      "title": "Beoremote One",
+      "desc": "Show your own sources on a Bang & Olufsen remote paired to this device.",
+      "label": "Remote",
+      "software": "Bluetooth software",
+      "softwareDesc": "Extra software the remote needs. Currently {{state}}.",
+      "softwareUnavailable": "No download is configured for this server yet.",
+      "enabled": "Use the remote",
+      "enabledDesc": "Fill the remote's MUSIC list and act on its buttons.",
+      "zone": "Room",
+      "zoneDesc": "Which room the remote shows and controls.",
+      "zonePlaceholder": "Pick a room",
+      "volumeStep": "Volume step",
+      "volumeStepDesc": "How much one press of the volume button changes.",
+      "volumePlayer": "Volume follows",
+      "volumePlayerDesc": "Which speaker on this device the volume buttons change.",
+      "firstPlayer": "The first speaker",
+      "pair": "Pair a remote",
+      "pairingStarted": "Put the remote into pairing mode now. It has 90 seconds.",
+      "keysConnected": "buttons connected",
+      "states": {
+        "waiting": "waiting for the Bluetooth software",
+        "connected": "ready",
+        "error": "problem",
+        "disabled": "off"
+      }
+    },
+    "errors": {
+      "generic": "That did not save. Try again.",
+      "deviceInUse": "Still in use by a room: {{ids}}. Change that room's speaker first.",
+      "duplicate-client-id": "Two speakers cannot share one id.",
+      "beoremote-missing-zone": "Pick the room the remote should control.",
+      "player-missing-client-id": "A speaker is missing its id.",
+      "source-missing-client-id": "An input is missing its id.",
+      "loadFailed": "Could not load the devices."
+    }
   }
 }

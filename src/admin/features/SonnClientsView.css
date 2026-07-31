@@ -1,0 +1,167 @@
+/* Devices running Sonn Client. The form language is Setup's; what is here is the device card, its
+   status strip, and the nested player/source entries. */
+
+.sonn-layout {
+  gap: 18px;
+}
+
+.sonn-device {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sonn-device__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.sonn-device__identity {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+}
+
+.sonn-device__meta {
+  margin: 2px 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted, #8b8b8b);
+}
+
+/* The id a zone's output points at. Monospaced because it is a value to be recognised and copied,
+   not read as prose. */
+.sonn-device__id,
+.sonn-entry__id {
+  margin: 2px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.76rem;
+  color: var(--text-faint, #6f6f6f);
+  word-break: break-all;
+}
+
+.sonn-device__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Online is the one thing worth a colour on this screen: everything else is text. */
+.sonn-dot {
+  width: 9px;
+  height: 9px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: var(--text-faint, #6f6f6f);
+  flex: none;
+}
+
+.sonn-dot.is-online {
+  background: #3fb950;
+  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.18);
+}
+
+.sonn-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.sonn-status--offline {
+  font-size: 0.82rem;
+  color: var(--text-muted, #8b8b8b);
+}
+
+.sonn-chip {
+  padding: 3px 9px;
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  font-size: 0.78rem;
+  color: var(--text-muted, #b4b4b4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.sonn-chip strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 500;
+  color: var(--text, #e6e6e6);
+}
+
+.sonn-chip--accent {
+  border-color: rgba(224, 168, 74, 0.5);
+  color: #e0a84a;
+}
+
+.sonn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-soft, rgba(255, 255, 255, 0.07));
+}
+
+.sonn-group__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sonn-group__head h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* One player or input. Indented so it reads as belonging to the device rather than sitting beside
+   it. */
+.sonn-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.07));
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sonn-entry__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sonn-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The install command. Selectable and copyable, because it is meant to be pasted into a terminal on
+   another machine. */
+.sonn-install {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.sonn-install code {
+  flex: 1 1 420px;
+  padding: 9px 12px;
+  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.28);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}

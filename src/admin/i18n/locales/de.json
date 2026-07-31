@@ -1534,5 +1534,131 @@
         "controlNote": "Wer an deinen Broker veröffentlichen darf, kann diesen Server steuern — genauso wie jeder, der mitlesen darf, sieht was läuft. Wer das ist, legst du über die Konten und Rechte deines Brokers fest."
       }
     }
+  },
+  "sonnClients": {
+    "eyebrow": "Lautsprecher",
+    "title": "Geräte",
+    "subtitle": "Kleine Player, die du auf einem Raspberry Pi installierst. Sie holen jede Einstellung von hier, am Gerät selbst muss nichts konfiguriert werden.",
+    "unnamed": "Unbenanntes Gerät",
+    "versionLabel": "Version {{version}}",
+    "save": "Speichern",
+    "saving": "Speichern…",
+    "saved": "Gespeichert. Das Gerät übernimmt es in wenigen Sekunden.",
+    "remove": "Entfernen",
+    "forget": "Vergessen",
+    "forgetTitle": "Dieses Gerät vergessen?",
+    "forgetMessage": "{{name}} verschwindet aus dieser Liste. Die Einstellungen werden gelöscht; das Gerät läuft weiter und meldet sich erneut an, sofern du es nicht ausschaltest.",
+    "expand": "Einstellungen zeigen",
+    "collapse": "Einstellungen ausblenden",
+    "deviceName": "Name",
+    "deviceNameDesc": "Wie du diese Box nennst. Nur hier und in Logs sichtbar.",
+    "deviceEnabled": "In Benutzung",
+    "deviceEnabledDesc": "Ausschalten, um alles auf diesem Gerät stummzustellen, ohne die Einrichtung zu verlieren.",
+    "lastSeen": "Zuletzt gehört {{when}}",
+    "neverSeen": "Noch nichts gehört.",
+    "rtt": "{{ms}} ms zum Server",
+    "copyCommand": "Kopieren",
+    "emptyTitle": "Noch keine Geräte",
+    "emptyBody": "Führe das auf dem Raspberry Pi aus, über den du hören willst. Er findet diesen Server selbst und erscheint dann hier.",
+    "emptyNote": "Auf dem Gerät muss nichts weiter installiert werden: AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server.",
+    "states": {
+      "idle": "bereit",
+      "connecting": "verbindet",
+      "connected": "bereit",
+      "streaming": "spielt",
+      "error": "Problem"
+    },
+    "signal": {
+      "present": "Ton erkannt",
+      "absent": "still",
+      "unknown": "hört zu"
+    },
+    "components": {
+      "absent": "nicht installiert",
+      "installed": "installiert",
+      "running": "läuft",
+      "failed": "fehlgeschlagen"
+    },
+    "pairing": {
+      "scanning": "Suche nach einer Fernbedienung…",
+      "pairing": "Koppeln…",
+      "paired": "Fernbedienung gekoppelt",
+      "failed": "Koppeln fehlgeschlagen",
+      "timeout": "Keine Fernbedienung gefunden"
+    },
+    "players": {
+      "title": "Lautsprecher",
+      "desc": "Einer pro Soundkarte. Jeder wird ein Ausgang, den du im Bereich Zonen einem Raum zuweisen kannst.",
+      "add": "Lautsprecher hinzufügen",
+      "empty": "Noch kein Lautsprecher eingerichtet. Füge einen hinzu und wähle die Soundkarte.",
+      "noCards": "Dieses Gerät hat noch keine Soundkarten gemeldet.",
+      "namePlaceholder": "Küche",
+      "idLabel": "Im Bereich Zonen wählen: {{id}}",
+      "card": "Soundkarte",
+      "cardDesc": "Der Ausgang, an dem der Lautsprecher hängt.",
+      "defaultCard": "Was das Gerät standardmäßig nutzt",
+      "missingCard": "{{id}} (aktuell nicht verbunden)",
+      "delay": "Verzögerung",
+      "delayDesc": "Wie viel später der Ton an diesem Lautsprecher ankommt als an den anderen — für Verstärker oder Aktivlautsprecher mit eigener Verzögerung.",
+      "volumeHook": "Lautstärke-Skript",
+      "volumeHookDesc": "Für Lautsprecher mit eigener Lautstärkeregelung. Leer lassen, damit das Gerät die Lautstärke selbst macht.",
+      "enabled": "In Benutzung",
+      "enabledDesc": "Ausschalten, um die Einstellungen zu behalten, aber nicht zu spielen."
+    },
+    "sources": {
+      "title": "Eingänge",
+      "desc": "Plattenspieler, CD-Player oder was sonst an diesem Gerät hängt. Wird eine Quelle, die du in jedem Raum hören kannst.",
+      "add": "Eingang hinzufügen",
+      "empty": "Noch kein Eingang eingerichtet.",
+      "noCards": "Dieses Gerät hat noch keine Eingänge gemeldet.",
+      "namePlaceholder": "Plattenspieler",
+      "idLabel": "Eingangs-ID: {{id}}",
+      "card": "Eingang",
+      "cardDesc": "Die Buchse, an der das Gerät angeschlossen ist.",
+      "defaultCard": "Was das Gerät standardmäßig nutzt",
+      "threshold": "Stille unter",
+      "thresholdDesc": "Leiser als das gilt als nichts. Der Standard passt für die meisten Geräte.",
+      "hold": "Warten vor dem Umschalten",
+      "holdDesc": "Wie lange der Ton anhalten muss, bevor dieser Eingang als spielend gilt. Verhindert, dass eine leise Passage ihn beendet.",
+      "controlHook": "Steuer-Skript",
+      "controlHookDesc": "Läuft auf dem Gerät, schaltet die Anlage ein und gibt Play, Pause und Weiter weiter.",
+      "linkNote": "Um diesen Eingang zu nutzen, lege im Bereich Content einen Line-in an und verweise auf {{id}}."
+    },
+    "remote": {
+      "title": "Beoremote One",
+      "desc": "Zeige eigene Quellen auf einer mit diesem Gerät gekoppelten Bang & Olufsen Fernbedienung.",
+      "label": "Fernbedienung",
+      "software": "Bluetooth-Software",
+      "softwareDesc": "Zusatzsoftware, die die Fernbedienung braucht. Aktuell {{state}}.",
+      "softwareUnavailable": "Für diesen Server ist noch kein Download konfiguriert.",
+      "enabled": "Fernbedienung nutzen",
+      "enabledDesc": "Die MUSIC-Liste füllen und auf die Tasten reagieren.",
+      "zone": "Raum",
+      "zoneDesc": "Welchen Raum die Fernbedienung zeigt und steuert.",
+      "zonePlaceholder": "Raum wählen",
+      "volumeStep": "Lautstärkeschritt",
+      "volumeStepDesc": "Wie viel ein Tastendruck ändert.",
+      "volumePlayer": "Lautstärke folgt",
+      "volumePlayerDesc": "Welchen Lautsprecher dieses Geräts die Lautstärketasten ändern.",
+      "firstPlayer": "Der erste Lautsprecher",
+      "pair": "Fernbedienung koppeln",
+      "pairingStarted": "Versetze die Fernbedienung jetzt in den Kopplungsmodus. 90 Sekunden Zeit.",
+      "keysConnected": "Tasten verbunden",
+      "states": {
+        "waiting": "wartet auf die Bluetooth-Software",
+        "connected": "bereit",
+        "error": "Problem",
+        "disabled": "aus"
+      }
+    },
+    "errors": {
+      "generic": "Das wurde nicht gespeichert. Versuche es erneut.",
+      "deviceInUse": "Noch von einem Raum benutzt: {{ids}}. Ändere zuerst den Lautsprecher dieses Raums.",
+      "duplicate-client-id": "Zwei Lautsprecher können nicht dieselbe ID haben.",
+      "beoremote-missing-zone": "Wähle den Raum, den die Fernbedienung steuern soll.",
+      "player-missing-client-id": "Einem Lautsprecher fehlt die ID.",
+      "source-missing-client-id": "Einem Eingang fehlt die ID.",
+      "loadFailed": "Geräte konnten nicht geladen werden."
+    }
   }
 }
