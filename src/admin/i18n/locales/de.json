@@ -784,21 +784,21 @@
       "system": "Alarm-Engine",
       "updates": "Updates",
       "ariaLabel": "Einrichtungsbereiche",
-      "devices": "Lautsprecher"
+      "devices": "Sonn Client"
     },
     "titles": {
       "config": "Server-Konfiguration",
       "loxone": "Loxone-Integration",
       "system": "Alarm-Engine",
       "updates": "Updates",
-      "devices": "Sonn Client Lautsprecher"
+      "devices": "Sonn Client"
     },
     "subtitles": {
       "config": "Verhalten, Wiedergabe und Wartung dieses Servers.",
       "loxone": "Miniserver-Kopplung, Konfigurationsabgleich und Zugriff für den Loxone-kompatiblen Betrieb.",
       "system": "Text-to-Speech und die mitgelieferten Alarmtondateien des Servers.",
       "updates": "Installierte vs. neueste Version der Kernkomponenten. Externe Checks sind optional.",
-      "devices": "Kleine Player, die du auf einem Raspberry Pi installierst. Sie holen jede Einstellung von hier, am Gerät selbst muss nichts eingerichtet werden."
+      "devices": "Eine Appliance-Schicht für Raspberry Pi und vergleichbare Hardware. Das Gerät macht eine Sache — synchron abspielen — und holt jede Einstellung von hier, am Gerät selbst wird nichts konfiguriert."
     },
     "loading": {
       "title": "Konfiguration wird geladen",
@@ -1558,8 +1558,8 @@
     "neverSeen": "Noch nichts gehört.",
     "rtt": "{{ms}} ms zum Server",
     "copyCommand": "Befehl kopieren",
-    "emptyTitle": "Noch keine Lautsprecher",
-    "emptyBody": "Führe das auf dem Raspberry Pi aus, über den du hören willst. Er findet diesen Server selbst und erscheint unten.",
+    "emptyTitle": "Noch keine Geräte",
+    "emptyBody": "Führe das auf dem Raspberry Pi aus, über den du hören willst. Es macht die Maschine zur Appliance: sie findet diesen Server selbst und erscheint unten.",
     "states": {
       "idle": "bereit",
       "connecting": "verbindet",
@@ -1659,9 +1659,9 @@
       "source-missing-client-id": "Einem Eingang fehlt die ID.",
       "loadFailed": "Geräte konnten nicht geladen werden."
     },
-    "emptyHint": "Auf dem Gerät muss nichts weiter installiert werden: AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server.",
+    "emptyHint": "Sonst wird darauf nichts installiert: AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server — genau das hält alle Räume auf einer Uhr.",
     "installEyebrow": "Installation",
-    "addTitle": "Weiteren Lautsprecher hinzufügen",
+    "addTitle": "Weiteres Gerät hinzufügen",
     "addBody": "Führe das auf dem nächsten Raspberry Pi aus. Er findet diesen Server selbst und erscheint unten."
   }
 }

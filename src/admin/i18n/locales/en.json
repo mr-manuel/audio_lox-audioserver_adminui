@@ -784,21 +784,21 @@
       "system": "Alert engine",
       "updates": "Updates",
       "ariaLabel": "Setup sections",
-      "devices": "Speakers"
+      "devices": "Sonn Client"
     },
     "titles": {
       "config": "Server config",
       "loxone": "Loxone integration",
       "system": "Alert engine",
       "updates": "Updates",
-      "devices": "Sonn Client speakers"
+      "devices": "Sonn Client"
     },
     "subtitles": {
       "config": "Behaviour, playback and maintenance for this server.",
       "loxone": "Miniserver pairing, configuration sync and access control for Loxone-compatible operation.",
       "system": "Text-to-speech and the built-in alert sound files used by the server.",
       "updates": "Installed vs latest versions for core services. External checks are opt-in.",
-      "devices": "Small players you install on a Raspberry Pi. They take every setting from here, so nothing has to be set up on the device itself."
+      "devices": "An appliance layer for Raspberry Pi and comparable hardware. The device does one thing — play, in sync — and takes every setting from here, so nothing is configured on the device itself."
     },
     "loading": {
       "title": "Loading configuration",
@@ -1560,8 +1560,8 @@
     "neverSeen": "Not heard from yet.",
     "rtt": "{{ms}} ms to the server",
     "copyCommand": "Copy command",
-    "emptyTitle": "No speakers yet",
-    "emptyBody": "Run this on the Raspberry Pi you want to play through. It finds this server by itself and appears below.",
+    "emptyTitle": "No devices yet",
+    "emptyBody": "Run this on the Raspberry Pi you want to play through. It turns the machine into an appliance: it finds this server by itself and appears below.",
     "states": {
       "idle": "idle",
       "connecting": "connecting",
@@ -1661,9 +1661,9 @@
       "source-missing-client-id": "An input is missing its id.",
       "loadFailed": "Could not load the devices."
     },
-    "emptyHint": "Nothing else needs installing on the device: AirPlay, Spotify, radio and everything else stay on this server.",
+    "emptyHint": "Nothing else gets installed on it: AirPlay, Spotify, radio and everything else stay on this server, which is what keeps every room on one clock.",
     "installEyebrow": "Install",
-    "addTitle": "Add another speaker",
+    "addTitle": "Add another device",
     "addBody": "Run this on the next Raspberry Pi. It finds this server by itself and appears below."
   }
 }

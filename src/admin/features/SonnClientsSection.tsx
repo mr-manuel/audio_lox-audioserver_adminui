@@ -27,12 +27,17 @@ import { copyText } from '../utils/clipboard';
 import type { RootConfig } from '../types/config';
 
 /**
- * Speakers running Sonn Client, as a section of Setup.
+ * Sonn Client devices, as a section of Setup.
  *
- * Tucked in here rather than in the navigation because most installations never have one: a
- * top-level entry would advertise a feature that only matters once you have put a Raspberry Pi in a
- * room. Setup is where this installation's own machinery is configured, which is what these are —
- * they are not another source of music, they are hardware this server administers.
+ * Sonn Client is an appliance layer: install it on a Raspberry Pi (or comparable hardware) and the
+ * machine stops being a computer with an audio program on it and becomes a player that does one
+ * thing. Which is why every setting lives here rather than there — a device holds nothing but its
+ * own identity.
+ *
+ * Tucked into Setup rather than the navigation because most installations never have one: a
+ * top-level entry would advertise a feature that only matters once there is a Pi in a room. And
+ * Setup rather than Content, because these are not another source of music — they are this
+ * installation's own machinery.
  *
  * A device holds nothing but its own identity: it reports the sound cards it has and takes every
  * setting from here. So its card shows three things, kept apart on purpose — what it *is* (model,
