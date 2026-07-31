@@ -44,7 +44,8 @@
       "radio": "Radio",
       "library": "Library",
       "linein": "Line-in",
-      "streaming": "Streaming services"
+      "streaming": "Streaming services",
+      "sonnclient": "Sonn Client"
     },
     "streaming": {
       "title": "Streaming services",
@@ -1538,9 +1539,8 @@
     }
   },
   "sonnClients": {
-    "eyebrow": "Speakers",
-    "title": "Devices",
-    "subtitle": "Small players you install on a Raspberry Pi. They take every setting from here, so nothing has to be configured on the device itself.",
+    "title": "Sonn Client",
+    "subtitle": "Small players you install on a Raspberry Pi. They take every setting from here, so nothing has to be set up on the device itself.",
     "unnamed": "Unnamed device",
     "versionLabel": "version {{version}}",
     "save": "Save",
@@ -1559,10 +1559,10 @@
     "lastSeen": "Last heard from {{when}}",
     "neverSeen": "Not heard from yet.",
     "rtt": "{{ms}} ms to the server",
-    "copyCommand": "Copy",
+    "copyCommand": "Copy install command",
     "emptyTitle": "No devices yet",
     "emptyBody": "Run this on the Raspberry Pi you want to play through. It finds this server by itself and then shows up here.",
-    "emptyNote": "Nothing else needs installing on the device: AirPlay, Spotify, radio and everything else stay on this server.",
+    "emptyNote": "Run the install command on the Raspberry Pi you want to play through.",
     "states": {
       "idle": "idle",
       "connecting": "connecting",
@@ -1661,6 +1661,7 @@
       "player-missing-client-id": "A speaker is missing its id.",
       "source-missing-client-id": "An input is missing its id.",
       "loadFailed": "Could not load the devices."
-    }
+    },
+    "emptyHint": "It finds this server by itself and then appears here. Nothing else needs installing on it — AirPlay, Spotify, radio and everything else stay on this server."
   }
 }

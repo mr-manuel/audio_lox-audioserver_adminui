@@ -44,7 +44,8 @@
       "radio": "Radio",
       "library": "Bibliothek",
       "linein": "Line-in",
-      "streaming": "Streaming-Dienste"
+      "streaming": "Streaming-Dienste",
+      "sonnclient": "Sonn Client"
     },
     "streaming": {
       "title": "Streaming-Dienste",
@@ -1536,9 +1537,8 @@
     }
   },
   "sonnClients": {
-    "eyebrow": "Lautsprecher",
-    "title": "Geräte",
-    "subtitle": "Kleine Player, die du auf einem Raspberry Pi installierst. Sie holen jede Einstellung von hier, am Gerät selbst muss nichts konfiguriert werden.",
+    "title": "Sonn Client",
+    "subtitle": "Kleine Player, die du auf einem Raspberry Pi installierst. Sie holen jede Einstellung von hier, am Gerät selbst muss nichts eingerichtet werden.",
     "unnamed": "Unbenanntes Gerät",
     "versionLabel": "Version {{version}}",
     "save": "Speichern",
@@ -1557,10 +1557,10 @@
     "lastSeen": "Zuletzt gehört {{when}}",
     "neverSeen": "Noch nichts gehört.",
     "rtt": "{{ms}} ms zum Server",
-    "copyCommand": "Kopieren",
+    "copyCommand": "Befehl kopieren",
     "emptyTitle": "Noch keine Geräte",
     "emptyBody": "Führe das auf dem Raspberry Pi aus, über den du hören willst. Er findet diesen Server selbst und erscheint dann hier.",
-    "emptyNote": "Auf dem Gerät muss nichts weiter installiert werden: AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server.",
+    "emptyNote": "Führe den Installationsbefehl auf dem Raspberry Pi aus, über den du hören willst.",
     "states": {
       "idle": "bereit",
       "connecting": "verbindet",
@@ -1659,6 +1659,7 @@
       "player-missing-client-id": "Einem Lautsprecher fehlt die ID.",
       "source-missing-client-id": "Einem Eingang fehlt die ID.",
       "loadFailed": "Geräte konnten nicht geladen werden."
-    }
+    },
+    "emptyHint": "Er findet diesen Server selbst und erscheint dann hier. Weiter muss darauf nichts installiert werden — AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server."
   }
 }

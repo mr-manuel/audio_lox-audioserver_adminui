@@ -1,9 +1,9 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-// Shares the admin form language (rows, inputs, toggles, notes) with Setup; the device cards and
-// their status strip are this view's own.
-import './SetupView.css';
-import './SonnClientsView.css';
+// Sits inside Content, so it wears Content's section frame (aside + cards) and Setup's form
+// language for the fields themselves. Only the device card and its status strip are its own.
+import '../SetupView.css';
+import './SonnClientsSection.css';
 import {
   listSonnClients,
   saveSonnClient,
@@ -18,24 +18,29 @@ import {
   type SonnPlayerConfig,
   type SonnSourceConfig,
   type SonnBeoremoteConfig,
-} from '../services/sonnClientsApi';
-import { getConfig } from '../services/setupApi';
-import { useGlobalAlert } from '../components/GlobalAlert';
-import { useConfirm } from '../components/ConfirmDialog';
-import InlineState from '../components/InlineState';
-import { copyText } from '../utils/clipboard';
-import type { RootConfig } from '../types/config';
+} from '../../services/sonnClientsApi';
+import { getConfig } from '../../services/setupApi';
+import { useGlobalAlert } from '../../components/GlobalAlert';
+import { useConfirm } from '../../components/ConfirmDialog';
+import InlineState from '../../components/InlineState';
+import { copyText } from '../../utils/clipboard';
+import type { RootConfig } from '../../types/config';
 
 /**
- * Speakers running Sonn Client.
+ * Speakers running Sonn Client, as a section of Content.
  *
- * A device here holds nothing but its own identity: it reports the sound cards it has and takes
- * every setting from this screen. So the card for one device shows three things, kept apart on
- * purpose — what it *is* (grey, read-only: model, address, version), what it is *doing* (the status
- * strip, live), and what it *should be* (the forms, the only part that saves).
+ * It sits next to Line-in rather than in the navigation because most installations never have one:
+ * a top-level entry would advertise a feature that only matters once you have put a Raspberry Pi in
+ * a room. Content is where the things this server plays *from* and *through* are set up, and these
+ * devices are both.
  *
- * Assigning a room is deliberately not here. A player becomes an ordinary output, so it is picked on
- * the Zones screen — this screen's job is to create the output and name it.
+ * A device holds nothing but its own identity: it reports the sound cards it has and takes every
+ * setting from here. So its card shows three things, kept apart on purpose — what it *is* (model,
+ * address, version: read-only, it told us), what it is *doing* (the status strip, live), and what it
+ * *should be* (the forms, the only part that saves).
+ *
+ * Assigning a room is deliberately not here. A speaker becomes an ordinary output, so it is picked
+ * on the Zones screen; this section's job ends at creating and naming it.
  */
 
 type Draft = {
@@ -73,7 +78,7 @@ function numberOrUndefined(value: string): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export default function SonnClientsView(): JSX.Element {
+export default function SonnClientsSection(): JSX.Element {
   const { t } = useTranslation();
   const { push } = useGlobalAlert();
   const { confirm } = useConfirm();
@@ -209,37 +214,46 @@ export default function SonnClientsView(): JSX.Element {
   };
 
   if (error && !data) {
-    return (
-      <div className="setup-layout">
-        <InlineState kind="error" title={t('sonnClients.errors.loadFailed')} message={error} />
-      </div>
-    );
+    return <InlineState kind="error" title={t('sonnClients.errors.loadFailed')} message={error} />;
   }
 
   const devices = data?.devices ?? [];
 
   return (
-    <div className="setup-layout sonn-layout">
-      <header className="setup-head">
-        <div>
-          <span className="setup-head__eyebrow">{t('sonnClients.eyebrow')}</span>
-          <h1 className="setup-head__title">{t('sonnClients.title')}</h1>
-          <p className="setup-head__subtitle">{t('sonnClients.subtitle')}</p>
+    <div className="source-layout">
+      <aside className="source-aside">
+        <span className="source-aside__eyebrow">{t('content.aside.eyebrow')}</span>
+        <h2 className="source-aside__title">{t('sonnClients.title')}</h2>
+        <p className="source-aside__desc">{t('sonnClients.subtitle')}</p>
+        <div className="source-aside__actions">
+          <button
+            type="button"
+            className="content-btn content-btn--primary"
+            onClick={() => void copyText(INSTALL_COMMAND)}
+          >
+            {t('sonnClients.copyCommand')}
+          </button>
         </div>
-      </header>
+        {/* The install line lives in the aside because it is the first thing anyone needs and the
+            last thing they need twice. */}
+        <code className="sonn-install">{INSTALL_COMMAND}</code>
+      </aside>
 
+      <div className="source-cards sonn-cards">
       {devices.length === 0 ? (
-        <section className="setup-section setup-section--full sonn-empty">
-          <h2 className="setup-section__title">{t('sonnClients.emptyTitle')}</h2>
-          <p className="setup-section__desc">{t('sonnClients.emptyBody')}</p>
-          <div className="sonn-install">
-            <code>{INSTALL_COMMAND}</code>
-            <button type="button" className="setup-btn" onClick={() => void copyText(INSTALL_COMMAND)}>
-              {t('sonnClients.copyCommand')}
-            </button>
+        <div className="source-card">
+          <div>
+            <h3 className="source-card__title">{t('sonnClients.emptyTitle')}</h3>
+            <p className="source-card__desc">{t('sonnClients.emptyBody')}</p>
           </div>
-          <p className="setup-note">{t('sonnClients.emptyNote')}</p>
-        </section>
+          <div className="content-empty-info">
+            <span className="content-empty-info__icon">i</span>
+            <div className="content-empty-info__text">
+              <div className="content-empty-info__title">{t('sonnClients.emptyNote')}</div>
+              <div className="content-empty-info__sub">{t('sonnClients.emptyHint')}</div>
+            </div>
+          </div>
+        </div>
       ) : null}
 
       {devices.map((device) => {
@@ -249,12 +263,12 @@ export default function SonnClientsView(): JSX.Element {
         const isOpen = expanded[device.deviceId] ?? true;
 
         return (
-          <section key={device.deviceId} className="setup-section setup-section--full sonn-device">
+          <section key={device.deviceId} className="source-card sonn-device">
             <header className="sonn-device__head">
               <div className="sonn-device__identity">
                 <span className={`sonn-dot${device.online ? ' is-online' : ''}`} aria-hidden="true" />
                 <div>
-                  <h2 className="setup-section__title">{deviceTitle(device, t)}</h2>
+                  <h3 className="source-card__title">{deviceTitle(device, t)}</h3>
                   <p className="sonn-device__meta">
                     {[
                       device.registration?.model ?? device.config?.model,
@@ -273,19 +287,19 @@ export default function SonnClientsView(): JSX.Element {
               <div className="sonn-device__actions">
                 <button
                   type="button"
-                  className="setup-btn"
+                  className="content-btn"
                   onClick={() =>
                     setExpanded((previous) => ({ ...previous, [device.deviceId]: !isOpen }))
                   }
                 >
                   {isOpen ? t('sonnClients.collapse') : t('sonnClients.expand')}
                 </button>
-                <button type="button" className="setup-btn setup-btn--danger" onClick={() => void forget(device)}>
+                <button type="button" className="content-btn content-btn--danger" onClick={() => void forget(device)}>
                   {t('sonnClients.forget')}
                 </button>
                 <button
                   type="button"
-                  className="setup-btn setup-btn--primary"
+                  className="content-btn content-btn--primary"
                   disabled={!dirty[device.deviceId] || saving[device.deviceId]}
                   onClick={() => void save(device)}
                 >
@@ -361,6 +375,7 @@ export default function SonnClientsView(): JSX.Element {
           </section>
         );
       })}
+      </div>
     </div>
   );
 }
@@ -471,9 +486,9 @@ function PlayerList({
       <header className="sonn-group__head">
         <div>
           <h3>{t('sonnClients.players.title')}</h3>
-          <p className="setup-section__desc">{t('sonnClients.players.desc')}</p>
+          <p className="source-card__desc">{t('sonnClients.players.desc')}</p>
         </div>
-        <button type="button" className="setup-btn" onClick={add} disabled={!outputs.length}>
+        <button type="button" className="content-btn" onClick={add} disabled={!outputs.length}>
           {t('sonnClients.players.add')}
         </button>
       </header>
@@ -497,7 +512,7 @@ function PlayerList({
             </div>
             <button
               type="button"
-              className="setup-btn setup-btn--danger"
+              className="content-btn content-btn--danger"
               onClick={() => onChange(draft.players.filter((_, current) => current !== index))}
             >
               {t('sonnClients.remove')}
@@ -632,9 +647,9 @@ function SourceList({
       <header className="sonn-group__head">
         <div>
           <h3>{t('sonnClients.sources.title')}</h3>
-          <p className="setup-section__desc">{t('sonnClients.sources.desc')}</p>
+          <p className="source-card__desc">{t('sonnClients.sources.desc')}</p>
         </div>
-        <button type="button" className="setup-btn" onClick={add} disabled={!inputs.length}>
+        <button type="button" className="content-btn" onClick={add} disabled={!inputs.length}>
           {t('sonnClients.sources.add')}
         </button>
       </header>
@@ -658,7 +673,7 @@ function SourceList({
             </div>
             <button
               type="button"
-              className="setup-btn setup-btn--danger"
+              className="content-btn content-btn--danger"
               onClick={() => onChange(draft.sources.filter((_, current) => current !== index))}
             >
               {t('sonnClients.remove')}
@@ -790,11 +805,11 @@ function RemoteSection({
       <header className="sonn-group__head">
         <div>
           <h3>{t('sonnClients.remote.title')}</h3>
-          <p className="setup-section__desc">{t('sonnClients.remote.desc')}</p>
+          <p className="source-card__desc">{t('sonnClients.remote.desc')}</p>
         </div>
         <button
           type="button"
-          className="setup-btn"
+          className="content-btn"
           disabled={!device.online || installed?.state !== 'running'}
           onClick={onPair}
         >

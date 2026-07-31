@@ -43,6 +43,7 @@ import { useConfirm } from '../components/ConfirmDialog';
 import InlineState from '../components/InlineState';
 import { InlineForm, InlineFormField } from '../components/InlineForm';
 import LibraryBrowser from './content/LibraryBrowser';
+import SonnClientsSection from './content/SonnClientsSection';
 import SubTabs from '../components/SubTabs';
 import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
 import Row from '../components/Row';
@@ -50,7 +51,6 @@ import { emitAuthReset } from '../services/http';
 import { discoverSendspinSources, type SendspinClient } from '../services/transportsApi';
 import type { RootConfig } from '../types/config';
 import ContentHero from './content/ContentHero';
-import ContentFilterBar from './content/ContentFilterBar';
 import type { ContentFilterKey } from './content/types';
 import Modal from '../components/Modal';
 
@@ -2663,6 +2663,7 @@ export default function ContentView(): JSX.Element {
     { key: 'library', label: t('content.subTabs.library') },
     { key: 'linein', label: t('content.subTabs.linein') },
     { key: 'streaming', label: t('content.subTabs.streaming') },
+    { key: 'sonnclient', label: t('content.subTabs.sonnclient') },
   ];
 
   const stubModal = (label: string): void => {
@@ -3318,6 +3319,9 @@ export default function ContentView(): JSX.Element {
           </div>
         </div>
       ) : null}
+
+      {/* ============ SONN CLIENT ============ */}
+      {displayedFilter === 'sonnclient' ? <SonnClientsSection /> : null}
 
       {/* ============ SPOTIFY ============ */}
       {displayedFilter === 'streaming' ? (

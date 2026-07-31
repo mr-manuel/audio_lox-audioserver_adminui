@@ -1,8 +1,9 @@
-/* Devices running Sonn Client. The form language is Setup's; what is here is the device card, its
-   status strip, and the nested player/source entries. */
+/* Devices running Sonn Client, inside Content. The section frame (aside + cards) and the form
+   language come from Content and Setup; what is here is the device card, its status strip, and the
+   nested speaker/input entries. */
 
-.sonn-layout {
-  gap: 18px;
+.sonn-cards {
+  gap: 14px;
 }
 
 .sonn-device {
@@ -139,29 +140,18 @@
   gap: 10px;
 }
 
-.sonn-empty {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* The install command. Selectable and copyable, because it is meant to be pasted into a terminal on
-   another machine. */
+/* The install command, in the aside. Selectable and wrapping rather than scrolling: it is read once
+   and pasted into a terminal on another machine, so all of it has to be visible at once. */
 .sonn-install {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.sonn-install code {
-  flex: 1 1 420px;
+  display: block;
+  margin-top: 10px;
   padding: 9px 12px;
   border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
   border-radius: 8px;
   background: rgba(0, 0, 0, 0.28);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.8rem;
-  overflow-x: auto;
-  white-space: nowrap;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-muted, #b4b4b4);
+  overflow-wrap: anywhere;
 }
