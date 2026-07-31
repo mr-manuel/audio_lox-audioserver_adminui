@@ -171,11 +171,27 @@ body.is-unpaired .hero-mark {
   100% { opacity: 1; transform: scaleY(1); }
 }
 
+/*
+ * The lockup, shared with both players.
+ *
+ * This was 26px of JetBrains Mono at weight 500 with both words the same size, while the players
+ * next door set the same brand as Hanken Grotesk 800 for `sonn` and a small tracked mono cap for the
+ * qualifier — two lockups for one name, on two surfaces of one product, which is the single most
+ * visible way to look like two products. The players' treatment wins because it is the one the
+ * exported brand assets use (`data/export/sonn-logo.svg`): a display face for the name, the mono
+ * only for what comes after it.
+ *
+ * `align-items: baseline` matters — the qualifier is 58% of the name's size and hangs off the same
+ * baseline rather than being centred against it.
+ */
 .hero-wordmark {
-  font-family: var(--font-mono);
-  font-size: 26px;
-  letter-spacing: -0.5px;
-  font-weight: 500;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.33em;
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
   color: var(--text);
   margin: 0 0 12px;
   transition: font-size 0.6s var(--spring), margin 0.6s var(--spring);
@@ -183,18 +199,21 @@ body.is-unpaired .hero-mark {
   animation-delay: 1.7s;
 }
 
-/* Two-tone wordmark: bright "sonn", muted "core" (matches the brand lockup). */
 .hero-wordmark__sonn {
   color: var(--text);
 }
 
 .hero-wordmark__core {
   color: var(--text-muted);
-  margin-left: 0.32em;
+  font-family: var(--font-mono);
+  font-size: 0.58em;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 body.is-workspace .hero-wordmark {
-  font-size: 22px;
+  font-size: 25px;
   margin-bottom: 6px;
 }
 
@@ -379,7 +398,7 @@ body:not(.is-workspace) .diag-item + .diag-item::before {
     padding: 40px 0 24px;
   }
   .hero-wordmark {
-    font-size: 22px;
+    font-size: 25px;
   }
   .hero-tagline {
     font-size: 13px;

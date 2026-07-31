@@ -109,7 +109,9 @@
   --color-subtle: #cbd1d9;
   --color-muted: var(--text-muted);
   --color-faint: var(--text-dim);
-  --color-border: rgba(255, 255, 255, 0.06);
+  /* The hairline, at the weight both players draw theirs (`--line` / `--hair`): 7%, not 6%. One
+     alpha for every divider in the product. */
+  --color-border: rgba(255, 255, 255, 0.07);
   --color-border-strong: rgba(255, 255, 255, 0.14);
   --color-border-soft: rgba(255, 255, 255, 0.04);
   --border-whisper: rgba(255, 255, 255, 0.03);
@@ -464,6 +466,35 @@ body[data-theme='light'] .diag-strip {
   box-sizing: border-box;
 }
 
+/*
+ * Thin, quiet scrollbars — the technical player's, verbatim.
+ *
+ * This surface used the platform's default: a 15px light-grey slab down the side of a near-black page,
+ * which is the widest and brightest thing on the screen and belongs to no design at all. The player
+ * already solved it; there is no reason for the console to look different while scrolling.
+ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+  background-clip: content-box;
+}
+
 html {
   /* Always reserve gutter for the scrollbar so the viewport width is stable
      when content grows tall enough to need scrolling (e.g. LogsView mount).
@@ -522,11 +553,19 @@ a:hover {
   text-underline-offset: 3px;
 }
 
+/*
+ * An eyebrow is a *label*, and in this product a label is mono, uppercase and widely tracked — that
+ * is how `.zones-eyebrow`, `.logs-eyebrow` and every label in both players are set. This one was
+ * sans at 0.06em, which is neither tracked enough to read as engraved nor plain enough to read as
+ * a sentence.
+ */
 .page-hero__eyebrow {
   margin: 0 0 0.2rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-size: var(--text-xs);
+  letter-spacing: 0.2em;
+  font-size: 10px;
   color: var(--color-faint);
 }
 
