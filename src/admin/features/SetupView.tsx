@@ -21,6 +21,7 @@ import { useGlobalAlert } from '../components/GlobalAlert';
 import { useUpdateCheck } from '../components/UpdateCheckContext';
 import { COMPONENT_PACKAGES, compareSemver, normalizeTag } from '../services/updateCheck';
 import SubTabs from '../components/SubTabs';
+import SonnClientsSection from './SonnClientsSection';
 import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
 import { useConfirm } from '../components/ConfirmDialog';
 import { useServerControl } from '../components/ServerControl';
@@ -35,7 +36,7 @@ type SetupConfig = {
 };
 
 // 'loxone' only exists when the server runs in Loxone mode — see loxoneMode below.
-type SetupTabKey = 'config' | 'loxone' | 'system' | 'updates';
+type SetupTabKey = 'config' | 'loxone' | 'system' | 'devices' | 'updates';
 
 type TtsDraft = {
   type: 'internal' | 'loxberry-tts';
@@ -916,6 +917,8 @@ export default function SetupView(): JSX.Element {
     { key: 'config', label: t('setup.tabs.config') },
     ...(loxoneMode ? ([{ key: 'loxone', label: t('setup.tabs.loxone') }] as const) : []),
     { key: 'system', label: t('setup.tabs.system') },
+    // Before Updates because it is a thing to set up, not a thing to check.
+    { key: 'devices', label: t('setup.tabs.devices') },
     { key: 'updates', label: t('setup.tabs.updates') },
   ];
 
@@ -1297,6 +1300,8 @@ export default function SetupView(): JSX.Element {
           </div>
         </>
       ) : null}
+
+      {displayedSetupTab === 'devices' ? <SonnClientsSection /> : null}
 
       {displayedSetupTab === 'system' ? (
         <>

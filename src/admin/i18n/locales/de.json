@@ -44,8 +44,7 @@
       "radio": "Radio",
       "library": "Bibliothek",
       "linein": "Line-in",
-      "streaming": "Streaming-Dienste",
-      "sonnclient": "Sonn Client"
+      "streaming": "Streaming-Dienste"
     },
     "streaming": {
       "title": "Streaming-Dienste",
@@ -784,19 +783,22 @@
       "loxone": "Loxone",
       "system": "Alarm-Engine",
       "updates": "Updates",
-      "ariaLabel": "Einrichtungsbereiche"
+      "ariaLabel": "Einrichtungsbereiche",
+      "devices": "Lautsprecher"
     },
     "titles": {
       "config": "Server-Konfiguration",
       "loxone": "Loxone-Integration",
       "system": "Alarm-Engine",
-      "updates": "Updates"
+      "updates": "Updates",
+      "devices": "Sonn Client Lautsprecher"
     },
     "subtitles": {
       "config": "Verhalten, Wiedergabe und Wartung dieses Servers.",
       "loxone": "Miniserver-Kopplung, Konfigurationsabgleich und Zugriff für den Loxone-kompatiblen Betrieb.",
       "system": "Text-to-Speech und die mitgelieferten Alarmtondateien des Servers.",
-      "updates": "Installierte vs. neueste Version der Kernkomponenten. Externe Checks sind optional."
+      "updates": "Installierte vs. neueste Version der Kernkomponenten. Externe Checks sind optional.",
+      "devices": "Kleine Player, die du auf einem Raspberry Pi installierst. Sie holen jede Einstellung von hier, am Gerät selbst muss nichts eingerichtet werden."
     },
     "loading": {
       "title": "Konfiguration wird geladen",
@@ -1537,8 +1539,6 @@
     }
   },
   "sonnClients": {
-    "title": "Sonn Client",
-    "subtitle": "Kleine Player, die du auf einem Raspberry Pi installierst. Sie holen jede Einstellung von hier, am Gerät selbst muss nichts eingerichtet werden.",
     "unnamed": "Unbenanntes Gerät",
     "versionLabel": "Version {{version}}",
     "save": "Speichern",
@@ -1558,9 +1558,8 @@
     "neverSeen": "Noch nichts gehört.",
     "rtt": "{{ms}} ms zum Server",
     "copyCommand": "Befehl kopieren",
-    "emptyTitle": "Noch keine Geräte",
-    "emptyBody": "Führe das auf dem Raspberry Pi aus, über den du hören willst. Er findet diesen Server selbst und erscheint dann hier.",
-    "emptyNote": "Führe den Installationsbefehl auf dem Raspberry Pi aus, über den du hören willst.",
+    "emptyTitle": "Noch keine Lautsprecher",
+    "emptyBody": "Führe das auf dem Raspberry Pi aus, über den du hören willst. Er findet diesen Server selbst und erscheint unten.",
     "states": {
       "idle": "bereit",
       "connecting": "verbindet",
@@ -1660,6 +1659,9 @@
       "source-missing-client-id": "Einem Eingang fehlt die ID.",
       "loadFailed": "Geräte konnten nicht geladen werden."
     },
-    "emptyHint": "Er findet diesen Server selbst und erscheint dann hier. Weiter muss darauf nichts installiert werden — AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server."
+    "emptyHint": "Auf dem Gerät muss nichts weiter installiert werden: AirPlay, Spotify, Radio und alles andere bleiben auf diesem Server.",
+    "installEyebrow": "Installation",
+    "addTitle": "Weiteren Lautsprecher hinzufügen",
+    "addBody": "Führe das auf dem nächsten Raspberry Pi aus. Er findet diesen Server selbst und erscheint unten."
   }
 }
