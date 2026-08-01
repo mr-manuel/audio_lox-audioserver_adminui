@@ -86,6 +86,10 @@ export type SonnPlayerConfig = {
   volume?: number;
   muted?: boolean;
   volumeHook?: string;
+  /** Where the speaker applies volume. Absent means the device decides. */
+  volumeControl?: 'auto' | 'software' | 'alsa' | 'hook';
+  mixerElement?: string;
+  mixerMapped?: boolean;
   codecs?: string[];
   sampleRate?: number;
   bitDepth?: number;

@@ -566,6 +566,33 @@ function PlayerList({
 
             <div className="setup-row">
               <div className="setup-row__info">
+                <div className="setup-row__label">{t('sonnClients.players.volumeControl')}</div>
+                <div className="setup-row__desc">{t('sonnClients.players.volumeControlDesc')}</div>
+              </div>
+              <div className="setup-row__control">
+                <div className="setup-input" style={{ minWidth: 260 }}>
+                  <select
+                    value={player.volumeControl ?? 'auto'}
+                    onChange={(event) =>
+                      update(index, {
+                        volumeControl:
+                          event.target.value === 'auto'
+                            ? undefined
+                            : (event.target.value as SonnPlayerConfig['volumeControl']),
+                      })
+                    }
+                  >
+                    <option value="auto">{t('sonnClients.players.volumeAuto')}</option>
+                    <option value="alsa">{t('sonnClients.players.volumeAlsa')}</option>
+                    <option value="software">{t('sonnClients.players.volumeSoftware')}</option>
+                    <option value="hook">{t('sonnClients.players.volumeHookOption')}</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="setup-row">
+              <div className="setup-row__info">
                 <div className="setup-row__label">{t('sonnClients.players.volumeHook')}</div>
                 <div className="setup-row__desc">{t('sonnClients.players.volumeHookDesc')}</div>
               </div>
