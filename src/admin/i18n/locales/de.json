@@ -1062,6 +1062,8 @@
   "shell": {
     "github": "GitHub",
     "docs": "Doku",
+    "player": "Player",
+    "playerTitle": "Die Musik, in diesem Browser",
     "updatesAvailable": "Updates verfügbar",
     "updatesAvailableTitle": "Neue Updates verfügbar — Updates-Tab öffnen",
     "menu": {
@@ -1073,7 +1075,6 @@
       "themeLightTitle": "Heller Modus kommt später",
       "servers": "Audioserver",
       "serverCurrent": "aktuell",
-      "playerUi": "Player-UI",
       "signOut": "Abmelden"
     }
   },

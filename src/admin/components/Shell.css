@@ -258,6 +258,9 @@ button.top-chip {
 .user-pill {
   position: relative;
   flex-shrink: 0;
+  /* A little more air than the labels give each other, so `player` reads as its own door rather than
+     as a caption on the account beside it. */
+  margin-left: 8px;
 }
 
 .user-pill__trigger {
@@ -669,7 +672,19 @@ button.top-chip {
   .top-strip__version {
     display: none;
   }
-  .top-strip__actions .top-chip:nth-child(n + 2) {
+  /*
+   * On a phone the row keeps what belongs to this system and drops what points away from it.
+   *
+   * This hid everything after the first label, which was fine while the first was `github` and the rest
+   * were `docs` — and wrong the moment the way to the music joined them, since that is the one anybody
+   * would reach for on a phone. The repository and the readme are the two things nobody opens from one.
+   */
+  .top-strip__actions .top-chip:not(.top-chip--warn):not(.top-chip--player) {
+    display: none;
+  }
+
+  /* Nothing left on its far side to separate. */
+  .top-strip__sep {
     display: none;
   }
   .shell-foot {

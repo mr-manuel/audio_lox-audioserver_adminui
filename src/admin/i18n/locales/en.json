@@ -1062,6 +1062,8 @@
   "shell": {
     "github": "GitHub",
     "docs": "Docs",
+    "player": "Player",
+    "playerTitle": "The music, in this browser",
     "updatesAvailable": "Updates available",
     "updatesAvailableTitle": "New updates are available — open the Updates tab",
     "menu": {
@@ -1073,7 +1075,6 @@
       "themeLightTitle": "Light mode is coming later",
       "servers": "Audioserver",
       "serverCurrent": "current",
-      "playerUi": "Player UI",
       "signOut": "Sign out"
     }
   },

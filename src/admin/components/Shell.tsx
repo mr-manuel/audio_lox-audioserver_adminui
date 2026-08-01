@@ -140,6 +140,18 @@ export default function Shell({
           </a>
           {/* Outside this product on the left of it, yours on the right — see `.top-strip__sep`. */}
           <span className="top-strip__sep" aria-hidden="true" />
+          {/*
+           * The way to the music, said out loud.
+           *
+           * The players name this console in their corner (`ADMIN | TECHNICAL`), and the only route back
+           * was the wordmark in the hero — a logo that goes somewhere is the oldest affordance there is
+           * and also the one you have to already know about. This is the mirror of their `admin`: a plain
+           * word, same weight as the labels beside it, and a same-tab `<a href>` so the mark actually
+           * flies across the navigation instead of the console being left open behind a second tab.
+           */}
+          <a className="top-chip top-chip--player" href="/player/" title={t('shell.playerTitle')}>
+            {t('shell.player')}
+          </a>
           <div
             ref={accountRef}
             className={`user-pill${menuOpenable ? ' is-in' : ''}${accountMenuOpen ? ' is-open' : ''}`}
@@ -247,52 +259,35 @@ export default function Shell({
                   </button>
                 </div>
                 <AudioServerSwitcher onSwitch={onSwitchServer} />
-                <div className="user-menu__divider" />
-                <a
-                  href="/player/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="user-menu__item"
-                  role="menuitem"
-                  onClick={() => setAccountMenuOpen(false)}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
-                  </svg>
-                  {t('shell.menu.playerUi')}
-                  <svg
-                    className="user-menu__arrow"
-                    width="11"
-                    height="11"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <line x1="7" y1="17" x2="17" y2="7" />
-                    <polyline points="7 7 17 7 17 17" />
-                  </svg>
-                </a>
+                {/*
+                 * The player used to be a menu item here too, opening in a second tab.
+                 *
+                 * It is a label in the strip now, two centimetres away and always visible, and it
+                 * navigates in place so the mark can fly. Three doors to one room — the wordmark, the
+                 * strip and a buried item that forks the session into two tabs — is one more than the
+                 * clutter this row was just cleared of. Any of the remaining two still opens in a new
+                 * tab on middle-click, which is where that choice belongs.
+                 */}
                 {onSignOut ? (
-                  <button
-                    type="button"
-                    className="user-menu__item user-menu__item--danger"
-                    role="menuitem"
-                    onClick={() => {
-                      setAccountMenuOpen(false);
-                      onSignOut();
-                    }}
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                      <polyline points="16 17 21 12 16 7" />
-                      <line x1="21" y1="12" x2="9" y2="12" />
-                    </svg>
-                    {t('shell.menu.signOut')}
-                  </button>
+                  <>
+                    <div className="user-menu__divider" />
+                    <button
+                      type="button"
+                      className="user-menu__item user-menu__item--danger"
+                      role="menuitem"
+                      onClick={() => {
+                        setAccountMenuOpen(false);
+                        onSignOut();
+                      }}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                      </svg>
+                      {t('shell.menu.signOut')}
+                    </button>
+                  </>
                 ) : null}
               </div>
             ) : null}
