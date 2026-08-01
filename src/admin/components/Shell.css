@@ -119,25 +119,24 @@ body.is-workspace #app {
   font-weight: 700;
 }
 
+/*
+ * The strip is a row of labels now, not a row of pills.
+ *
+ * It had grown five capsules — the server, the update notice, github, docs and the account — each with
+ * its own fill and its own hairline outline, on the one horizontal band this product shares with both
+ * players. Their bar is bare mono labels at 10px on 0.2em, muted until you point at them, with a single
+ * hairline where the kind of thing changes; this is the same row doing the same job, so it is built the
+ * same way. What is *not* borrowed is the identity at either end: the players open with their mark and
+ * this opens with the server's initial, because that is the fact this surface leads with.
+ *
+ * Everything that was said by a capsule's border is still said — the three system states colour the
+ * initial, the update notice keeps its amber, the account keeps its online dot — by the one element in
+ * each that was already carrying the meaning.
+ */
 .system-id {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 6px 12px 6px 10px;
-  background: var(--surface-soft);
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  transition: border-color 0.4s ease, background 0.4s ease;
-}
-
-body.is-unpaired .system-id {
-  border-color: rgba(245, 158, 11, 0.2);
-}
-
-body.is-success .system-id,
-body.is-workspace .system-id {
-  border-color: var(--border-accent);
-  background: var(--accent-soft);
+  gap: 11px;
 }
 
 .system-id__avatar {
@@ -166,64 +165,92 @@ body.is-workspace .system-id__avatar {
   color: var(--accent-on);
 }
 
+/*
+ * Set exactly like `.user-pill__name` at the other end of the row.
+ *
+ * Both are *names* rather than labels — one for the server, one for whoever is signed in — so neither is
+ * engraved into uppercase the way `github` and `docs` are. The same distinction the players make between
+ * `sonn` and `PLAYER`. They were 11px/600 and 12px/700, which is two treatments for one kind of thing on
+ * one line.
+ */
 .system-id__name {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
   color: var(--text);
-  font-weight: 600;
 }
 
 .top-strip__actions {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 18px;
 }
 
+/* The players' corner, to the letter: 10px mono on 0.2em, muted until pointed at. */
 .top-chip {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 14px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 999px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: 10px;
-  letter-spacing: 1.4px;
+  letter-spacing: 0.2em;
   font-weight: 700;
   text-transform: uppercase;
   text-decoration: none;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 0.15s;
 }
 
 .top-chip:hover {
   color: var(--text);
-  border-color: var(--border-strong);
 }
 
 .top-chip svg {
   color: var(--text-dim);
+  transition: color 0.15s;
 }
 
-/* "Updates available" chip — a button styled as a top-chip, in a warm/amber
-   tone so it reads as a gentle call to action without alarming. */
+.top-chip:hover svg {
+  color: var(--text-muted);
+}
+
 button.top-chip {
   cursor: pointer;
 }
 
-.top-chip--warn {
+/*
+ * "Updates available" — the one label here with a consequence, so the one carrying colour.
+ *
+ * It was an amber capsule with an amber border on an amber wash: three ways of saying the same thing,
+ * and the loudest object in the row by some distance. The word in amber says it once. Same move as
+ * `join` in the player's rooms sheet, and the accent's job is the same on both surfaces.
+ */
+.top-chip--warn,
+.top-chip--warn svg,
+.top-chip--warn:hover {
   color: var(--warn, #e0a23b);
-  border-color: color-mix(in srgb, var(--warn, #e0a23b) 45%, var(--border));
-  background: color-mix(in srgb, var(--warn, #e0a23b) 12%, var(--surface));
 }
 
 .top-chip--warn:hover {
-  color: var(--warn, #e0a23b);
-  border-color: var(--warn, #e0a23b);
+  filter: brightness(1.2);
 }
 
-.top-chip--warn svg {
-  color: var(--warn, #e0a23b);
+/*
+ * One hairline, where the kind of thing changes.
+ *
+ * The players' corner has exactly one, between the face you can toggle and the place you navigate to.
+ * Here it stands between what is outside this product (the repository, the documentation) and what is
+ * yours (the account, the servers, the way back to the music). A pipe between every pair would be
+ * busier than the row it is meant to match.
+ */
+.top-strip__sep {
+  width: 1px;
+  height: 11px;
+  background: var(--border-strong);
 }
 
 /* Avatar + user-pill — the ball is always present; when signed in the name
@@ -251,19 +278,24 @@ button.top-chip {
   min-height: 0;
 }
 
+/*
+ * The account, unboxed like the rest of the row.
+ *
+ * The capsule around it was doing three jobs — saying "signed in", saying "menu here", and saying "open"
+ * — and the avatar, the chevron and the name each already say one of them. So the pill goes and they
+ * keep their jobs: the name brightens when the menu is open, which is how every other open thing on this
+ * surface is marked.
+ */
 .user-pill.is-in .user-pill__trigger {
-  padding: 3px 13px 3px 3px;
-  background: var(--surface);
-  border-color: var(--border);
+  padding: 3px 2px 3px 3px;
 }
 
-.user-pill.is-in .user-pill__trigger:hover {
-  border-color: var(--border-strong);
+.user-pill.is-in.is-open .user-pill__name {
+  color: var(--accent);
 }
 
-.user-pill.is-in.is-open .user-pill__trigger {
-  background: var(--accent-soft);
-  border-color: var(--border-accent);
+.user-pill.is-in.is-open .user-pill__chevron {
+  color: var(--accent);
 }
 
 .user-pill__trigger:disabled {

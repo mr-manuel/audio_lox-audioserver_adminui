@@ -138,6 +138,8 @@ export default function Shell({
           <a className="top-chip" href={`${REPO_URL}#readme`} target="_blank" rel="noreferrer">
             {t('shell.docs')}
           </a>
+          {/* Outside this product on the left of it, yours on the right — see `.top-strip__sep`. */}
+          <span className="top-strip__sep" aria-hidden="true" />
           <div
             ref={accountRef}
             className={`user-pill${menuOpenable ? ' is-in' : ''}${accountMenuOpen ? ' is-open' : ''}`}
