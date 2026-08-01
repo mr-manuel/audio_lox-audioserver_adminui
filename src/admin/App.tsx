@@ -5,7 +5,6 @@ import { GlobalAlertProvider } from './components/GlobalAlert';
 import { ConfirmProvider } from './components/ConfirmDialog';
 import { UpdateCheckProvider } from './components/UpdateCheckContext';
 import LoginView from './features/LoginView';
-import InterfaceChooserView from './features/InterfaceChooserView';
 import WelcomeView from './features/WelcomeView';
 import TransitionView from './features/TransitionView';
 import { ServerControlProvider } from './components/ServerControl';
@@ -17,14 +16,9 @@ import { restartServer } from './services/setupApi';
 import { setApiBase } from './config/apiConfig';
 import type { StatusResponse } from './types/api';
 
-type Mode = 'welcome' | 'login' | 'chooser' | 'shell' | 'transition';
+type Mode = 'welcome' | 'login' | 'shell' | 'transition';
 
 const TAB_STORAGE_KEY = 'lox.admin.activeTab';
-
-function readChooserFlag(): boolean {
-  if (typeof window === 'undefined') return false;
-  return new URLSearchParams(window.location.search).get('chooser') === '1';
-}
 
 function readStoredTab(): string {
   const fallback = ADMIN_TABS[0]?.key ?? '';
@@ -51,7 +45,6 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   // Non-null while the server is bouncing and the interstitial should hold: a
   // config wipe ('reset') or an in-place deployment-mode switch ('switch').
   const [transition, setTransition] = React.useState<'reset' | 'switch' | null>(null);
-  const [showChooser, setShowChooser] = React.useState<boolean>(() => readChooserFlag());
   const [tabKey, setTabKey] = React.useState<string>(() => readStoredTab());
   const [tabPulse, setTabPulse] = React.useState(false);
 
@@ -134,16 +127,6 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
       window.localStorage.setItem(TAB_STORAGE_KEY, tabKey);
     }
   }, [tabKey]);
-
-  const chooseAdmin = React.useCallback(() => {
-    if (typeof window !== 'undefined') {
-      const url = new URL(window.location.href);
-      url.searchParams.delete('chooser');
-      const search = url.searchParams.toString();
-      window.history.replaceState(null, '', `${url.pathname}${search ? `?${search}` : ''}${url.hash}`);
-    }
-    setShowChooser(false);
-  }, []);
 
   // First-run: create the local admin account and log straight in, then refresh so
   // the view resolves to the shell. No restart — it just writes config + a session.
@@ -239,7 +222,6 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
     // F5 lands quietly.
     if (apiStatus == null) return wasWorkspace ? 'shell' : 'login';
     if (requiresLogin && !isAuthenticated) return 'login';
-    if (showChooser) return 'chooser';
     return 'shell';
   })();
 
@@ -266,15 +248,14 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
   }, [computedMode, displayedMode, isLeaving]);
 
   // Body class drives the CSS transitions (hero shrink, ambient tint, success
-  // pulses) per mode. The is-success class stays on once the user is signed
-  // in — workspace is layered on top, matching the mockup's flow so the
-  // success-pulse on chooser entry doesn't have to fight the workspace pulse.
+  // pulses) per mode. The is-success class stays on once the user is signed in —
+  // workspace is layered on top of it.
   React.useEffect(() => {
     if (typeof document === 'undefined') return;
     const body = document.body;
     // Pairing now happens inside the Players Loxone modal (no top-level pairing view).
     body.classList.remove('is-unpaired');
-    body.classList.toggle('is-success', computedMode === 'chooser' || computedMode === 'shell');
+    body.classList.toggle('is-success', computedMode === 'shell');
     body.classList.toggle('is-workspace', computedMode === 'shell');
     try {
       if (computedMode === 'shell') {
@@ -314,15 +295,6 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
         error={authError}
         onSubmit={handleLogin}
         onSwitchServer={onSwitchServer}
-        isLeaving={isLeaving}
-      />
-    );
-  } else if (mode === 'chooser') {
-    mainContent = (
-      <InterfaceChooserView
-        currentUserName={session?.username}
-        apiStatus={apiStatus}
-        onChooseAdmin={chooseAdmin}
         isLeaving={isLeaving}
       />
     );

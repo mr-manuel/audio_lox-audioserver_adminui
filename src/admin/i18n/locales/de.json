@@ -2,27 +2,6 @@
   "alert": {
     "dismiss": "Schließen"
   },
-  "chooser": {
-    "eyebrow": "Angemeldet",
-    "welcome": "Willkommen, <1>{{user}}</1>.",
-    "defaultUser": "Admin",
-    "player": {
-      "eyebrow": "Player",
-      "title": "Hören.",
-      "desc": "Zonen durchsuchen, Musik in die Warteschlange stellen, Quellen wechseln."
-    },
-    "admin": {
-      "eyebrow": "Admin",
-      "title": "Konfigurieren.",
-      "desc": "Miniserver koppeln, Zonen verwalten, Logs überwachen."
-    },
-    "stats": {
-      "zones": "Zonen",
-      "streams": "Streams",
-      "errors": "Fehler"
-    },
-    "openingPlayer": "Player wird geöffnet"
-  },
   "confirm": {
     "eyebrow": "Bestätigen",
     "eyebrowDanger": "Aktion bestätigen",

@@ -348,8 +348,6 @@ body[data-theme='light'] .logs-eyebrow::before,
 body[data-theme='light'] .zones-modal__eyebrow::before,
 body[data-theme='light'] .signin-eyebrow::before,
 body[data-theme='light'] .pairing-eyebrow::before,
-body[data-theme='light'] .chooser-eyebrow::before,
-body[data-theme='light'] .chooser-choice__eyebrow::before,
 body[data-theme='light'] .content-eyebrow::before,
 body[data-theme='light'] .setup-eyebrow::before,
 body[data-theme='light'] .setup-section__eyebrow::before {
@@ -384,7 +382,6 @@ body[data-theme='light'] .content-modal,
 body[data-theme='light'] .logs-console,
 body[data-theme='light'] .setup-section,
 body[data-theme='light'] .signin-card,
-body[data-theme='light'] .chooser-choice,
 body[data-theme='light'] .inline-form,
 body[data-theme='light'] .confirm-dialog__panel {
   background: var(--bg-card);
@@ -451,8 +448,6 @@ body[data-theme='light'] .diag-strip {
 .setup-title,
 .signin-title,
 .pairing-title,
-.chooser-choice__title,
-.chooser-greeting__user,
 .modal-title {
   color: var(--text);
   background: none;
@@ -647,7 +642,7 @@ body.no-intro .ws-tabs {
   animation: none !important;
 }
 
-/* Skip the chooser→workspace shrink/fade transitions on restore — they only
+/* Skip the sign-in→workspace shrink/fade transitions on restore — they only
    make sense as an actual mode transition, not on direct-into-workspace load. */
 body.no-intro .hero-mark,
 body.no-intro .hero-wordmark,
@@ -674,7 +669,7 @@ body.is-success::before {
 }
 
 /* Workspace is for working — toned-down hint from above instead of the
-   three stacked gradients of the chooser/sign-in surface. Selector is more
+   three stacked gradients of the sign-in surface. Selector is more
    specific than .is-success so it wins when both classes are present. */
 body.is-workspace::before {
   background:

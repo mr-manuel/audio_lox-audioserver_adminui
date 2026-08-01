@@ -10,7 +10,6 @@ import './components/Tabs.css';
 import './components/SectionCard.css';
 import './styles/primitives.css';
 import './features/LoginView.css';
-import './features/InterfaceChooserView.css';
 import './features/PairingView.css';
 
 /**
@@ -26,17 +25,6 @@ if (typeof document !== 'undefined') {
   document.documentElement.dataset.theme = 'dark';
   try {
     window.localStorage.removeItem('lox.admin.theme');
-  } catch {
-    // ignore
-  }
-  // Apply the post-login body class synchronously when entering via
-  // `?chooser=1`, so the hero starts in its compact state and intro
-  // animations don't fight the shrink transition.
-  try {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('chooser') === '1') {
-      document.body.classList.add('is-success');
-    }
   } catch {
     // ignore
   }

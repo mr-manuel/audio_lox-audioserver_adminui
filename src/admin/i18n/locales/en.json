@@ -2,27 +2,6 @@
   "alert": {
     "dismiss": "Dismiss"
   },
-  "chooser": {
-    "eyebrow": "Signed in",
-    "welcome": "Welcome, <1>{{user}}</1>.",
-    "defaultUser": "Admin",
-    "player": {
-      "eyebrow": "Player",
-      "title": "Listen.",
-      "desc": "Browse zones, queue music, switch sources."
-    },
-    "admin": {
-      "eyebrow": "Admin",
-      "title": "Configure.",
-      "desc": "Pair the Miniserver, manage zones, monitor logs."
-    },
-    "stats": {
-      "zones": "Zones",
-      "streams": "Streams",
-      "errors": "Errors"
-    },
-    "openingPlayer": "Opening Player"
-  },
   "confirm": {
     "eyebrow": "Confirm",
     "eyebrowDanger": "Confirm action",
