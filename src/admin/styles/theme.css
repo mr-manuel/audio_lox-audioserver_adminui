@@ -717,6 +717,11 @@ main#app {
   font-family: var(--font-sans);
 }
 
+/* The held height while a tab's chunk arrives — see the Suspense fallback in `AdminShell`. */
+.tab-shell__waiting {
+  min-height: 60vh;
+}
+
 .tab-shell__inner h1,
 .tab-shell__inner h2,
 .tab-shell__inner h3,
