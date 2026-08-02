@@ -2,15 +2,6 @@ import { API_BASE } from '../config/apiConfig';
 import { requestJson } from './http';
 import type { StatusResponse } from '../types/api';
 
-// Native node add-ons whose latest versions we poll from the npm registry.
-export const COMPONENT_PACKAGES = [
-  { name: '@sonn-audio/node-libraop' },
-  { name: '@sonn-audio/node-librespot' },
-  { name: '@sonn-audio/node-sendspin' },
-  { name: '@sonn-audio/node-slimproto' },
-  { name: '@sonn-audio/node-snapcast' },
-  { name: '@sonn-audio/node-sonos' },
-] as const;
 
 export type LatestVersions = {
   core: string | null;
@@ -111,6 +102,26 @@ export async function fetchLatestVersions(
   return { ...EMPTY_LATEST, ...data.latest };
 }
 
+/**
+ * The add-on packages this install tracks, taken from the backend rather than a
+ * hardcoded list. The server derives them from core's package.json (every
+ * `@sonn-audio/node-*` dependency), reporting installed/declared under
+ * `status.packages` and the latest npm version under `latest.components` — so a
+ * newly added package appears here automatically, with no second list to keep in
+ * sync. Union of both key sets, so a package still shows if one side has not
+ * answered yet.
+ */
+export function componentPackageNames(
+  status: StatusResponse | null,
+  latest: LatestVersions,
+): string[] {
+  const names = new Set<string>([
+    ...Object.keys(status?.packages ?? {}),
+    ...Object.keys(latest.components ?? {}),
+  ]);
+  return [...names].sort((a, b) => a.localeCompare(b));
+}
+
 /** Rolls up whether any tracked artifact (core, admin UI, player, component) is
  *  behind its latest known release, given the running install's versions. */
 export function computeHasUpdates(
@@ -131,9 +142,9 @@ export function computeHasUpdates(
   const playerOutdated = Boolean(
     playerInstalled && latest.player && compareSemver(playerInstalled, latest.player) === -1,
   );
-  const componentOutdated = COMPONENT_PACKAGES.some((pkg) => {
-    const current = status?.packages?.[pkg.name]?.installed;
-    const latestVer = latest.components[pkg.name];
+  const componentOutdated = componentPackageNames(status, latest).some((name) => {
+    const current = status?.packages?.[name]?.installed;
+    const latestVer = latest.components[name];
     return current && latestVer ? compareSemver(current, latestVer) === -1 : false;
   });
   return Boolean(coreOutdated || uiOutdated || playerOutdated || componentOutdated);

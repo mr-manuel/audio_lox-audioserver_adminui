@@ -19,7 +19,7 @@ import { uploadEventSound } from '../services/eventSoundsApi';
 import { usePolling } from '../hooks/usePolling';
 import { useGlobalAlert } from '../components/GlobalAlert';
 import { useUpdateCheck } from '../components/UpdateCheckContext';
-import { COMPONENT_PACKAGES, compareSemver, normalizeTag } from '../services/updateCheck';
+import { componentPackageNames, compareSemver, normalizeTag } from '../services/updateCheck';
 import SubTabs from '../components/SubTabs';
 import SonnClientsSection from './SonnClientsSection';
 import { SubPanel, useSubPanelTransition } from '../components/SubPanel';
@@ -365,10 +365,10 @@ export default function SetupView(): JSX.Element {
   const playerOutdated = Boolean(
     playerInstalled && latestPlayerRelease && compareSemver(playerInstalled, latestPlayerRelease) === -1,
   );
-  const componentOutdated = COMPONENT_PACKAGES.some((pkg) => {
-    const current = status?.packages?.[pkg.name]?.installed;
-    const latest = componentLatest[pkg.name];
-    return current && latest ? compareSemver(current, latest) === -1 : false;
+  const componentOutdated = componentPackageNames(status, latest).some((name) => {
+    const current = status?.packages?.[name]?.installed;
+    const latestVer = componentLatest[name];
+    return current && latestVer ? compareSemver(current, latestVer) === -1 : false;
   });
   const hasUpdates = Boolean(coreOutdated || uiOutdated || playerOutdated || componentOutdated);
   const updatesCheckedLabel = updatesCheckedAt ? formatTimestamp(updatesCheckedAt) ?? updatesCheckedAt : t('setup.updates.notCheckedYet');
@@ -384,13 +384,13 @@ export default function SetupView(): JSX.Element {
   const ttsCurrentProvider = contentConfig.tts?.provider?.type === 'loxberry-tts' ? t('setup.tts.currentLoxBerry') : t('setup.tts.currentInternal');
   const showTtsValidation = ttsDirty && !ttsLoxBerryValid;
 
-  const componentRows = COMPONENT_PACKAGES.map((pkg) => {
-    const latest = componentLatest[pkg.name] ?? null;
-    const pkgInfo = status?.packages?.[pkg.name];
+  const componentRows = componentPackageNames(status, latest).map((name) => {
+    const latestVer = componentLatest[name] ?? null;
+    const pkgInfo = status?.packages?.[name];
     const installed = pkgInfo?.installed ?? null;
     const declared = pkgInfo?.declared ?? null;
-    const isOutdated = installed && latest ? compareSemver(installed, latest) === -1 : false;
-    return { name: pkg.name, latest, installed, declared, isOutdated };
+    const isOutdated = installed && latestVer ? compareSemver(installed, latestVer) === -1 : false;
+    return { name, latest: latestVer, installed, declared, isOutdated };
   })
     .sort((a, b) => {
       if (a.isOutdated === b.isOutdated) return a.name.localeCompare(b.name);
