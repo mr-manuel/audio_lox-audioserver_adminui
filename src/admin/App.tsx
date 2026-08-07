@@ -268,6 +268,36 @@ function AppRoot({ onSwitchServer }: AppRootProps): JSX.Element {
     }
   }, [computedMode]);
 
+  // The ambient light follows the tab — the site's "light travels" idea at
+  // console scale. theme.css maps the hue per data-tab; body::before already
+  // transitions its background, so the temperature glides.
+  React.useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (computedMode === 'shell') {
+      document.body.dataset.tab = tabKey;
+    } else {
+      delete document.body.dataset.tab;
+    }
+  }, [computedMode, tabKey]);
+
+  // Cards answer the hand that reaches for them: one delegated listener feeds
+  // --mx/--my to whichever spotlight surface the pointer is over (see the
+  // spotlight block in theme.css). Hover-capable pointers only.
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia('(hover: hover)').matches) return;
+    const SELECTOR = '.section-card, .zones-card, .zones-device, .source-card, .share-card, .setup-section';
+    const onMove = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const card = target?.closest<HTMLElement>(SELECTOR);
+      if (!card) return;
+      const rect = card.getBoundingClientRect();
+      card.style.setProperty('--mx', `${event.clientX - rect.left}px`);
+      card.style.setProperty('--my', `${event.clientY - rect.top}px`);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, []);
+
   // no-intro is a one-way switch for the current page load. We deliberately do
   // not remove it — removing the class would let the animation: ... declarations
   // re-apply and the intro would fire late. A fresh navigation (next page load)

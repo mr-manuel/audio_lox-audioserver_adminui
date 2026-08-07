@@ -212,6 +212,8 @@
   --btn-pad-x: 1.4rem;
   --ring: 0 0 0 3px rgba(74, 222, 128, 0.18);
   --ring-outline: 2px solid rgba(74, 222, 128, 0.5);
+  /* The pointer's own light on card surfaces — see the spotlight block below. */
+  --spotlight: rgba(255, 255, 255, 0.05);
   --control-bg: var(--bg-input);
   --control-bg-top: var(--bg-input);
   --z-header: 40;
@@ -271,6 +273,7 @@ body[data-theme='light'] {
   --shadow: 0 18px 48px rgba(17, 24, 39, 0.14);
   --radial: rgba(22, 163, 74, 0.06);
   --modal-backdrop: rgba(17, 24, 39, 0.45);
+  --spotlight: rgba(17, 24, 39, 0.045);
 
   /* legacy aliases (still consumed by older panels) */
   --surface-0: #FFFFFF;
@@ -502,8 +505,15 @@ body[data-theme='light'] .diag-strip {
   background-clip: content-box;
 }
 
+/* The thumb answers the hand: neutral at rest, the house green under the pointer —
+   the same gesture the product site's scrollbar makes. */
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(74, 222, 128, 0.45);
+  background-clip: content-box;
+}
+
+body[data-theme='light'] *::-webkit-scrollbar-thumb:hover {
+  background: rgba(22, 163, 74, 0.45);
   background-clip: content-box;
 }
 
@@ -552,8 +562,13 @@ body.modal-open {
   overflow: hidden;
 }
 
+/* Selection is brand, not chrome — the product site's green, at reading strength. */
 ::selection {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(74, 222, 128, 0.28);
+}
+
+body[data-theme='light'] ::selection {
+  background: rgba(22, 163, 74, 0.22);
 }
 
 a {
@@ -852,6 +867,38 @@ button.primary:not(:disabled):hover {
   box-shadow: 0 8px 24px rgba(74, 222, 128, 0.35);
 }
 
+/* A light passes over the primary button when asked for attention — the product
+   site's gesture, on the console's own primary. Outline and ring live outside
+   the border box, so the overflow clip never touches them. */
+.btn--primary,
+button.primary {
+  position: relative;
+  overflow: hidden;
+}
+
+.btn--primary::before,
+button.primary::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, 0.4) 50%, transparent 60%);
+  transform: translateX(-120%);
+  transition: transform 0.7s var(--spring);
+  pointer-events: none;
+}
+
+.btn--primary:not(:disabled):hover::before,
+button.primary:not(:disabled):hover::before {
+  transform: translateX(120%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn--primary::before,
+  button.primary::before {
+    display: none;
+  }
+}
+
 .btn--secondary:not(:disabled):hover,
 button.secondary:not(:disabled):hover {
   background: rgba(255, 255, 255, 0.06);
@@ -994,6 +1041,69 @@ select:disabled {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ============================================================
+   The pointer's own light
+   ------------------------------------------------------------
+   Card surfaces answer the hand that reaches for them: a soft
+   radial highlight rides the pointer, fed as --mx/--my by one
+   delegated listener in App.tsx. Ported from the product site,
+   where every card does this. Hover-capable pointers only; the
+   token flips per theme (white light on dark, ink on light).
+   ============================================================ */
+.section-card,
+.zones-card,
+.zones-device,
+.source-card,
+.share-card,
+.setup-section {
+  position: relative;
+}
+
+.section-card::after,
+.zones-card::after,
+.zones-device::after,
+.source-card::after,
+.share-card::after,
+.setup-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), var(--spotlight), transparent 70%);
+}
+
+@media (hover: hover) {
+  .section-card:hover::after,
+  .zones-card:hover::after,
+  .zones-device:hover::after,
+  .source-card:hover::after,
+  .share-card:hover::after,
+  .setup-section:hover::after {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   The light travels with the tab
+   ------------------------------------------------------------
+   The site's ambient-hue journey at console scale: Access runs
+   teal, Logs runs console-blue, everything else keeps the house
+   green. Whisper-level on purpose — light temperature, not
+   decoration. body::before already transitions its background,
+   so the hue glides between tabs. The light theme keeps its own
+   single radial (its ::before override is !important).
+   ============================================================ */
+body.is-workspace[data-tab='access']::before {
+  background: radial-gradient(ellipse 90% 50% at 50% 0%, rgba(45, 212, 191, 0.09) 0%, transparent 60%);
+}
+
+body.is-workspace[data-tab='logs']::before {
+  background: radial-gradient(ellipse 90% 50% at 50% 0%, rgba(96, 165, 250, 0.07) 0%, transparent 60%);
 }
 
 @media (prefers-reduced-motion: reduce) {
