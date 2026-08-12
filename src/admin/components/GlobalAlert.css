@@ -136,6 +136,13 @@
   color: var(--text-muted);
   line-height: 1.45;
   word-break: break-word;
+  /* Messages that explain a fix write it on its own lines, indented. Collapsing that into one
+     paragraph — the HTML default — turned the fix into a run-on sentence. */
+  white-space: pre-wrap;
+  /* A long explanation still may not own the screen; it scrolls inside the toast instead. */
+  max-height: 45vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 
 .toast__action {
