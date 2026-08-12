@@ -227,19 +227,6 @@ type LineInBridgeSummary = {
 
 const LINEIN_STATUS_POLL_MS = 5000;
 const SENDSPIN_STATUS_POLL_MS = 5000;
-/// Only the codec is ours to choose here.
-///
-/// The rest is the device's to know: sendspin does not negotiate a source's format, the client
-/// announces what it captures, and it is the only party that can see what its converter is. Filling
-/// these in from here is how a 24-bit converter came to be recorded in 16 bits — someone had to type
-/// a number into a form, and the number stuck. Left empty, the client asks the hardware.
-const SENDSPIN_FORMAT_DEFAULTS = {
-  ingestCodec: 'pcm',
-  ingestSampleRate: '',
-  ingestChannels: '',
-  ingestBitDepth: '',
-};
-
 function hashSeed(input: string): number {
   let hash = 0;
   for (let i = 0; i < input.length; i += 1) {
@@ -288,16 +275,6 @@ function parseNumberOrDefault(value: string, fallback: number): number {
 function parseNumberOrNull(value: string): number | null {
   const parsed = parseOptionalNumber(value);
   return typeof parsed === 'number' ? parsed : null;
-}
-
-function applySendspinDefaults(form: LineInFormState): LineInFormState {
-  return {
-    ...form,
-    ingestCodec: form.ingestCodec.trim() ? form.ingestCodec : SENDSPIN_FORMAT_DEFAULTS.ingestCodec,
-    ingestSampleRate: form.ingestSampleRate.trim() ? form.ingestSampleRate : SENDSPIN_FORMAT_DEFAULTS.ingestSampleRate,
-    ingestChannels: form.ingestChannels.trim() ? form.ingestChannels : SENDSPIN_FORMAT_DEFAULTS.ingestChannels,
-    ingestBitDepth: form.ingestBitDepth.trim() ? form.ingestBitDepth : SENDSPIN_FORMAT_DEFAULTS.ingestBitDepth,
-  };
 }
 
 function formatLineInState(state?: string | null): string | null {
@@ -1603,7 +1580,7 @@ export default function ContentView(): JSX.Element {
         vadThresholdDb,
         vadHoldMs,
       };
-      setLineInForm(nextForm.sourceType === 'sendspin' ? applySendspinDefaults(nextForm) : nextForm);
+      setLineInForm(nextForm);
     } else {
       setLineInEditingId(null);
       setLineInForm(createEmptyLineInForm());
@@ -2260,30 +2237,13 @@ export default function ContentView(): JSX.Element {
           nextSource.clientId = lineInForm.sendspinClientId.trim();
           const threshold = parseNumberOrNull(lineInForm.vadThresholdDb);
           const holdMs = parseNumberOrNull(lineInForm.vadHoldMs);
-          const ingestSampleRate = parseNumberOrNull(lineInForm.ingestSampleRate);
-          const ingestChannels = parseNumberOrNull(lineInForm.ingestChannels);
-          const ingestBitDepth = parseNumberOrNull(lineInForm.ingestBitDepth);
-          const ingestCodec = lineInForm.ingestCodec.trim();
-          if (ingestSampleRate != null && ingestSampleRate > 0) {
-            nextSource.sample_rate = ingestSampleRate;
-          } else {
-            delete nextSource.sample_rate;
-          }
-          if (ingestChannels != null && ingestChannels > 0) {
-            nextSource.channels = ingestChannels;
-          } else {
-            delete nextSource.channels;
-          }
-          if (ingestBitDepth != null && ingestBitDepth > 0) {
-            nextSource.bit_depth = ingestBitDepth;
-          } else {
-            delete nextSource.bit_depth;
-          }
-          if (ingestCodec) {
-            nextSource.codec = ingestCodec;
-          } else {
-            delete nextSource.codec;
-          }
+          // The format is the client's to announce, so it is not stored here — and an older entry
+          // that still carries one is cleared on save, because a stored number outranks the
+          // hardware and that is exactly the mistake being undone.
+          delete nextSource.sample_rate;
+          delete nextSource.channels;
+          delete nextSource.bit_depth;
+          delete nextSource.codec;
           if (threshold != null) {
             nextSource.vad_threshold_db = threshold;
           } else {
@@ -4679,10 +4639,10 @@ export default function ContentView(): JSX.Element {
                       className="linein-modal__select"
                       value={lineInForm.sourceType}
                       onChange={(e) =>
-                        setLineInForm((prev) => {
-                          const next = { ...prev, sourceType: e.target.value as LineInSourceType };
-                          return next.sourceType === 'sendspin' ? applySendspinDefaults(next) : next;
-                        })
+                        setLineInForm((prev) => ({
+                          ...prev,
+                          sourceType: e.target.value as LineInSourceType,
+                        }))
                       }
                     >
                       <option value="bridge">{t('content.linein.sourceLabels.bridge')}</option>
@@ -4888,62 +4848,11 @@ export default function ContentView(): JSX.Element {
                       </div>
                       {sendspinError && <p className="linein-modal__error">{sendspinError}</p>}
 
-                      <div className="linein-modal__group-label">{t('content.linein.modal.format')}</div>
-                      <div className="linein-modal__field">
-                        <label className="linein-modal__field-label" htmlFor="linein-sendspin-sample-rate">{t('content.linein.modal.sampleRate')}</label>
-                        <div className="linein-modal__num-wrap">
-                          <input
-                            id="linein-sendspin-sample-rate"
-                            type="number"
-                            inputMode="numeric"
-                            value={lineInForm.ingestSampleRate}
-                            onChange={(e) => setLineInForm((prev) => ({ ...prev, ingestSampleRate: e.target.value }))}
-                            placeholder="44100"
-                          />
-                          <span className="linein-modal__num-suffix">Hz</span>
-                        </div>
-                      </div>
-                      <div className="linein-modal__row-3">
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-sendspin-codec">{t('content.linein.modal.codec')}</label>
-                          <select
-                            id="linein-sendspin-codec"
-                            className="linein-modal__select"
-                            value={lineInForm.ingestCodec}
-                            onChange={(e) => setLineInForm((prev) => ({ ...prev, ingestCodec: e.target.value }))}
-                          >
-                            <option value="pcm">pcm</option>
-                            <option value="flac">flac</option>
-                            <option value="opus">opus</option>
-                            <option value="aac">aac</option>
-                          </select>
-                        </div>
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-sendspin-channels">{t('content.linein.modal.channels')}</label>
-                          <input
-                            id="linein-sendspin-channels"
-                            type="number"
-                            inputMode="numeric"
-                            className="linein-modal__input"
-                            value={lineInForm.ingestChannels}
-                            onChange={(e) => setLineInForm((prev) => ({ ...prev, ingestChannels: e.target.value }))}
-                            placeholder="2"
-                          />
-                        </div>
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-sendspin-bit-depth">{t('content.linein.modal.bitDepth')}</label>
-                          <input
-                            id="linein-sendspin-bit-depth"
-                            type="number"
-                            inputMode="numeric"
-                            className="linein-modal__input"
-                            value={lineInForm.ingestBitDepth}
-                            onChange={(e) => setLineInForm((prev) => ({ ...prev, ingestBitDepth: e.target.value }))}
-                            placeholder="16"
-                          />
-                        </div>
-                      </div>
-
+                      {/* No format here on purpose. sendspin does not negotiate a source's format:
+                          the client announces what it captures, and it is the only party that can
+                          see what its converter is. A number typed in here is a guess that outranks
+                          the hardware — which is how a 24-bit converter came to be recorded in 16
+                          bits. */}
                       <div className="linein-modal__group-label">{t('content.linein.modal.autoplay')}</div>
                       <div className="linein-modal__field">
                         <label className="linein-modal__field-label" htmlFor="linein-autoplay-zone">{t('content.linein.modal.autoplayZone')}</label>
