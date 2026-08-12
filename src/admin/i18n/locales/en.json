@@ -1444,7 +1444,12 @@
       },
       "useTitle": "Use a Beoremote One here",
       "summaryOff": "Off",
-      "summaryOn": "On"
+      "summaryOn": "On",
+      "groupDevice": "Remote",
+      "deviceTitle": "Which remote",
+      "deviceCopy": "The speaker whose paired Beoremote drives this room. Pair it on that speaker's own page, under Sonn Client.",
+      "deviceAny": "Any remote that names this room",
+      "deviceMissing": "{{id}} (offline)"
     }
   },
   "access": {
@@ -1654,7 +1659,8 @@
         "connected": "ready",
         "error": "problem",
         "disabled": "off"
-      }
+      },
+      "assignOnZone": "Which room this remote drives is chosen on that room's own screen, under Zones — beside the speaker it plays through."
     },
     "errors": {
       "generic": "That did not save. Try again.",

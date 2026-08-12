@@ -957,48 +957,7 @@ function RemoteSection({
 
         {draft.beoremote.enabled ? (
           <>
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('sonnClients.remote.zone')}</div>
-                <div className="setup-row__desc">{t('sonnClients.remote.zoneDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <div className="setup-input" style={{ minWidth: 220 }}>
-                  <select
-                    value={draft.beoremote.zoneId ?? ''}
-                    onChange={(event) =>
-                      setRemote({ zoneId: numberOrUndefined(event.target.value) })
-                    }
-                  >
-                    <option value="">{t('sonnClients.remote.zonePlaceholder')}</option>
-                    {zones.map((zone) => (
-                      <option key={zone.id} value={zone.id}>
-                        {zone.name || `#${zone.id}`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('sonnClients.remote.volumeStep')}</div>
-                <div className="setup-row__desc">{t('sonnClients.remote.volumeStepDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <div className="setup-input" style={{ width: 120 }}>
-                  <input
-                    type="number"
-                    min={1}
-                    max={50}
-                    value={draft.beoremote.volumeStep ?? ''}
-                    placeholder="4"
-                    onChange={(event) => setRemote({ volumeStep: numberOrUndefined(event.target.value) })}
-                  />
-                </div>
-              </div>
-            </div>
+            <p className="setup-note">{t('sonnClients.remote.assignOnZone')}</p>
 
             {draft.players.length > 1 ? (
               <div className="setup-row">
