@@ -227,16 +227,17 @@ type LineInBridgeSummary = {
 
 const LINEIN_STATUS_POLL_MS = 5000;
 const SENDSPIN_STATUS_POLL_MS = 5000;
+/// Only the codec is ours to choose here.
+///
+/// The rest is the device's to know: sendspin does not negotiate a source's format, the client
+/// announces what it captures, and it is the only party that can see what its converter is. Filling
+/// these in from here is how a 24-bit converter came to be recorded in 16 bits — someone had to type
+/// a number into a form, and the number stuck. Left empty, the client asks the hardware.
 const SENDSPIN_FORMAT_DEFAULTS = {
   ingestCodec: 'pcm',
-  // 48 kHz and 24-bit, which is what the converters in these devices are. A line input is levelled
-  // with headroom so peaks cannot clip, so a good part of the range goes unused by design —
-  // recording it in 16 bits spends that headroom a second time, and it is audible as a noise floor
-  // on quiet material. A device that only offers 16 still records 16; this is a ceiling, not a
-  // demand.
-  ingestSampleRate: '48000',
-  ingestChannels: '2',
-  ingestBitDepth: '24',
+  ingestSampleRate: '',
+  ingestChannels: '',
+  ingestBitDepth: '',
 };
 
 function hashSeed(input: string): number {
