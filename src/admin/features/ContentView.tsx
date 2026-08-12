@@ -229,9 +229,14 @@ const LINEIN_STATUS_POLL_MS = 5000;
 const SENDSPIN_STATUS_POLL_MS = 5000;
 const SENDSPIN_FORMAT_DEFAULTS = {
   ingestCodec: 'pcm',
-  ingestSampleRate: '44100',
+  // 48 kHz and 24-bit, which is what the converters in these devices are. A line input is levelled
+  // with headroom so peaks cannot clip, so a good part of the range goes unused by design —
+  // recording it in 16 bits spends that headroom a second time, and it is audible as a noise floor
+  // on quiet material. A device that only offers 16 still records 16; this is a ceiling, not a
+  // demand.
+  ingestSampleRate: '48000',
   ingestChannels: '2',
-  ingestBitDepth: '16',
+  ingestBitDepth: '24',
 };
 
 function hashSeed(input: string): number {
