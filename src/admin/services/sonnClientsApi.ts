@@ -242,6 +242,25 @@ export async function sendSonnClientCommand(
   if (!res.ok) await parseError(res);
 }
 
+/** Catalogue name under which the client's own build is published. */
+export const CLIENT_COMPONENT = 'sonn-client';
+
+/**
+ * Publish a client version for every device to install.
+ *
+ * A version number, not a set of files: the server reads the hashes off the release, and a version
+ * whose builds are not all published is refused rather than half-applied.
+ */
+export async function setSonnClientVersion(version: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/sonnclients/client-version`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...authHeaders() },
+    credentials: credentialsMode(),
+    body: JSON.stringify({ version }),
+  });
+  if (!res.ok) await parseError(res);
+}
+
 /** A player's name as the UI should show it: its own, else the card, else the id. */
 export function playerLabel(player: SonnPlayerConfig): string {
   return player.name?.trim() || player.output?.trim() || player.clientId;

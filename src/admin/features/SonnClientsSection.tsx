@@ -9,6 +9,8 @@ import {
   saveSonnClient,
   forgetSonnClient,
   sendSonnClientCommand,
+  setSonnClientVersion,
+  CLIENT_COMPONENT,
   nextClientId,
   cardLabel,
   SonnClientError,
@@ -95,6 +97,8 @@ export default function SonnClientsSection(): JSX.Element {
   const [dirty, setDirty] = React.useState<Record<string, boolean>>({});
   const [saving, setSaving] = React.useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
+  const [versionDraft, setVersionDraft] = React.useState('');
+  const [publishing, setPublishing] = React.useState(false);
 
   const load = React.useCallback(async (): Promise<void> => {
     try {
@@ -218,6 +222,34 @@ export default function SonnClientsSection(): JSX.Element {
     }
   };
 
+  const publishedVersion = data?.components?.find(
+    (entry) => entry.name === CLIENT_COMPONENT,
+  )?.version;
+
+  const publishVersion = async (): Promise<void> => {
+    const version = versionDraft.trim();
+    if (!version) return;
+    setPublishing(true);
+    try {
+      await setSonnClientVersion(version);
+      // Nothing is pushed: every speaker asks on its next poll and installs when it is not playing,
+      // so the message says what will happen rather than claiming it has.
+      push({ tone: 'info', message: t('sonnClients.version.published', { version }) });
+      setVersionDraft('');
+      await load();
+    } catch (err) {
+      const code = err instanceof SonnClientError ? err.code : '';
+      push({
+        tone: 'error',
+        message: code.startsWith('no-artifact')
+          ? t('sonnClients.version.notPublished', { version })
+          : t('sonnClients.version.failed'),
+      });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   if (error && !data) {
     return <InlineState kind="error" title={t('sonnClients.errors.loadFailed')} message={error} />;
   }
@@ -248,6 +280,47 @@ export default function SonnClientsSection(): JSX.Element {
         <code className="sonn-install">{INSTALL_COMMAND}</code>
         <p className="setup-note">{t('sonnClients.emptyHint')}</p>
       </section>
+
+      {/* Only once something has registered: on an empty screen there is nothing to keep up to
+          date, and the install line above already puts the current version on the first device. */}
+      {devices.length > 0 ? (
+        <section className="setup-section setup-section--full">
+          <header className="setup-section__head">
+            <div className="setup-section__head-main">
+              <h2 className="setup-section__title">{t('sonnClients.version.title')}</h2>
+              <p className="setup-section__desc">{t('sonnClients.version.body')}</p>
+            </div>
+          </header>
+          <div className="setup-row">
+            <div className="setup-row__info">
+              <div className="setup-row__label">
+                {publishedVersion
+                  ? t('sonnClients.version.current', { version: publishedVersion })
+                  : t('sonnClients.version.none')}
+              </div>
+              <div className="setup-row__desc">{t('sonnClients.version.hint')}</div>
+            </div>
+            <div className="setup-row__control">
+              <div className="setup-input" style={{ width: 140 }}>
+                <input
+                  type="text"
+                  value={versionDraft}
+                  placeholder="1.2.3"
+                  onChange={(event) => setVersionDraft(event.target.value)}
+                />
+              </div>
+              <button
+                type="button"
+                className="setup-btn"
+                disabled={publishing || !versionDraft.trim()}
+                onClick={() => void publishVersion()}
+              >
+                {t('sonnClients.version.publish')}
+              </button>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {devices.map((device) => {
         const draft = drafts[device.deviceId] ?? draftFrom(device);

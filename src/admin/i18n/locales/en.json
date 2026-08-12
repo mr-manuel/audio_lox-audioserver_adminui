@@ -1597,6 +1597,17 @@
       "enabled": "In use",
       "enabledDesc": "Switch off to keep the settings but stop this speaker playing."
     },
+    "version": {
+      "title": "Client version",
+      "body": "Speakers install this themselves. Set a version and every one of them picks it up on its next check-in — never mid-song, and never without verifying what it downloaded.",
+      "current": "Speakers should run {{version}}",
+      "none": "No version set — speakers keep whatever they were installed with",
+      "hint": "A speaker that will not start after an update puts its previous version back on its own.",
+      "publish": "Set version",
+      "published": "Speakers will move to {{version}} once they are idle.",
+      "notPublished": "There is no published build for {{version}}.",
+      "failed": "Could not set the version."
+    },
     "sources": {
       "title": "Inputs",
       "desc": "A turntable, CD player or anything else plugged into this device. It becomes a source you can play in any room.",
