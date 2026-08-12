@@ -830,45 +830,10 @@ function SourceList({
               </div>
             </div>
 
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('sonnClients.sources.threshold')}</div>
-                <div className="setup-row__desc">{t('sonnClients.sources.thresholdDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <div className="setup-input" style={{ width: 140 }}>
-                  <input
-                    type="number"
-                    min={-120}
-                    max={0}
-                    value={source.thresholdDb ?? ''}
-                    placeholder="-45"
-                    onChange={(event) => update(index, { thresholdDb: numberOrUndefined(event.target.value) })}
-                  />
-                  <span className="setup-input__suffix">dB</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="setup-row">
-              <div className="setup-row__info">
-                <div className="setup-row__label">{t('sonnClients.sources.hold')}</div>
-                <div className="setup-row__desc">{t('sonnClients.sources.holdDesc')}</div>
-              </div>
-              <div className="setup-row__control">
-                <div className="setup-input" style={{ width: 140 }}>
-                  <input
-                    type="number"
-                    min={0}
-                    max={60000}
-                    value={source.holdMs ?? ''}
-                    placeholder="2000"
-                    onChange={(event) => update(index, { holdMs: numberOrUndefined(event.target.value) })}
-                  />
-                  <span className="setup-input__suffix">ms</span>
-                </div>
-              </div>
-            </div>
+            {/* Silence detection and the capture format are set on the line-in this input feeds:
+                that is where someone is thinking about the input, and having them in two places is
+                how a rate typed on one screen was quietly overridden by a default on the other. */}
+            <p className="setup-note">{t('sonnClients.sources.configuredOnLineIn')}</p>
 
             <div className="setup-row">
               <div className="setup-row__info">

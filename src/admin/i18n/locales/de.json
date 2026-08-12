@@ -1623,7 +1623,8 @@
       "holdDesc": "Wie lange der Ton anhalten muss, bevor dieser Eingang als spielend gilt. Verhindert, dass eine leise Passage ihn beendet.",
       "controlHook": "Steuer-Skript",
       "controlHookDesc": "Läuft auf dem Gerät, schaltet die Anlage ein und gibt Play, Pause und Weiter weiter.",
-      "linkNote": "Um diesen Eingang zu nutzen, lege im Bereich Content einen Line-in an und verweise auf {{id}}."
+      "linkNote": "Um diesen Eingang zu nutzen, lege im Bereich Content einen Line-in an und verweise auf {{id}}.",
+      "configuredOnLineIn": "Stilleerkennung und Aufnahmeformat werden am Line-in eingestellt, den dieser Eingang speist — unter Eingänge."
     },
     "remote": {
       "title": "Beoremote One",

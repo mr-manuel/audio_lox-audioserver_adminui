@@ -1625,7 +1625,8 @@
       "holdDesc": "How long the sound has to keep going before this input counts as playing. Stops a quiet passage from ending it.",
       "controlHook": "Control script",
       "controlHookDesc": "Runs on the device to switch the equipment on and pass play, pause and skip to it.",
-      "linkNote": "To use this input, add a line-in on the Content screen and point it at {{id}}."
+      "linkNote": "To use this input, add a line-in on the Content screen and point it at {{id}}.",
+      "configuredOnLineIn": "Silence detection and the capture format are set on the line-in this input feeds, under Inputs."
     },
     "remote": {
       "title": "Beoremote One",
