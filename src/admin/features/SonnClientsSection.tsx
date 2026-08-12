@@ -881,7 +881,8 @@ function RemoteSection({
   onPair: () => void;
 }): JSX.Element {
   const { t } = useTranslation();
-  const bluetoothd = 'beoremote-bluetoothd';
+  // The daemon that makes a Beoremote One more than a keyboard.
+  const bluetoothd = 'sonn-beoremote';
   const installed = device.status?.components?.find((entry) => entry.name === bluetoothd);
   const wanted = draft.requiredComponents.includes(bluetoothd);
   const available = components.some((entry) => entry.name === bluetoothd);
