@@ -22,6 +22,8 @@ export type StatusResponse = {
   restartSupervised?: boolean;
   packages?: Record<string, { installed: string | null; declared: string | null }>;
   player?: { installed: string | null };
+  /** Oldest build running on a Sonn Client speaker, or null when none has reported. */
+  sonnClient?: { installed: string | null };
   timestamp?: number | string;
 };
 

@@ -8,6 +8,8 @@ export type LatestVersions = {
   corePrerelease: string | null;
   ui: string | null;
   player: string | null;
+  /** Newest published build of the client the speakers run. */
+  sonnClient: string | null;
   components: Record<string, string>;
   componentDescriptions: Record<string, string>;
 };
@@ -17,6 +19,7 @@ export const EMPTY_LATEST: LatestVersions = {
   corePrerelease: null,
   ui: null,
   player: null,
+  sonnClient: null,
   components: {},
   componentDescriptions: {},
 };
@@ -122,8 +125,8 @@ export function componentPackageNames(
   return [...names].sort((a, b) => a.localeCompare(b));
 }
 
-/** Rolls up whether any tracked artifact (core, admin UI, player, component) is
- *  behind its latest known release, given the running install's versions. */
+/** Rolls up whether any tracked artifact (core, admin UI, player, speakers, component)
+ *  is behind its latest known release, given the running install's versions. */
 export function computeHasUpdates(
   status: StatusResponse | null,
   latest: LatestVersions,
@@ -142,12 +145,20 @@ export function computeHasUpdates(
   const playerOutdated = Boolean(
     playerInstalled && latest.player && compareSemver(playerInstalled, latest.player) === -1,
   );
+  const sonnClientInstalled = status?.sonnClient?.installed ?? null;
+  const sonnClientOutdated = Boolean(
+    sonnClientInstalled &&
+      latest.sonnClient &&
+      compareSemver(sonnClientInstalled, latest.sonnClient) === -1,
+  );
   const componentOutdated = componentPackageNames(status, latest).some((name) => {
     const current = status?.packages?.[name]?.installed;
     const latestVer = latest.components[name];
     return current && latestVer ? compareSemver(current, latestVer) === -1 : false;
   });
-  return Boolean(coreOutdated || uiOutdated || playerOutdated || componentOutdated);
+  return Boolean(
+    coreOutdated || uiOutdated || playerOutdated || sonnClientOutdated || componentOutdated,
+  );
 }
 
 export type CachedCheck = { latest: LatestVersions; checkedAt: string };

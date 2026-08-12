@@ -1596,12 +1596,13 @@
       "enabledDesc": "Ausschalten, um die Einstellungen zu behalten, aber nicht zu spielen."
     },
     "version": {
-      "title": "Client-Version",
-      "body": "Lautsprecher installieren diese selbst. Version setzen und jeder übernimmt sie bei der nächsten Rückmeldung — nie mitten im Stück und nie ohne zu prüfen, was er geladen hat.",
-      "current": "Lautsprecher sollen {{version}} ausführen",
-      "none": "Keine Version gesetzt — Lautsprecher behalten, womit sie installiert wurden",
-      "hint": "Ein Lautsprecher, der nach einem Update nicht startet, stellt seine vorherige Version selbst wieder her.",
-      "publish": "Version setzen",
+      "eyebrow": "Update verfügbar",
+      "available": "Lautsprecher können {{version}} ausführen",
+      "body": "Zurzeit läuft {{version}}.",
+      "bodyUnknown": "Noch kein Lautsprecher hat seine Version gemeldet.",
+      "publish": "Lautsprecher aktualisieren",
+      "publishing": "Wird gesetzt…",
+      "hint": "Jeder Lautsprecher installiert es bei der nächsten Rückmeldung, nie mitten im Stück, und stellt seine vorherige Version selbst wieder her, wenn er nicht startet.",
       "published": "Lautsprecher wechseln auf {{version}}, sobald sie nichts spielen.",
       "notPublished": "Für {{version}} ist kein Build veröffentlicht.",
       "failed": "Version konnte nicht gesetzt werden."

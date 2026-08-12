@@ -23,6 +23,8 @@ import {
 } from '../services/sonnClientsApi';
 import { getConfig } from '../services/setupApi';
 import { useGlobalAlert } from '../components/GlobalAlert';
+import { useUpdateCheck } from '../components/UpdateCheckContext';
+import { compareSemver } from '../services/updateCheck';
 import { useConfirm } from '../components/ConfirmDialog';
 import InlineState from '../components/InlineState';
 import { copyText } from '../utils/clipboard';
@@ -89,6 +91,9 @@ export default function SonnClientsSection(): JSX.Element {
   const { t } = useTranslation();
   const { push } = useGlobalAlert();
   const { confirm } = useConfirm();
+  // The same source the shell chip and the Setup screen read, so "update available" means one thing
+  // everywhere rather than this screen having its own opinion.
+  const { latest } = useUpdateCheck();
 
   const [data, setData] = React.useState<SonnClientsResponse | null>(null);
   const [zones, setZones] = React.useState<ZoneOption[]>([]);
@@ -97,7 +102,6 @@ export default function SonnClientsSection(): JSX.Element {
   const [dirty, setDirty] = React.useState<Record<string, boolean>>({});
   const [saving, setSaving] = React.useState<Record<string, boolean>>({});
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
-  const [versionDraft, setVersionDraft] = React.useState('');
   const [publishing, setPublishing] = React.useState(false);
 
   const load = React.useCallback(async (): Promise<void> => {
@@ -222,20 +226,36 @@ export default function SonnClientsSection(): JSX.Element {
     }
   };
 
+  if (error && !data) {
+    return <InlineState kind="error" title={t('sonnClients.errors.loadFailed')} message={error} />;
+  }
+
+  const devices = data?.devices ?? [];
+
   const publishedVersion = data?.components?.find(
     (entry) => entry.name === CLIENT_COMPONENT,
   )?.version;
 
-  const publishVersion = async (): Promise<void> => {
-    const version = versionDraft.trim();
-    if (!version) return;
+  // The oldest thing actually running, because that is what "speakers run X" has to mean when they
+  // disagree — a park where one speaker stayed behind is exactly what this is for.
+  const oldestRunning = devices
+    .map((device) => device.registration?.version)
+    .filter((version): version is string => Boolean(version))
+    .sort((a, b) => compareSemver(a, b))[0];
+  // Offered when the newest published build is ahead of what is running, or of what was last set:
+  // a version that has been set but not taken yet is still work in progress, not an update.
+  const behind = (current: string | undefined): boolean =>
+    Boolean(latest.sonnClient && current && compareSemver(current, latest.sonnClient) === -1);
+  const updateTarget =
+    behind(oldestRunning) || behind(publishedVersion) ? latest.sonnClient : null;
+
+  const publishVersion = async (version: string): Promise<void> => {
     setPublishing(true);
     try {
       await setSonnClientVersion(version);
       // Nothing is pushed: every speaker asks on its next poll and installs when it is not playing,
       // so the message says what will happen rather than claiming it has.
       push({ tone: 'info', message: t('sonnClients.version.published', { version }) });
-      setVersionDraft('');
       await load();
     } catch (err) {
       const code = err instanceof SonnClientError ? err.code : '';
@@ -250,11 +270,6 @@ export default function SonnClientsSection(): JSX.Element {
     }
   };
 
-  if (error && !data) {
-    return <InlineState kind="error" title={t('sonnClients.errors.loadFailed')} message={error} />;
-  }
-
-  const devices = data?.devices ?? [];
 
   return (
     <div className="sonn-stack">
@@ -283,42 +298,32 @@ export default function SonnClientsSection(): JSX.Element {
 
       {/* Only once something has registered: on an empty screen there is nothing to keep up to
           date, and the install line above already puts the current version on the first device. */}
-      {devices.length > 0 ? (
+      {devices.length > 0 && updateTarget ? (
         <section className="setup-section setup-section--full">
           <header className="setup-section__head">
             <div className="setup-section__head-main">
-              <h2 className="setup-section__title">{t('sonnClients.version.title')}</h2>
-              <p className="setup-section__desc">{t('sonnClients.version.body')}</p>
+              <span className="setup-section__eyebrow setup-section__eyebrow--info">
+                {t('sonnClients.version.eyebrow')}
+              </span>
+              <h2 className="setup-section__title">
+                {t('sonnClients.version.available', { version: updateTarget })}
+              </h2>
+              <p className="setup-section__desc">
+                {oldestRunning
+                  ? t('sonnClients.version.body', { version: oldestRunning })
+                  : t('sonnClients.version.bodyUnknown')}
+              </p>
             </div>
+            <button
+              type="button"
+              className="setup-btn setup-btn--primary"
+              disabled={publishing}
+              onClick={() => void publishVersion(updateTarget)}
+            >
+              {publishing ? t('sonnClients.version.publishing') : t('sonnClients.version.publish')}
+            </button>
           </header>
-          <div className="setup-row">
-            <div className="setup-row__info">
-              <div className="setup-row__label">
-                {publishedVersion
-                  ? t('sonnClients.version.current', { version: publishedVersion })
-                  : t('sonnClients.version.none')}
-              </div>
-              <div className="setup-row__desc">{t('sonnClients.version.hint')}</div>
-            </div>
-            <div className="setup-row__control">
-              <div className="setup-input" style={{ width: 140 }}>
-                <input
-                  type="text"
-                  value={versionDraft}
-                  placeholder="1.2.3"
-                  onChange={(event) => setVersionDraft(event.target.value)}
-                />
-              </div>
-              <button
-                type="button"
-                className="setup-btn"
-                disabled={publishing || !versionDraft.trim()}
-                onClick={() => void publishVersion()}
-              >
-                {t('sonnClients.version.publish')}
-              </button>
-            </div>
-          </div>
+          <p className="setup-note">{t('sonnClients.version.hint')}</p>
         </section>
       ) : null}
 
