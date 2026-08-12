@@ -591,6 +591,34 @@ function PlayerList({
               </div>
             </div>
 
+            {player.volumeControl !== 'software' && player.volumeControl !== 'hook' ? (
+              <div className="setup-row">
+                <div className="setup-row__info">
+                  <div className="setup-row__label">{t('sonnClients.players.volumeScale')}</div>
+                  <div className="setup-row__desc">{t('sonnClients.players.volumeScaleDesc')}</div>
+                </div>
+                <div className="setup-row__control">
+                  <div className="setup-input" style={{ minWidth: 260 }}>
+                    <select
+                      value={
+                        player.mixerMapped === undefined ? 'auto' : player.mixerMapped ? 'even' : 'own'
+                      }
+                      onChange={(event) =>
+                        update(index, {
+                          mixerMapped:
+                            event.target.value === 'auto' ? undefined : event.target.value === 'even',
+                        })
+                      }
+                    >
+                      <option value="auto">{t('sonnClients.players.volumeScaleAuto')}</option>
+                      <option value="even">{t('sonnClients.players.volumeScaleEven')}</option>
+                      <option value="own">{t('sonnClients.players.volumeScaleOwn')}</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
             <div className="setup-row">
               <div className="setup-row__info">
                 <div className="setup-row__label">{t('sonnClients.players.volumeHook')}</div>
