@@ -24,6 +24,22 @@ export function emitAuthReset(): void {
   window.dispatchEvent(new Event('lox:auth-reset'));
 }
 
+// The API answers failures as `{ error: "some-code", message: "..." }`, where only `message` is
+// written for a person to read. Showing the raw body put the JSON braces and the internal error code
+// on screen, and swallowed the part that says what to do — so where a message is present, that is
+// what the user gets. A body that is not that shape still shows verbatim, as it always did.
+function readableBody(text: string): string {
+  if (!text.trim().startsWith('{')) {
+    return text;
+  }
+  try {
+    const parsed = JSON.parse(text) as { message?: unknown };
+    return typeof parsed.message === 'string' && parsed.message.trim() ? parsed.message : text;
+  } catch {
+    return text;
+  }
+}
+
 async function handleError(
   res: Response,
   errorMessage?: ErrorMessage,
@@ -38,7 +54,7 @@ async function handleError(
     typeof errorMessage === 'function'
       ? errorMessage(res)
       : errorMessage ?? `Request failed (${res.status})`;
-  throw new Error(text || fallback);
+  throw new Error(readableBody(text) || fallback);
 }
 
 export async function requestJson<T>(url: string, options: RequestOptions = {}): Promise<T> {
