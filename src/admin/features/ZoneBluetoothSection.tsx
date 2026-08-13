@@ -36,9 +36,12 @@ function BluetoothGlyph(): JSX.Element {
 /**
  * Bluetooth audio for one zone.
  *
- * A phone pairs with the speaker in the room and plays to it — the thing every guest expects to
- * work. The radio belongs to a Sonn Client, so which device carries this room's Bluetooth is chosen
- * here, beside the output, exactly as the remote is.
+ * A receiver, like AirPlay and DLNA: something plays *into* the room from a phone someone is
+ * holding. It sits with those two rather than with the remote, and it opens rather than toggles
+ * because pairing and visibility need more than a switch.
+ *
+ * The radio belongs to a Sonn Client, so which device carries this room's Bluetooth is chosen here,
+ * beside the output.
  *
  * Visibility is a moment, not a setting: a speaker that is permanently discoverable is one every
  * passer-by can see, so pairing is a button that opens a window and closes it again. Everything that

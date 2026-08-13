@@ -1874,6 +1874,22 @@ function ZoneModal({
                     disabled={saving}
                   />
                 </div>
+                {/* A phone playing to the room is a receiver, like AirPlay and DLNA -- it has more
+                    to set up than a switch, so it opens rather than toggles. */}
+                <button type="button" className="zset-drill" onClick={() => setSettingsView('bluetooth')}>
+                  <span className="zset-row__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M7 7l10 10-5 4V3l5 4L7 17" />
+                    </svg>
+                  </span>
+                  <span className="zset-drill__text">
+                    <span className="zset-drill__lab">{t('zones.bluetooth.useTitle')}</span>
+                    <b className="zset-drill__sum">{bluetoothSummary}</b>
+                  </span>
+                  <svg className="zset-drill__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
                 <ZoneSpotifyOffloadSection
                   zone={zone}
                   config={
@@ -1895,22 +1911,6 @@ function ZoneModal({
                 <p className="zset-group__head">{t('zones.modal.groupControl')}</p>
                 {/* One row, like Power and EQ: a remote is set up once, so the whole
                     thing folds away and the summary says whether it is on. */}
-                {/* A phone playing to the room sits beside the remote: both are things someone
-                    brings into the room and pairs, rather than settings of the output. */}
-                <button type="button" className="zset-drill" onClick={() => setSettingsView('bluetooth')}>
-                  <span className="zset-row__icon" aria-hidden="true">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M7 7l10 10-5 4V3l5 4L7 17" />
-                    </svg>
-                  </span>
-                  <span className="zset-drill__text">
-                    <span className="zset-drill__lab">{t('zones.bluetooth.useTitle')}</span>
-                    <b className="zset-drill__sum">{bluetoothSummary}</b>
-                  </span>
-                  <svg className="zset-drill__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="9 18 15 12 9 6" />
-                  </svg>
-                </button>
                 <button type="button" className="zset-drill" onClick={() => setSettingsView('remote')}>
                   <span className="zset-row__icon" aria-hidden="true">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
