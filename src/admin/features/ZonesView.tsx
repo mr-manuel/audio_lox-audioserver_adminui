@@ -24,6 +24,7 @@ import Row from '../components/Row';
 import SelectMenu from '../components/SelectMenu';
 import ZoneBeoremoteSection from './ZoneBeoremoteSection';
 import ZoneBluetoothSection from './ZoneBluetoothSection';
+import ZoneDeviceSection from './ZoneDeviceSection';
 import ZoneRemoteModelList from './ZoneRemoteModelList';
 import {
   getTransportDefinitions,
@@ -1830,6 +1831,10 @@ function ZoneModal({
                   />
                 </div>
               </div>
+
+              {/* The box that plays this room, when one does: the three settings that come up while
+                  setting a room up, rather than a trip to another screen for them. */}
+              <ZoneDeviceSection zoneId={zone.id} outputClientId={sendspinOutputClientId(zone)} />
 
               {/* Inputs */}
               <div className="zset-group">

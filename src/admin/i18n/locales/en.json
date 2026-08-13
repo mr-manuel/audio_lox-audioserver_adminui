@@ -1454,6 +1454,22 @@
       "forget": "Forget",
       "summaryOff": "Disabled",
       "summaryOn": "Enabled"
+    },
+    "device": {
+      "group": "The box in this room — {{name}}",
+      "cardTitle": "Sound card",
+      "cardCopy": "The output the speaker is wired to.",
+      "cardDefault": "Whatever the device uses by default",
+      "cardMissing": "{{id}} (not currently connected)",
+      "volumeTitle": "Volume",
+      "volumeCopy": "Where the speaker turns it down. Its own sound card is best when it has a volume of its own — doing it in software throws away detail the speaker would have kept.",
+      "volumeAuto": "The sound card, if it has volume",
+      "volumeCard": "Always the sound card",
+      "volumeSoftware": "Always in software",
+      "volumeHook": "Run the volume script",
+      "delayTitle": "Delay",
+      "delayCopy": "Hold this room back to line it up with the others. Leave at zero unless you can hear it.",
+      "elsewhere": "The name, updates and diagnostics for this box live on its own page, under Setup."
     }
   },
   "access": {

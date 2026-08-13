@@ -1452,6 +1452,22 @@
       "forget": "Entfernen",
       "summaryOff": "Deaktiviert",
       "summaryOn": "Aktiviert"
+    },
+    "device": {
+      "group": "Die Kiste in diesem Raum — {{name}}",
+      "cardTitle": "Soundkarte",
+      "cardCopy": "Der Ausgang, an dem der Lautsprecher hängt.",
+      "cardDefault": "Was das Gerät standardmäßig nutzt",
+      "cardMissing": "{{id}} (derzeit nicht verbunden)",
+      "volumeTitle": "Lautstärke",
+      "volumeCopy": "Wo der Lautsprecher leiser wird. Seine eigene Soundkarte ist am besten, wenn er eine echte Lautstärke hat — in Software wirft man Details weg, die der Lautsprecher behalten hätte.",
+      "volumeAuto": "Die Soundkarte, wenn sie Lautstärke kann",
+      "volumeCard": "Immer die Soundkarte",
+      "volumeSoftware": "Immer in Software",
+      "volumeHook": "Das Lautstärke-Skript ausführen",
+      "delayTitle": "Verzögerung",
+      "delayCopy": "Diesen Raum zurückhalten, um ihn auf die anderen auszurichten. Bei null lassen, solange du nichts hörst.",
+      "elsewhere": "Name, Updates und Diagnose dieser Kiste stehen auf ihrer eigenen Seite unter Setup."
     }
   },
   "access": {
