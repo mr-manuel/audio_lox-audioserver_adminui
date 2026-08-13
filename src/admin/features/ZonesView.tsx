@@ -23,6 +23,7 @@ import SearchInput from '../components/SearchInput';
 import Row from '../components/Row';
 import SelectMenu from '../components/SelectMenu';
 import ZoneBeoremoteSection from './ZoneBeoremoteSection';
+import ZoneBluetoothSection from './ZoneBluetoothSection';
 import ZoneRemoteModelList from './ZoneRemoteModelList';
 import {
   getTransportDefinitions,
@@ -50,6 +51,7 @@ import {
 import type {
   PowerGroupConfig,
   ZoneBeoremoteConfig,
+  ZoneBluetoothConfig,
   ZoneEqualizerConfig,
   ZoneEqualizerProvider,
   ZoneInputConfig,
@@ -116,7 +118,7 @@ interface ConfigResponse {
       airplay?: { enabled?: boolean };
       spotify?: { enabled?: boolean };
       dlna?: { enabled?: boolean };
-      bluetooth?: { enabled?: boolean };
+      bluetooth?: { enabled?: boolean; deviceId?: string; publishName?: string };
     };
     groups?: {
       powerGroups?: PowerGroupConfig[];
@@ -1420,6 +1422,11 @@ export default function ZonesView(): JSX.Element {
             next.beoremote = beoremote;
             void handleInputChange(modalZone.id, next);
           }}
+          onBluetoothChange={(bluetooth) => {
+            const next = deriveZoneInputs(modalZone);
+            next.bluetooth = bluetooth;
+            void handleInputChange(modalZone.id, next);
+          }}
           onPowerManagerChange={async (config) => {
             const ok = await handlePowerManagerChange(modalZone.id, config);
             return ok;
@@ -1581,6 +1588,7 @@ type ZoneModalProps = {
   onSpotifyDiscover: () => void;
   onSpotifyDeviceApply: (device: SpotifyDevice) => void;
   onBeoremoteChange: (config: ZoneBeoremoteConfig | null) => void;
+  onBluetoothChange: (config: ZoneBluetoothConfig | null) => void;
   onPowerManagerChange: (config: ZonePowerManagerConfig | null) => Promise<boolean>;
   onPowerGroupsSave: (groups: PowerGroupConfig[]) => Promise<boolean>;
   onPlaybackChange: (config: ZonePlaybackConfig | null) => Promise<boolean>;
@@ -1610,6 +1618,7 @@ function ZoneModal({
   onSpotifyDiscover,
   onSpotifyDeviceApply,
   onBeoremoteChange,
+  onBluetoothChange,
   onPowerManagerChange,
   onPowerGroupsSave,
   onPlaybackChange,
@@ -1629,7 +1638,7 @@ function ZoneModal({
       effectiveTransportId(currentTransport)
     : null;
 
-  type SettingsView = 'main' | 'power' | 'eq' | 'remote' | 'remote-one';
+  type SettingsView = 'main' | 'power' | 'eq' | 'remote' | 'remote-one' | 'bluetooth';
   const [settingsView, setSettingsView] = React.useState<SettingsView>('main');
 
   const powerCfg = zone.powerManager ?? null;
@@ -1649,6 +1658,15 @@ function ZoneModal({
       return t('zones.beoremote.summaryNone');
     }
     return t('zones.beoremote.models.one');
+  })();
+
+  const bluetoothSummary = (() => {
+    const cfg = deriveZoneInputs(zone).bluetooth;
+    if (cfg?.enabled !== true) {
+      return t('zones.bluetooth.summaryOff');
+    }
+    // The name is what someone will look for on a phone, so it is the useful summary.
+    return cfg.publishName?.trim() || zone.name;
   })();
 
   const powerSummary = (() => {
@@ -1705,6 +1723,7 @@ function ZoneModal({
     }
     if (settingsView === 'remote') return t('zones.beoremote.groupTitle');
     if (settingsView === 'remote-one') return t('zones.beoremote.models.one');
+    if (settingsView === 'bluetooth') return t('zones.bluetooth.useTitle');
     if (settingsView === 'power') return t('zones.modal.powerStateSub');
     if (settingsView === 'eq') return t('zones.modal.eqSub');
     return t('zones.modal.zoneId', { id: zone.id });
@@ -1876,6 +1895,22 @@ function ZoneModal({
                 <p className="zset-group__head">{t('zones.modal.groupControl')}</p>
                 {/* One row, like Power and EQ: a remote is set up once, so the whole
                     thing folds away and the summary says whether it is on. */}
+                {/* A phone playing to the room sits beside the remote: both are things someone
+                    brings into the room and pairs, rather than settings of the output. */}
+                <button type="button" className="zset-drill" onClick={() => setSettingsView('bluetooth')}>
+                  <span className="zset-row__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M7 7l10 10-5 4V3l5 4L7 17" />
+                    </svg>
+                  </span>
+                  <span className="zset-drill__text">
+                    <span className="zset-drill__lab">{t('zones.bluetooth.useTitle')}</span>
+                    <b className="zset-drill__sum">{bluetoothSummary}</b>
+                  </span>
+                  <svg className="zset-drill__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </button>
                 <button type="button" className="zset-drill" onClick={() => setSettingsView('remote')}>
                   <span className="zset-row__icon" aria-hidden="true">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1981,6 +2016,14 @@ function ZoneModal({
               config={deriveZoneInputs(zone).beoremote}
               saving={saving}
               onChange={onBeoremoteChange}
+            />
+          ) : settingsView === 'bluetooth' ? (
+            <ZoneBluetoothSection
+              zoneId={zone.id}
+              zoneName={zone.name}
+              config={deriveZoneInputs(zone).bluetooth}
+              saving={saving}
+              onChange={onBluetoothChange}
             />
           ) : settingsView === 'power' ? (
             <ZonePowerManagerSection
