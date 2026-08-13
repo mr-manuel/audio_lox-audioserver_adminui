@@ -2013,6 +2013,7 @@ function ZoneModal({
           ) : settingsView === 'remote-one' ? (
             <ZoneBeoremoteSection
               zoneId={zone.id}
+              outputClientId={sendspinOutputClientId(zone)}
               config={deriveZoneInputs(zone).beoremote}
               saving={saving}
               onChange={onBeoremoteChange}
@@ -2021,6 +2022,7 @@ function ZoneModal({
             <ZoneBluetoothSection
               zoneId={zone.id}
               zoneName={zone.name}
+              outputClientId={sendspinOutputClientId(zone)}
               config={deriveZoneInputs(zone).bluetooth}
               saving={saving}
               onChange={onBluetoothChange}
@@ -5951,6 +5953,19 @@ function buildDefaultInputs(zone: Zone): ZoneInputConfig {
     },
     lineIn: null,
   };
+}
+
+/**
+ * The Sendspin client this room plays through, if it plays through one.
+ *
+ * Both radio sections ask this to work out which device a room means when it has not named one, and
+ * the server resolves it the same way — so what the screen offers is what will happen.
+ */
+function sendspinOutputClientId(zone: Zone): string | undefined {
+  const transport = getPrimaryTransport(zone);
+  if (!transport || (transport.id ?? '').toLowerCase() !== 'sendspin') return undefined;
+  const clientId = readStringField(transport as any, 'clientId');
+  return clientId?.trim() || undefined;
 }
 
 function getPrimaryTransport(zone: Zone): ZoneTransportConfig | null {

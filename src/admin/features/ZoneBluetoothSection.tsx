@@ -1,6 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
+  deviceLabel,
+  devicePlayingRoom,
   listSonnClients,
   sendSonnClientCommand,
   type SonnDeviceView,
@@ -10,6 +12,8 @@ import type { ZoneBluetoothConfig } from '@/domain/config/types';
 type ZoneBluetoothSectionProps = {
   zoneId: number;
   zoneName: string;
+  /** The Sendspin client this room plays through, if it has one. See {@link devicePlayingRoom}. */
+  outputClientId?: string;
   config: ZoneBluetoothConfig | null | undefined;
   saving: boolean;
   onChange: (next: ZoneBluetoothConfig | null) => void;
@@ -51,6 +55,7 @@ function BluetoothGlyph(): JSX.Element {
 export default function ZoneBluetoothSection({
   zoneId,
   zoneName,
+  outputClientId,
   config,
   saving,
   onChange,
@@ -88,17 +93,23 @@ export default function ZoneBluetoothSection({
     onChange({ enabled: true, ...(config ?? {}), ...change });
   };
 
-  const device = devices.find((entry) => entry.deviceId === config?.deviceId);
+  // Named, or else the box that plays this room — which is the same rule the server follows, so
+  // what this screen shows is what actually happens.
+  const follows = devicePlayingRoom(devices, outputClientId);
+  const device = config?.deviceId
+    ? devices.find((entry) => entry.deviceId === config.deviceId)
+    : follows;
   const status = (device?.status as { bluetooth?: BluetoothStatus } | undefined)?.bluetooth;
   const phones = status?.devices ?? [];
   const playing = status?.now_playing;
 
   const openWindow = async (): Promise<void> => {
-    if (!config?.deviceId) return;
+    // Whichever device this room's Bluetooth actually runs on, named or followed.
+    if (!device) return;
     setPairing(true);
     setError(null);
     try {
-      await sendSonnClientCommand(config.deviceId, 'bluetooth_discoverable');
+      await sendSonnClientCommand(device.deviceId, 'bluetooth_discoverable');
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -108,9 +119,9 @@ export default function ZoneBluetoothSection({
   };
 
   const forget = async (address: string): Promise<void> => {
-    if (!config?.deviceId) return;
+    if (!device) return;
     try {
-      await sendSonnClientCommand(config.deviceId, 'bluetooth_forget', [address]);
+      await sendSonnClientCommand(device.deviceId, 'bluetooth_forget', [address]);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -160,13 +171,14 @@ export default function ZoneBluetoothSection({
                   update({ deviceId: event.target.value ? event.target.value : undefined })
                 }
               >
-                <option value="">{t('zones.bluetooth.devicePick')}</option>
+                <option value="">
+                  {follows
+                    ? t('zones.bluetooth.deviceFollows', { name: deviceLabel(follows) })
+                    : t('zones.bluetooth.devicePick')}
+                </option>
                 {devices.map((entry) => (
                   <option key={entry.deviceId} value={entry.deviceId}>
-                    {entry.config?.name?.trim() ||
-                      entry.registration?.hostname?.trim() ||
-                      entry.config?.hostname?.trim() ||
-                      entry.deviceId}
+                    {deviceLabel(entry)}
                   </option>
                 ))}
                 {config?.deviceId && !devices.some((entry) => entry.deviceId === config.deviceId) ? (
@@ -193,7 +205,7 @@ export default function ZoneBluetoothSection({
               <button
                 type="button"
                 className="zones-modal__btn"
-                disabled={saving || pairing || !config?.deviceId}
+                disabled={saving || pairing || !device}
                 onClick={() => void openWindow()}
               >
                 {pairing ? t('zones.bluetooth.pairing') : t('zones.bluetooth.pair')}

@@ -1418,15 +1418,17 @@
       "summaryOn": "Ein",
       "groupDevice": "Fernbedienung",
       "deviceTitle": "Welche Fernbedienung",
-      "deviceCopy": "Der Lautsprecher, dessen gekoppelte Beoremote diesen Raum steuert. Gekoppelt wird sie auf der Seite dieses Lautsprechers, unter Sonn Client.",
-      "deviceAny": "Jede Fernbedienung, die diesen Raum nennt",
-      "deviceMissing": "{{id}} (offline)"
+      "deviceCopy": "Wessen Fernbedienung diesen Raum steuert. Folgt dem Lautsprecher, solange du nichts anderes wählst; gekoppelt wird auf dem jeweiligen Gerät.",
+      "deviceAny": "Der Lautsprecher in diesem Raum",
+      "deviceMissing": "{{id}} (offline)",
+      "deviceFollows": "Der Lautsprecher in diesem Raum ({{name}})"
     },
     "bluetooth": {
       "useTitle": "Bluetooth",
       "useCopy": "Ein Telefon koppelt sich mit dem Lautsprecher dieses Raums und spielt darauf.",
       "deviceTitle": "Gerät",
-      "deviceCopy": "Welcher Sonn Client den Funk stellt. Gekoppelt wird auf diesem Gerät.",
+      "deviceCopy": "Wessen Funk dieser Raum nutzt. Folgt dem Lautsprecher, solange du nichts anderes wählst; gekoppelt wird auf dem jeweiligen Gerät.",
+      "deviceFollows": "Der Lautsprecher in diesem Raum ({{name}})",
       "devicePick": "Gerät wählen",
       "deviceMissing": "{{id}} (offline)",
       "groupPairing": "Koppeln",

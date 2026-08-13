@@ -927,6 +927,12 @@
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
   background-repeat: no-repeat;
   background-position: right 10px center;
+  /* Stated, not inherited: the global `select` rule paints two layers (a gradient plus its own
+     chevron) and sizes the first at `100% 100%`. Overriding only the image left that size behind,
+     which stretched this 12px chevron across the whole field and straight through the label. */
+  background-size: 12px 12px;
+  /* A card id that does not fit should trail off rather than be chopped mid-character. */
+  text-overflow: ellipsis;
   transition: border-color 0.15s;
 }
 

@@ -1420,15 +1420,17 @@
       "summaryOn": "On",
       "groupDevice": "Remote",
       "deviceTitle": "Which remote",
-      "deviceCopy": "The speaker whose paired Beoremote drives this room. Pair it on that speaker's own page, under Sonn Client.",
-      "deviceAny": "Any remote that names this room",
-      "deviceMissing": "{{id}} (offline)"
+      "deviceCopy": "Which device's remote drives this room. It follows the speaker unless you pick another; pairing happens on whichever it is.",
+      "deviceAny": "The speaker in this room",
+      "deviceMissing": "{{id}} (offline)",
+      "deviceFollows": "The speaker in this room ({{name}})"
     },
     "bluetooth": {
       "useTitle": "Bluetooth",
       "useCopy": "Let a phone pair with this room's speaker and play to it.",
       "deviceTitle": "Device",
-      "deviceCopy": "Which Sonn Client's radio this room uses. Pairing happens on that device.",
+      "deviceCopy": "Which device's radio this room uses. It follows the speaker unless you pick another; pairing happens on whichever it is.",
+      "deviceFollows": "The speaker in this room ({{name}})",
       "devicePick": "Pick a device",
       "deviceMissing": "{{id}} (offline)",
       "groupPairing": "Pairing",

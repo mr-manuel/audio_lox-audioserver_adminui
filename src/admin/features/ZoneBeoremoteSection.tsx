@@ -1,7 +1,12 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import ZoneBeoremoteKeys from './ZoneBeoremoteKeys';
-import { listSonnClients, type SonnDeviceView } from '../services/sonnClientsApi';
+import {
+  deviceLabel,
+  devicePlayingRoom,
+  listSonnClients,
+  type SonnDeviceView,
+} from '../services/sonnClientsApi';
 import type { ZoneBeoremoteConfig } from '@/domain/config/types';
 
 /** The submenu choices a zone can pick. The remote's firmware allows exactly one. */
@@ -9,6 +14,8 @@ type SubmenuKind = 'none' | 'radio' | 'favorites';
 
 type ZoneBeoremoteSectionProps = {
   zoneId: number;
+  /** The Sendspin client this room plays through, if it has one. See {@link devicePlayingRoom}. */
+  outputClientId?: string;
   config: ZoneBeoremoteConfig | null | undefined;
   saving: boolean;
   onChange: (next: ZoneBeoremoteConfig | null) => void;
@@ -39,6 +46,7 @@ function RemoteGlyph(): JSX.Element {
  */
 export default function ZoneBeoremoteSection({
   zoneId,
+  outputClientId,
   config,
   saving,
   onChange,
@@ -64,6 +72,11 @@ export default function ZoneBeoremoteSection({
       cancelled = true;
     };
   }, [enabled]);
+
+  // Named, or else the box that plays this room — the rule the server follows when a room names
+  // none, so what this screen offers is what will actually happen.
+  const follows = devicePlayingRoom(devices, outputClientId);
+
   const submenuKind: SubmenuKind = config?.submenuSource?.kind === 'radio'
     ? 'radio'
     : config?.submenuSource?.kind === 'favorites'
@@ -126,12 +139,14 @@ export default function ZoneBeoremoteSection({
                   update({ deviceId: event.target.value ? event.target.value : undefined })
                 }
               >
-                <option value="">{t('zones.beoremote.deviceAny')}</option>
+                <option value="">
+                  {follows
+                    ? t('zones.beoremote.deviceFollows', { name: deviceLabel(follows) })
+                    : t('zones.beoremote.deviceAny')}
+                </option>
                 {devices.map((device) => (
                   <option key={device.deviceId} value={device.deviceId}>
-                    {device.config?.name?.trim() ||
-                      device.registration?.hostname ||
-                      device.deviceId}
+                    {deviceLabel(device)}
                   </option>
                 ))}
                 {/* A device that is configured but not in the list right now keeps its place, so

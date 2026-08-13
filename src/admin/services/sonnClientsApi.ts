@@ -327,6 +327,35 @@ export function splitCards(cards: SonnCard[]): { direct: SonnCard[]; aliases: So
 }
 
 /**
+ * The device that plays a room, if a Sonn Client does.
+ *
+ * A room is nearly always one box, and it has already said which: the thing that plays it. That
+ * makes it the obvious answer for the room's other radio work — the phone that pairs with it, the
+ * remote that drives it — so those do not have to be pointed at a device by hand. The server
+ * resolves this the same way when a room names none.
+ */
+export function devicePlayingRoom(
+  devices: SonnDeviceView[],
+  outputClientId: string | undefined,
+): SonnDeviceView | undefined {
+  const clientId = outputClientId?.trim();
+  if (!clientId) return undefined;
+  return devices.find((device) =>
+    (device.config?.players ?? []).some((player) => player.clientId === clientId),
+  );
+}
+
+/** What to call a device on screen: the name someone gave it, else what it registered as. */
+export function deviceLabel(device: SonnDeviceView): string {
+  return (
+    device.config?.name?.trim() ||
+    device.registration?.hostname?.trim() ||
+    device.config?.hostname?.trim() ||
+    device.deviceId
+  );
+}
+
+/**
  * Client id for a new player or source on a device.
  *
  * The first player takes the device id itself, which is what the client defaults to; later ones get
