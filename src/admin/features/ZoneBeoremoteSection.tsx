@@ -5,6 +5,7 @@ import {
   deviceLabel,
   devicePlayingRoom,
   listSonnClients,
+  sendSonnClientCommand,
   type SonnDeviceView,
 } from '../services/sonnClientsApi';
 import type { ZoneBeoremoteConfig } from '@/domain/config/types';
@@ -35,10 +36,10 @@ function RemoteGlyph(): JSX.Element {
 /**
  * Beoremote One for one zone.
  *
- * A Bang & Olufsen remote is Bluetooth, so it reaches the server through a small
- * bridge that pairs with it. Which speaker's remote drives this room is chosen here,
- * beside the output, because that is a fact about the room; pairing stays on the
- * device's own screen, because that is a fact about the box its radio talks to.
+ * Everything a person in this room touches is here: which box's radio it uses, pairing the remote
+ * itself, and what its screen lists. A phone pairs on this same page, and for someone standing with
+ * the thing in their hand the two are one act — connect what is in this room to this room. Splitting
+ * them by whose fact it technically is (the box's, the room's) was accurate and helped nobody.
  *
  * The remote's screen is narrow and its firmware allows a single sub-list, so the
  * only real choice here is what goes in that list. Everything else about the menu
@@ -76,6 +77,30 @@ export default function ZoneBeoremoteSection({
   // Named, or else the box that plays this room — the rule the server follows when a room names
   // none, so what this screen offers is what will actually happen.
   const follows = devicePlayingRoom(devices, outputClientId);
+  // The box whose radio this room actually uses, which is where pairing has to happen.
+  const radio = config?.deviceId
+    ? devices.find((entry) => entry.deviceId === config.deviceId)
+    : follows;
+  const paired = radio?.status?.beoremote?.devices ?? [];
+  const [busy, setBusy] = React.useState<string | null>(null);
+  const [error, setError] = React.useState<string | null>(null);
+
+  const send = async (what: string, command: string, args?: string[]): Promise<void> => {
+    if (!radio) return;
+    setBusy(what);
+    setError(null);
+    try {
+      await sendSonnClientCommand(radio.deviceId, command, args);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      // The device takes the command on its next poll and the list follows from its next report;
+      // this only says the ask went out.
+      window.setTimeout(() => setBusy(null), 3000);
+    }
+  };
+  const pair = (): Promise<void> => send('pair', 'pair_remote');
+  const forget = (address: string): Promise<void> => send(address, 'forget_remote', [address]);
 
   const submenuKind: SubmenuKind = config?.submenuSource?.kind === 'radio'
     ? 'radio'
@@ -123,7 +148,8 @@ export default function ZoneBeoremoteSection({
 
       {enabled && (
         <>
-          {/* Which remote. Pairing is on the device's own screen; this is where it goes to work. */}
+          {/* Which box's radio. Nearly always the one that plays the room, and then this is a
+              sentence rather than a question. */}
           <div className="zset-group">
             <p className="zset-group__head">{t('zones.beoremote.groupDevice')}</p>
             <div className="zset-row">
@@ -158,6 +184,57 @@ export default function ZoneBeoremoteSection({
                 ) : null}
               </select>
             </div>
+          </div>
+
+          {/* Pairing, in the room the remote is used in.
+              A phone pairs here too, and for someone standing with the thing in their hand the two
+              are the same act: connect what is in this room to this room. Which box's radio serves
+              it is worked out above and is nobody's problem. */}
+          <div className="zset-group">
+            <p className="zset-group__head">{t('zones.beoremote.groupPairing')}</p>
+            {paired.length === 0 ? (
+              <p className="zset-group__empty">{t('zones.beoremote.nonePaired')}</p>
+            ) : (
+              paired.map((remote) => (
+                <div className="zset-row" key={remote.address}>
+                  <div className="zset-row__text">
+                    <span className="zset-row__title">{remote.name || remote.address}</span>
+                    <span className="zset-row__desc">
+                      {remote.connected
+                        ? t('zones.beoremote.pairedConnected')
+                        : t('zones.beoremote.pairedAway')}
+                      {' · '}
+                      {remote.address}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className="setup-btn"
+                    disabled={saving || busy === remote.address}
+                    onClick={() => void forget(remote.address)}
+                  >
+                    {busy === remote.address
+                      ? t('zones.beoremote.forgetting')
+                      : t('zones.beoremote.forget')}
+                  </button>
+                </div>
+              ))
+            )}
+            <div className="zset-row">
+              <div className="zset-row__text">
+                <span className="zset-row__title">{t('zones.beoremote.pairTitle')}</span>
+                <span className="zset-row__desc">{t('zones.beoremote.pairCopy')}</span>
+              </div>
+              <button
+                type="button"
+                className="setup-btn"
+                disabled={saving || !radio || busy === 'pair'}
+                onClick={() => void pair()}
+              >
+                {busy === 'pair' ? t('zones.beoremote.pairing') : t('zones.beoremote.pair')}
+              </button>
+            </div>
+            {error ? <p className="linein-modal__error">{error}</p> : null}
           </div>
 
           {/* What the remote's own screen lists. */}

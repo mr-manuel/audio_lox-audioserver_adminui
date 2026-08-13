@@ -1423,7 +1423,17 @@
       "deviceCopy": "Which device's remote drives this room. It follows the speaker unless you pick another; pairing happens on whichever it is.",
       "deviceAny": "The speaker in this room",
       "deviceMissing": "{{id}} (offline)",
-      "deviceFollows": "The speaker in this room ({{name}})"
+      "deviceFollows": "The speaker in this room ({{name}})",
+      "groupPairing": "Pairing",
+      "nonePaired": "No remote paired yet.",
+      "pairedConnected": "In the room",
+      "pairedAway": "Paired, not in range",
+      "pairTitle": "Pair a remote",
+      "pairCopy": "Press this, then put the remote into pairing mode.",
+      "pair": "Pair",
+      "pairing": "Pairing…",
+      "forget": "Forget",
+      "forgetting": "Forgetting…"
     },
     "bluetooth": {
       "useTitle": "Bluetooth",
@@ -1642,7 +1652,6 @@
       "volumePlayer": "Volume follows",
       "volumePlayerDesc": "Which speaker on this device the volume buttons change.",
       "firstPlayer": "The first speaker",
-      "pair": "Pair a remote",
       "pairingStarted": "Put the remote into pairing mode now. It has 90 seconds.",
       "keysConnected": "buttons connected",
       "states": {
@@ -1651,11 +1660,10 @@
         "error": "problem",
         "disabled": "off"
       },
-      "assignOnZone": "Which room this remote drives is chosen on that room's own screen, under Zones — beside the speaker it plays through.",
+      "assignOnZone": "Pairing a remote, and what its screen lists, are set on the room it drives — under Zones, beside the speaker it plays through.",
       "eyebrow": "Remote",
       "chip": "Remote · {{room}}",
-      "notSetUp": "Not set up",
-      "pairDesc": "Put the remote into pairing mode once you have pressed this."
+      "notSetUp": "Not set up"
     },
     "errors": {
       "generic": "That did not save. Try again.",

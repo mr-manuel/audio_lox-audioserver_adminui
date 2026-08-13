@@ -545,16 +545,6 @@ export default function SonnClientsSection(): JSX.Element {
     }
   };
 
-  const pairRemote = async (device: SonnDeviceView): Promise<void> => {
-    try {
-      await sendSonnClientCommand(device.deviceId, 'pair_remote');
-      push({ tone: 'info', message: t('sonnClients.remote.pairingStarted') });
-      await load();
-    } catch {
-      push({ tone: 'error', message: t('sonnClients.errors.generic') });
-    }
-  };
-
   const addPlayer = (device: SonnDeviceView): void => {
     const draft = drafts[device.deviceId] ?? draftFrom(device);
     const outputs = device.registration?.outputs ?? [];
@@ -727,7 +717,6 @@ export default function SonnClientsSection(): JSX.Element {
           onChange={(change) => patch(open.deviceId, change)}
           onAddPlayer={() => addPlayer(open)}
           onAddSource={() => addSource(open)}
-          onPair={() => void pairRemote(open)}
           onForget={() => void forget(open)}
           onCancel={() => cancelDevice(open)}
           onSave={() => void save(open)}
@@ -946,7 +935,6 @@ function DeviceModal({
   onChange,
   onAddPlayer,
   onAddSource,
-  onPair,
   onForget,
   onCancel,
   onSave,
@@ -962,7 +950,6 @@ function DeviceModal({
   onChange: (change: Partial<Draft>) => void;
   onAddPlayer: () => void;
   onAddSource: () => void;
-  onPair: () => void;
   onForget: () => void;
   onCancel: () => void;
   onSave: () => void;
@@ -1119,7 +1106,6 @@ function DeviceModal({
             usage={usage}
             components={components}
             onChange={onChange}
-            onPair={onPair}
           />
         ) : null}
         {resolved.kind === 'about' ? <AboutPanel device={device} /> : null}
@@ -1790,14 +1776,12 @@ function RemotePanel({
   usage,
   components,
   onChange,
-  onPair,
 }: {
   device: SonnDeviceView;
   draft: Draft;
   usage: Usage;
   components: SonnClientsResponse['components'];
   onChange: (change: Partial<Draft>) => void;
-  onPair: () => void;
 }): JSX.Element {
   const { t } = useTranslation();
   const state = device.status?.beoremote?.state;
@@ -1852,45 +1836,6 @@ function RemotePanel({
       <div className="sonn-group">
         <div className="sonn-group__head">
           <span className="sonn-group__label">{t('sonnClients.group.remoteSetup')}</span>
-        </div>
-        {draft.players.length > 1 ? (
-          <div className="sonn-row">
-            <span className="sonn-row__text">
-              <span className="sonn-row__title">{t('sonnClients.remote.volumePlayer')}</span>
-              <span className="sonn-row__desc">{t('sonnClients.remote.volumePlayerDesc')}</span>
-            </span>
-            <span className="sonn-row__control">
-              <select
-                className="sonn-select"
-                aria-label={t('sonnClients.remote.volumePlayer')}
-                value={draft.beoremote.volumePlayer ?? ''}
-                onChange={(event) => setRemote({ volumePlayer: event.target.value || undefined })}
-              >
-                <option value="">{t('sonnClients.remote.firstPlayer')}</option>
-                {draft.players.map((player) => (
-                  <option key={player.clientId} value={player.clientId}>
-                    {player.name?.trim() || player.clientId}
-                  </option>
-                ))}
-              </select>
-            </span>
-          </div>
-        ) : null}
-        <div className="sonn-row">
-          <span className="sonn-row__text">
-            <span className="sonn-row__title">{t('sonnClients.remote.pair')}</span>
-            <span className="sonn-row__desc">{t('sonnClients.remote.pairDesc')}</span>
-          </span>
-          <span className="sonn-row__control">
-            <button
-              type="button"
-              className="setup-btn"
-              disabled={!device.online}
-              onClick={onPair}
-            >
-              {t('sonnClients.remote.pair')}
-            </button>
-          </span>
         </div>
         <p className="sonn-note">{t('sonnClients.remote.assignOnZone')}</p>
       </div>

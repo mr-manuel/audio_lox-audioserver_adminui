@@ -89,6 +89,8 @@ export type SonnStatus = {
     zone_id?: number;
     menu_revision?: string;
     hid_connected?: boolean;
+    /** The remotes paired to this device, in the room or not. */
+    devices?: Array<{ address: string; name: string; connected?: boolean }>;
     last_error?: string;
   };
 };

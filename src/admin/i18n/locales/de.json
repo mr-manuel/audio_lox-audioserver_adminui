@@ -1421,7 +1421,17 @@
       "deviceCopy": "Wessen Fernbedienung diesen Raum steuert. Folgt dem Lautsprecher, solange du nichts anderes wählst; gekoppelt wird auf dem jeweiligen Gerät.",
       "deviceAny": "Der Lautsprecher in diesem Raum",
       "deviceMissing": "{{id}} (offline)",
-      "deviceFollows": "Der Lautsprecher in diesem Raum ({{name}})"
+      "deviceFollows": "Der Lautsprecher in diesem Raum ({{name}})",
+      "groupPairing": "Koppeln",
+      "nonePaired": "Noch keine Fernbedienung gekoppelt.",
+      "pairedConnected": "Im Raum",
+      "pairedAway": "Gekoppelt, nicht in Reichweite",
+      "pairTitle": "Fernbedienung koppeln",
+      "pairCopy": "Hier drücken, danach die Fernbedienung in den Koppelmodus bringen.",
+      "pair": "Koppeln",
+      "pairing": "Koppelt…",
+      "forget": "Vergessen",
+      "forgetting": "Wird vergessen…"
     },
     "bluetooth": {
       "useTitle": "Bluetooth",
@@ -1640,7 +1650,6 @@
       "volumePlayer": "Lautstärke folgt",
       "volumePlayerDesc": "Welchen Lautsprecher dieses Geräts die Lautstärketasten ändern.",
       "firstPlayer": "Der erste Lautsprecher",
-      "pair": "Fernbedienung koppeln",
       "pairingStarted": "Versetze die Fernbedienung jetzt in den Kopplungsmodus. 90 Sekunden Zeit.",
       "keysConnected": "Tasten verbunden",
       "states": {
@@ -1649,11 +1658,10 @@
         "error": "Problem",
         "disabled": "aus"
       },
-      "assignOnZone": "In welchem Raum diese Fernbedienung arbeitet, wird auf der Seite des Raums festgelegt — unter Zonen, neben dem Lautsprecher, über den er spielt.",
+      "assignOnZone": "Das Koppeln einer Fernbedienung und was auf ihrem Display steht, wird am Raum eingestellt, den sie steuert — unter Zonen, neben dem Lautsprecher.",
       "eyebrow": "Fernbedienung",
       "chip": "Fernbedienung · {{room}}",
-      "notSetUp": "Nicht eingerichtet",
-      "pairDesc": "Versetze die Fernbedienung in den Kopplungsmodus, sobald du das gedrückt hast."
+      "notSetUp": "Nicht eingerichtet"
     },
     "errors": {
       "generic": "Das wurde nicht gespeichert. Versuche es erneut.",
