@@ -63,7 +63,16 @@ export default function ZoneRemotePage({
   children,
 }: ZoneRemotePageProps): JSX.Element {
   const { t } = useTranslation();
-  const enabled = config?.enabled === true;
+  /**
+   * Whether this room listens to this model.
+   *
+   * Two answers make it: the room uses B&O remotes at all, and it has not switched this model off.
+   * A room that says nothing about models listens to all of them, which is what every room
+   * configured before this did.
+   */
+  const listensTo = (which: RemoteModel): boolean =>
+    config?.enabled === true && (config.models?.[which] ?? true);
+  const enabled = listensTo(model);
   const [devices, setDevices] = React.useState<SonnDeviceView[]>([]);
 
   // Only when the room actually wants a remote: a list of speakers is not worth a request on every
@@ -133,10 +142,21 @@ export default function ZoneRemotePage({
   const pair = (): Promise<void> => send('pair', 'pair_remote');
   const forget = (address: string): Promise<void> => send(address, 'forget_remote', [address]);
 
+  /**
+   * Switch this model on or off for this room.
+   *
+   * Written as both models, never as one: an absent model means "yes", so leaving the other one out
+   * would switch it back on the moment this one is switched off. And when neither is left, the
+   * whole block goes rather than leaving a disabled remnant carrying key bindings for a remote
+   * nobody is using.
+   */
   function toggle(next: boolean): void {
-    // Turning it off drops the whole block rather than leaving a disabled remnant
-    // carrying key bindings for a remote nobody is using.
-    onChange(next ? { ...(config ?? {}), enabled: true } : null);
+    const models = { one: listensTo('one'), essence: listensTo('essence'), [model]: next };
+    if (!models.one && !models.essence) {
+      onChange(null);
+      return;
+    }
+    onChange({ ...(config ?? {}), enabled: true, models });
   }
 
   return (
@@ -148,13 +168,17 @@ export default function ZoneRemotePage({
             <RemoteGlyph />
           </span>
           <div className="zset-row__text">
-            <span className="zset-row__title">{t('zones.beoremote.useTitle')}</span>
+            <span className="zset-row__title">
+              {t('zones.beoremote.useModel', { model: t(`zones.beoremote.models.${model}`) })}
+            </span>
             <span className="zset-row__desc">{t('zones.beoremote.copy')}</span>
           </div>
           <button
             type="button"
             className={`zones-hub__toggle${enabled ? ' is-on' : ''}`}
-            aria-label={t('zones.beoremote.useTitle')}
+            aria-label={t('zones.beoremote.useModel', {
+              model: t(`zones.beoremote.models.${model}`),
+            })}
             aria-pressed={enabled}
             disabled={saving}
             onClick={() => toggle(!enabled)}

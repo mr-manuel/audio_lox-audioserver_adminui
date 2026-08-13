@@ -40,10 +40,13 @@ export default function ZoneRemoteModelList({
   onOpenEssence,
 }: ZoneRemoteModelListProps): JSX.Element {
   const { t } = useTranslation();
-  const oneEnabled = config?.enabled === true;
-
-  // One switch serves the room, so both models read from it. See ZoneRemotePage.
-  const summary = oneEnabled ? t('zones.beoremote.summaryOn') : t('zones.beoremote.summaryOff');
+  // Per model, because they are separate remotes: one bridge hears them both, and a model switched
+  // off has its keys dropped rather than its own bridge stopped. A room that says nothing about
+  // models listens to all of them.
+  const summaryFor = (model: 'one' | 'essence'): string =>
+    config?.enabled === true && (config.models?.[model] ?? true)
+      ? t('zones.beoremote.summaryOn')
+      : t('zones.beoremote.summaryOff');
 
   return (
     <div className="zset">
@@ -54,7 +57,7 @@ export default function ZoneRemoteModelList({
           </span>
           <span className="zset-drill__text">
             <span className="zset-drill__lab">{t('zones.beoremote.models.essence')}</span>
-            <b className="zset-drill__sum">{summary}</b>
+            <b className="zset-drill__sum">{summaryFor('essence')}</b>
           </span>
           <Chevron />
         </button>
@@ -65,7 +68,7 @@ export default function ZoneRemoteModelList({
           </span>
           <span className="zset-drill__text">
             <span className="zset-drill__lab">{t('zones.beoremote.models.one')}</span>
-            <b className="zset-drill__sum">{summary}</b>
+            <b className="zset-drill__sum">{summaryFor('one')}</b>
           </span>
           <Chevron />
         </button>
