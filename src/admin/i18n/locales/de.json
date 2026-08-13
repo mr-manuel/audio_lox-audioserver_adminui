@@ -1778,6 +1778,17 @@
       "taken": "Vom {{when}}",
       "none": "Noch kein Protokoll geholt.",
       "noAnswer": "Der Lautsprecher hat sein Protokoll nicht gesendet. Vielleicht ist er offline."
+    },
+    "claim": {
+      "title": "Noch nicht übernommen",
+      "detail": "Dieser Lautsprecher sieht mehrere Server. Übernimm ihn, um ihn hier zu nutzen.",
+      "sees": "Er sieht {{servers}}. Übernimm ihn, um ihn hier zu nutzen.",
+      "action": "Lautsprecher hier nutzen"
+    },
+    "move": {
+      "action": "Verschieben",
+      "title": "Diesen Lautsprecher verschieben?",
+      "message": "{{name}} gehört dann nicht mehr zu diesem Server. Er meldet sich wieder bei allen Servern im Netzwerk, und du übernimmst ihn auf dem gewünschten."
     }
   }
 }

@@ -1780,6 +1780,17 @@
       "taken": "Taken {{when}}",
       "none": "No log fetched yet.",
       "noAnswer": "The speaker did not send its log. It may be offline."
+    },
+    "claim": {
+      "title": "Not claimed yet",
+      "detail": "This speaker can see more than one server. Claim it to use it here.",
+      "sees": "It can see {{servers}}. Claim it to use it here.",
+      "action": "Use this speaker here"
+    },
+    "move": {
+      "action": "Move",
+      "title": "Move this speaker?",
+      "message": "{{name}} stops being this server’s. It offers itself to every server on the network again, and you claim it on the one you want."
     }
   }
 }

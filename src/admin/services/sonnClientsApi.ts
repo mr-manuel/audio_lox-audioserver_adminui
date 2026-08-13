@@ -32,6 +32,8 @@ export type SonnRegistration = {
   inputs: SonnCard[];
   capabilities?: { codecs?: string[]; max_players?: number; features?: string[] };
   components?: Array<{ name?: string; version?: string | null; state?: string }>;
+  /** The audioservers this device can see, itself included. Empty from older clients. */
+  servers?: Array<{ name?: string; url?: string }>;
   registeredAt?: number;
 };
 
@@ -175,6 +177,13 @@ export type SonnDeviceConfig = {
 export type SonnDeviceView = {
   deviceId: string;
   online: boolean;
+  /**
+   * Whether this server runs the device.
+   *
+   * False for a speaker that found several servers and has not been given to one: it shows on every
+   * one of their screens until somebody claims it, and has no settings until then.
+   */
+  claimed?: boolean;
   config: SonnDeviceConfig | null;
   registration: SonnRegistration | null;
   status: SonnStatus | null;
@@ -276,6 +285,22 @@ export async function sendSonnClientCommand(
     body: JSON.stringify({ command, args }),
   });
   if (!res.ok) await parseError(res);
+}
+
+/**
+ * Take on a speaker that several servers can see.
+ *
+ * Nothing else in this API writes a device into a server's config, so this is where "this one is
+ * ours" is said. The device hears it on its next announcement and stops offering itself elsewhere.
+ */
+export async function claimSonnClient(deviceId: string): Promise<SonnDeviceView> {
+  const res = await fetch(`${API_BASE}/sonnclients/${encodeURIComponent(deviceId)}/claim`, {
+    method: 'POST',
+    headers: authHeaders(),
+    credentials: credentialsMode(),
+  });
+  if (!res.ok) await parseError(res);
+  return (await res.json()) as SonnDeviceView;
 }
 
 /** The last log a device handed over. `receivedAt` is null when it has not sent one yet. */

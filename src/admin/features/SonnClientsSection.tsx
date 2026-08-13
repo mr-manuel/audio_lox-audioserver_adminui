@@ -8,6 +8,7 @@ import {
   listSonnClients,
   saveSonnClient,
   forgetSonnClient,
+  claimSonnClient,
   setSonnClientVersion,
   sendSonnClientCommand,
   fetchSonnClientLogs,
@@ -522,6 +523,48 @@ export default function SonnClientsSection(): JSX.Element {
     }
   };
 
+  /** Take on a speaker that is offering itself to more than one server. */
+  const claim = async (device: SonnDeviceView): Promise<void> => {
+    try {
+      await claimSonnClient(device.deviceId);
+      // Reload rather than patch: claiming turns a name and an address into a device with cards,
+      // and what it looks like from here is the server's answer, not something to guess at.
+      await load();
+    } catch {
+      push({ tone: 'error', message: t('sonnClients.errors.generic') });
+    }
+  };
+
+  /**
+   * Hand a speaker back to whoever wants it.
+   *
+   * The same act as forgetting it — this server drops it — but said the way it will be used: the
+   * device notices on its next poll, announces itself to every server again, and can be claimed on
+   * another one. Refused while a room still plays through it, for the same reason forgetting is.
+   */
+  const move = async (device: SonnDeviceView): Promise<void> => {
+    const ok = await confirm({
+      title: t('sonnClients.move.title'),
+      message: t('sonnClients.move.message', { name: deviceTitle(device, t) }),
+      confirmLabel: t('sonnClients.move.action'),
+    });
+    if (!ok) return;
+    try {
+      await forgetSonnClient(device.deviceId);
+      closeDevice();
+      await load();
+    } catch (err) {
+      if (err instanceof SonnClientError && err.code === 'device-in-use') {
+        const rooms = err.clientIds
+          .map((clientId) => usage.players[clientId]?.name ?? usage.sources[clientId] ?? clientId)
+          .join(', ');
+        push({ tone: 'error', message: t('sonnClients.errors.deviceInUse', { ids: rooms }) });
+        return;
+      }
+      push({ tone: 'error', message: t('sonnClients.errors.generic') });
+    }
+  };
+
   const forget = async (device: SonnDeviceView): Promise<void> => {
     const ok = await confirm({
       title: t('sonnClients.forgetTitle'),
@@ -694,6 +737,8 @@ export default function SonnClientsSection(): JSX.Element {
                 onOpen={(next) => openDevice(device, next)}
                 onAddPlayer={() => addPlayer(device)}
                 onForget={() => void forget(device)}
+                onClaim={() => void claim(device)}
+                onMove={() => void move(device)}
               />
             ))}
             <button type="button" className="sonn-add" onClick={() => setInstallOpen(true)}>
@@ -762,6 +807,60 @@ function CopyCommandButton(): JSX.Element {
 
 /* --------------------------------------------------------------- the tile -- */
 
+/**
+ * A speaker that can see this server and at least one other, and has not been given to either.
+ *
+ * Deliberately almost empty: one sentence about what it is, which servers it can see, and one
+ * button. Everything a device page normally offers is a setting, and this speaker has none here
+ * until somebody says it is ours.
+ */
+function UnclaimedTile({
+  device,
+  onClaim,
+}: {
+  device: SonnDeviceView;
+  onClaim: () => void;
+}): JSX.Element {
+  const { t } = useTranslation();
+  const elsewhere = (device.registration?.servers ?? [])
+    .map((server) => server.name?.trim())
+    .filter((name): name is string => Boolean(name));
+
+  return (
+    <article className="sonn-tile is-idle">
+      <header className="sonn-tile__head">
+        <span className={`sonn-dot${device.online ? ' is-online' : ''}`} aria-hidden="true" />
+        <div className="sonn-tile__head-text">
+          <div className="sonn-tile__name">{deviceTitle(device, t)}</div>
+          <div className="sonn-tile__meta">
+            {[device.registration?.ip, device.registration?.model].filter(Boolean).join(' · ')}
+          </div>
+        </div>
+      </header>
+
+      <div className="sonn-hero is-quiet" style={{ cursor: 'default' }}>
+        <span className="sonn-hero__icon" aria-hidden="true">
+          <SpeakerGlyph />
+        </span>
+        <span className="sonn-hero__text">
+          <span className="sonn-hero__state">{t('sonnClients.claim.title')}</span>
+          <span className="sonn-hero__detail">
+            {elsewhere.length > 1
+              ? t('sonnClients.claim.sees', { servers: elsewhere.join(', ') })
+              : t('sonnClients.claim.detail')}
+          </span>
+        </span>
+      </div>
+
+      <footer className="sonn-tile__foot">
+        <button type="button" className="sonn-tile__action" onClick={onClaim}>
+          {t('sonnClients.claim.action')}
+        </button>
+      </footer>
+    </article>
+  );
+}
+
 function DeviceTile({
   device,
   draft,
@@ -770,6 +869,8 @@ function DeviceTile({
   onOpen,
   onAddPlayer,
   onForget,
+  onClaim,
+  onMove,
 }: {
   device: SonnDeviceView;
   draft: Draft;
@@ -778,8 +879,17 @@ function DeviceTile({
   onOpen: (view?: View) => void;
   onAddPlayer: () => void;
   onForget: () => void;
+  onClaim: () => void;
+  onMove: () => void;
 }): JSX.Element {
   const { t } = useTranslation();
+  // Not ours yet. It found more than one server, so it is sitting on every one of their screens
+  // waiting to be told whose it is. Nothing else on this tile applies: it has no settings here, and
+  // offering to give it a room before it has been claimed would be offering to configure someone
+  // else's speaker.
+  if (device.claimed === false) {
+    return <UnclaimedTile device={device} onClaim={onClaim} />;
+  }
   const standing = standingOf(device, draft, t);
   const outputs = device.registration?.outputs ?? [];
   const inputs = device.registration?.inputs ?? [];
@@ -915,6 +1025,13 @@ function DeviceTile({
         <button type="button" className="sonn-tile__action" onClick={() => onOpen({ kind: 'main' })}>
           {t('sonnClients.tile.settings')}
         </button>
+        {/* Only where there is somewhere to move to: on a house with one server this would be a
+            button that means nothing. */}
+        {(device.registration?.servers?.length ?? 0) > 1 ? (
+          <button type="button" className="sonn-tile__action" onClick={onMove}>
+            {t('sonnClients.move.action')}
+          </button>
+        ) : null}
         <button type="button" className="sonn-tile__action sonn-tile__action--danger" onClick={onForget}>
           {t('sonnClients.forget')}
         </button>
