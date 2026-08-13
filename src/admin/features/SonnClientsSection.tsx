@@ -8,7 +8,6 @@ import {
   listSonnClients,
   saveSonnClient,
   forgetSonnClient,
-  sendSonnClientCommand,
   setSonnClientVersion,
   CLIENT_COMPONENT,
   nextClientId,
