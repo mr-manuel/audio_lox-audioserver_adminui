@@ -9,6 +9,15 @@ import { setLanguage, type Language } from '../i18n';
 import { useUpdateCheck } from './UpdateCheckContext';
 
 const REPO_URL = 'https://github.com/sonn-audio/core';
+/**
+ * The documentation, which is a site of its own rather than a readme.
+ *
+ * It used to point at the repository's readme — the only writing there was at the time. The written
+ * documentation now lives here, chapter per subject, and the readme is a short page that links to
+ * it; sending someone from a settings screen to a source tree to read how a setting works is one
+ * hop too many.
+ */
+const DOCS_URL = 'https://sonn-audio.github.io/docs/';
 
 type ShellProps = {
   children: React.ReactNode;
@@ -135,7 +144,7 @@ export default function Shell({
             </svg>
             {t('shell.github')}
           </a>
-          <a className="top-chip" href={`${REPO_URL}#readme`} target="_blank" rel="noreferrer">
+          <a className="top-chip" href={DOCS_URL} target="_blank" rel="noreferrer">
             {t('shell.docs')}
           </a>
           {/* Outside this product on the left of it, yours on the right — see `.top-strip__sep`. */}
