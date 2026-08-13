@@ -68,6 +68,22 @@ export type SonnStatus = {
   sources?: SonnSourceStatus[];
   components?: Array<{ name?: string; version?: string | null; state?: string; last_error?: string }>;
   pairing?: { state?: string; address?: string; name?: string; message?: string };
+  /**
+   * The device's Bluetooth radio, as it reports it.
+   *
+   * Which room uses the radio is a zone setting, not a device one, so nothing here is editable —
+   * but the phone that is connected and what it is playing are only knowable from the device, and
+   * that is worth showing beside the box it is happening in.
+   */
+  bluetooth?: {
+    enabled?: boolean;
+    zone_id?: number;
+    name?: string;
+    discoverable?: boolean;
+    devices?: Array<{ address: string; name: string; connected?: boolean; streaming?: boolean }>;
+    now_playing?: { title?: string; artist?: string; album?: string; status?: string } | null;
+    last_error?: string | null;
+  };
   beoremote?: {
     state?: string;
     zone_id?: number;
@@ -266,11 +282,48 @@ export function playerLabel(player: SonnPlayerConfig): string {
   return player.name?.trim() || player.output?.trim() || player.clientId;
 }
 
-/** A card's name as the UI should show it, falling back to the device id it reported. */
-export function cardLabel(card: SonnCard): string {
+/**
+ * A card's name as the UI should show it, falling back to the device id it reported.
+ *
+ * ALSA names arrive as `driver_module, Human Readable Name` — the first half is the kernel module
+ * and means nothing to anyone choosing where a speaker is wired, so it goes.
+ */
+export function cardName(card: SonnCard): string {
   const name = card.name?.trim();
-  if (!name || name === card.id) return card.id;
-  return `${name} — ${card.id}`;
+  if (!name || name === card.id) return cardSpec(card.id);
+  const parts = name.split(',').map((part) => part.trim()).filter(Boolean);
+  // A first segment with no spaces is the module id (`snd_rpi_hifiberry_dacplusadcpro`).
+  if (parts.length > 1 && !/\s/.test(parts[0])) parts.shift();
+  return parts.join(', ') || cardSpec(card.id);
+}
+
+/** The ALSA device behind a card id, without the prefix that says which subsystem it came from. */
+export function cardSpec(id: string): string {
+  return id.replace(/^alsa:/, '');
+}
+
+/** A card as one line in the picker: what it is, then which ALSA device that is. */
+export function cardLabel(card: SonnCard): string {
+  const name = cardName(card);
+  const spec = cardSpec(card.id);
+  return name === spec ? spec : `${name} — ${spec}`;
+}
+
+/**
+ * The cards, split into the ones anyone should pick and the rest.
+ *
+ * A Pi with two cards reports eighteen outputs: `hw` and `plughw` per card, plus every ALSA alias
+ * (`default`, `sysdefault`, `dmix`, `front`, `surround51`, …) pointing back at the same hardware.
+ * Listing all of them as equals is how someone ends up on `surround21` and hears nothing, so the
+ * direct devices lead and the aliases are still there, one group down, for the case that needs one.
+ */
+export function splitCards(cards: SonnCard[]): { direct: SonnCard[]; aliases: SonnCard[] } {
+  const direct: SonnCard[] = [];
+  const aliases: SonnCard[] = [];
+  for (const card of cards) {
+    (/^alsa:(plug)?hw:/.test(card.id) ? direct : aliases).push(card);
+  }
+  return { direct, aliases };
 }
 
 /**

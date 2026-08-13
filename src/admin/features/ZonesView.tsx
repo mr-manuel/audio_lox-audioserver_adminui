@@ -1660,14 +1660,12 @@ function ZoneModal({
     return t('zones.beoremote.models.one');
   })();
 
-  const bluetoothSummary = (() => {
-    const cfg = deriveZoneInputs(zone).bluetooth;
-    if (cfg?.enabled !== true) {
-      return t('zones.bluetooth.summaryOff');
-    }
-    // The name is what someone will look for on a phone, so it is the useful summary.
-    return cfg.publishName?.trim() || zone.name;
-  })();
+  // Whether the room takes Bluetooth at all, in the same words as the switches beside it. Naming
+  // the room here was noise: it is the room whose settings are open.
+  const bluetoothOn = deriveZoneInputs(zone).bluetooth?.enabled === true;
+  const bluetoothSummary = bluetoothOn
+    ? t('zones.bluetooth.summaryOn')
+    : t('zones.bluetooth.summaryOff');
 
   const powerSummary = (() => {
     if (powerCfg?.powerGroupId) {
@@ -1884,7 +1882,9 @@ function ZoneModal({
                   </span>
                   <span className="zset-drill__text">
                     <span className="zset-drill__lab">{t('zones.bluetooth.useTitle')}</span>
-                    <b className="zset-drill__sum">{bluetoothSummary}</b>
+                    <b className={`zset-drill__sum${bluetoothOn ? '' : ' zset-drill__sum--muted'}`}>
+                      {bluetoothSummary}
+                    </b>
                   </span>
                   <svg className="zset-drill__chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6" />

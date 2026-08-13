@@ -1300,6 +1300,78 @@ button.zones-hub__toggle:disabled {
   color: var(--text);
 }
 
+/* Text and number fields for a settings row, matching the select beside them. These were referenced
+   by the Bluetooth panel long before they were written, which is what made that panel's fields fall
+   back to the global input styling and stand a head taller than everything around them. */
+.zones-hub__input {
+  width: 180px;
+  max-width: 180px;
+  flex-shrink: 0;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  min-height: 0;
+  transition: border-color 0.15s;
+}
+
+.zones-hub__input:focus {
+  border-color: var(--border-accent);
+}
+
+.zones-hub__input::placeholder {
+  color: var(--text-dim);
+}
+
+.zones-hub__input:disabled {
+  opacity: 0.6;
+}
+
+/* A number with its unit, so the unit reads as part of the field rather than as loose text. */
+.zones-hub__num {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+
+.zones-hub__num .zones-hub__input {
+  width: 84px;
+  max-width: 84px;
+  text-align: right;
+  /* The spinner buttons crowd a three-digit field and nobody nudges a pairing window one second at
+     a time. */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.zones-hub__num .zones-hub__input::-webkit-outer-spin-button,
+.zones-hub__num .zones-hub__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.zones-hub__num-suffix {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+/* On a phone the label needs the room the field is taking. */
+@media (max-width: 640px) {
+  .zones-hub__input {
+    width: 128px;
+    max-width: 128px;
+  }
+}
+
 .zones-hub__select:disabled {
   opacity: 0.6;
   cursor: not-allowed;

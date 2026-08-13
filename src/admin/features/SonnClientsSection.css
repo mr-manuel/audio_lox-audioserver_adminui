@@ -1,158 +1,1072 @@
-/* Devices running Sonn Client, inside Setup. The section frame and form language come from Setup;
-   what is here is the device card, its status strip, and the nested speaker/input entries. */
+/* Devices running Sonn Client, inside Setup.
+ *
+ * The screen is a grid of device tiles plus one dialog per device, which is the same shape Zones
+ * uses for rooms — a tile says what the thing is and what it is doing, and everything you can
+ * change is one click away behind it. The form language (toggles, inputs, buttons) comes from Setup;
+ * the tile, the dialog frame and the rows are here, deliberately matching the Zones vocabulary so a
+ * speaker and the room it plays in do not look like they came from two different programs.
+ */
 
 .sonn-stack {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
 }
 
-.sonn-device {
+/* ---- Fleet strip: the whole installation in one line ---- */
+
+.sonn-fleet {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.sonn-fleet--update {
+  border-color: var(--border-accent);
+  background: rgba(74, 222, 128, 0.04);
+}
+
+/* A basis rather than `flex: 1`: the actions wrap internally, so their min-content width is one
+   button — which let them keep the line on a phone and squeeze this column to one word per line. */
+.sonn-fleet__main {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-}
-
-.sonn-device__head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.sonn-device__identity {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
+  gap: 3px;
   min-width: 0;
+  flex: 1 1 260px;
 }
 
-.sonn-device__meta {
-  margin: 2px 0 0;
-  font-size: 0.82rem;
-  color: var(--text-muted, #8b8b8b);
+.sonn-fleet__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
 }
 
-/* The id a zone's output points at. Monospaced because it is a value to be recognised and copied,
-   not read as prose. */
-.sonn-device__id,
-.sonn-entry__id {
-  margin: 2px 0 0;
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.76rem;
-  color: var(--text-faint, #6f6f6f);
-  word-break: break-all;
+.sonn-fleet__desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
 }
 
-.sonn-device__actions {
+.sonn-fleet__actions {
   display: flex;
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+/* ---- Tile grid ---- */
+
+.sonn-grid {
+  display: grid;
+  /* A fixed tile, like Zones: a wider window gets more columns rather than wider
+     tiles, and three devices do not stretch to fill a 4K row. 360px is what the
+     speaker rows need before the room name they carry starts truncating. */
+  grid-template-columns: repeat(auto-fill, 360px);
+  gap: 14px;
+}
+
+@media (max-width: 780px) {
+  .sonn-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.sonn-tile {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  min-width: 0;
+  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+}
+
+.sonn-tile:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* A device we have not heard from, or one reporting a problem. Not a device someone switched off:
+   that is a choice, and colouring it like a fault is how a screen cries wolf. */
+.sonn-tile.is-idle {
+  border-color: rgba(245, 158, 11, 0.22);
+}
+
+.sonn-tile__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.sonn-tile__head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sonn-tile__name {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sonn-tile__meta {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Online is the one thing worth a colour on this screen: everything else is text. */
 .sonn-dot {
-  width: 9px;
-  height: 9px;
-  margin-top: 7px;
+  width: 8px;
+  height: 8px;
+  margin-top: 6px;
   border-radius: 50%;
-  background: var(--text-faint, #6f6f6f);
+  background: var(--text-faint);
   flex: none;
 }
 
 .sonn-dot.is-online {
-  background: #3fb950;
-  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.18);
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent-glow);
 }
 
-.sonn-status {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.sonn-status--offline {
-  font-size: 0.82rem;
-  color: var(--text-muted, #8b8b8b);
-}
-
-.sonn-chip {
-  padding: 3px 9px;
-  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
+.sonn-tile__ver {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  padding: 4px 8px;
+  border: 1px solid var(--border);
   border-radius: 999px;
-  font-size: 0.78rem;
-  color: var(--text-muted, #b4b4b4);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sonn-tile__ver.is-behind {
+  color: var(--accent);
+  border-color: var(--border-accent);
+  background: rgba(74, 222, 128, 0.07);
+}
+
+/* ---- What the device is doing, right now ---- */
+
+.sonn-hero {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 12px 13px;
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.sonn-hero:hover {
+  border-color: var(--border-accent);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.sonn-hero__icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.sonn-hero.is-playing .sonn-hero__icon {
+  color: var(--accent);
+  border-color: var(--border-accent);
+  background: rgba(74, 222, 128, 0.08);
+}
+
+.sonn-hero.is-quiet {
+  background: rgba(245, 158, 11, 0.04);
+  border-color: rgba(245, 158, 11, 0.24);
+}
+
+.sonn-hero.is-quiet .sonn-hero__icon {
+  color: var(--warn-bright);
+  border-color: rgba(245, 158, 11, 0.28);
+  background: rgba(245, 158, 11, 0.08);
+}
+
+.sonn-hero__text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.sonn-hero__state {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 100%;
 }
 
-.sonn-chip strong {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-weight: 500;
-  color: var(--text, #e6e6e6);
+.sonn-hero.is-quiet .sonn-hero__state {
+  color: var(--warn-bright);
 }
 
-.sonn-chip--accent {
-  border-color: rgba(224, 168, 74, 0.5);
-  color: #e0a84a;
+.sonn-hero__detail {
+  margin-top: 3px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sonn-group {
+.sonn-chev {
+  flex: none;
+  color: var(--text-faint);
+  transition: transform 0.15s, color 0.15s;
+}
+
+.sonn-hero:hover .sonn-chev,
+.sonn-tile__row:hover .sonn-chev {
+  color: var(--text-muted);
+  transform: translateX(2px);
+}
+
+/* ---- Speakers and inputs, as rows on the tile ---- */
+
+.sonn-tile__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  margin-bottom: -4px;
+}
+
+.sonn-tile__row {
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 2px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border-faint);
+  min-height: 0;
+}
+
+.sonn-tile__label + .sonn-tile__row {
+  border-top: none;
+}
+
+.sonn-tile__row-text {
   display: flex;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.sonn-tile__row-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Which room this speaker or input is used by — the answer to "what is this for", so it carries
+   the accent the way a drill row's summary does everywhere else. */
+.sonn-tile__row-sum {
+  margin-top: 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sonn-tile__row-sum--free {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.sonn-tile__add {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: none;
+  border: 1px dashed var(--border-strong);
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  min-height: 0;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.sonn-tile__add:not(:disabled):hover {
+  color: var(--accent);
+  border-color: var(--border-accent);
+}
+
+.sonn-tile__add:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ---- Chips (what else this device carries) ---- */
+
+.sonn-chips {
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.sonn-chip {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 5px 9px;
+  border-radius: 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  background: rgba(255, 255, 255, 0.02);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sonn-chip__dot {
+  width: 5px;
+  height: 5px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--text-faint);
+}
+
+.sonn-chip.is-on {
+  color: var(--text-muted);
+  border-color: var(--border-strong);
+}
+
+.sonn-chip.is-on .sonn-chip__dot {
+  background: var(--accent);
+  box-shadow: 0 0 5px var(--accent-glow);
+}
+
+.sonn-chip.is-warn {
+  color: var(--warn-bright);
+  border-color: rgba(245, 158, 11, 0.3);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.sonn-chip.is-warn .sonn-chip__dot {
+  background: var(--warn);
+}
+
+/* ---- Tile footer ---- */
+
+.sonn-tile__foot {
+  display: flex;
+  border-top: 1px solid var(--border);
+  margin: 2px -16px -16px;
+}
+
+.sonn-tile__action {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  padding: 13px;
+  cursor: pointer;
+  min-height: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sonn-tile__action:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sonn-tile__action--danger:hover {
+  color: var(--danger);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.sonn-tile__action + .sonn-tile__action {
+  border-left: 1px solid var(--border);
+}
+
+/* ---- Add a device ---- */
+
+.sonn-add {
+  align-self: start;
+  border: 1px dashed var(--border-strong);
+  border-radius: 14px;
+  background: none;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 18px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   gap: 10px;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-soft, rgba(255, 255, 255, 0.07));
+  min-height: 120px;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.sonn-add:hover {
+  color: var(--accent);
+  border-color: var(--border-accent);
+  background: rgba(74, 222, 128, 0.03);
+}
+
+.sonn-add__icon {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+/* ---- Empty state: the one thing there is to do ---- */
+
+.sonn-empty {
+  padding: 44px 24px;
+  text-align: center;
+  border: 1px solid var(--border-soft);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.sonn-empty__title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.sonn-empty__body {
+  margin: 8px auto 0;
+  max-width: 56ch;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+.sonn-empty__cmd {
+  margin: 20px auto 0;
+  max-width: 60ch;
+}
+
+/* ---- The install command ---- */
+
+/* Wrapping rather than scrolling: it is read once and pasted into a terminal on another machine, so
+   all of it has to be visible at once. */
+.sonn-install {
+  display: block;
+  padding: 11px 13px;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.28);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+
+.sonn-install__row {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+/* ---- Dialog ---- */
+
+.sonn-modal-backdrop {
+  background: var(--modal-backdrop);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: var(--z-modal, 200);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: fixed;
+  inset: 0;
+  animation: sonn-modal-fade 0.25s ease;
+}
+
+@keyframes sonn-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sonn-modal {
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 48px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--accent-soft);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  animation: sonn-modal-rise 0.3s var(--spring);
+}
+
+@keyframes sonn-modal-rise {
+  from {
+    transform: scale(0.95) translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.sonn-modal::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, var(--accent) 25%, var(--accent) 75%, transparent);
+  opacity: 0.5;
+}
+
+.sonn-modal--narrow {
+  max-width: 560px;
+}
+
+.sonn-modal__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sonn-modal__head-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.sonn-modal__back {
+  width: 32px;
+  height: 32px;
+  margin-top: 2px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+
+.sonn-modal__back:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+  background: var(--surface-soft);
+}
+
+.sonn-modal__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 2.2px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.sonn-modal__title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  line-height: 1.15;
+  color: var(--text);
+}
+
+.sonn-modal__subtitle {
+  margin-top: 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.sonn-modal__subtitle-on {
+  color: var(--accent);
+}
+
+.sonn-modal__sep {
+  opacity: 0.6;
+}
+
+.sonn-modal__close {
+  flex: none;
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: inline-flex;
+  min-height: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.sonn-modal__close:hover {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.sonn-modal__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.sonn-modal__foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.sonn-modal__btn {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  min-height: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.sonn-modal__btn:not(:disabled):hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.sonn-modal__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sonn-modal__btn--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-on);
+}
+
+.sonn-modal__btn--primary:not(:disabled):hover {
+  background: var(--accent-bright);
+  border-color: var(--accent-bright);
+  color: var(--accent-on);
+  transform: translateY(-1px);
+}
+
+.sonn-modal__btn--danger {
+  margin-right: auto;
+  color: var(--danger);
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.sonn-modal__btn--danger:not(:disabled):hover {
+  color: var(--danger-bright);
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+/* ---- Groups and rows inside the dialog ---- */
+
+.sonn-group {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 6px 14px;
 }
 
 .sonn-group__head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.sonn-group__head h3 {
-  margin: 0;
-  font-size: 0.95rem;
-}
-
-/* One player or input. Indented so it reads as belonging to the device rather than sitting beside
-   it. */
-.sonn-entry {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px;
-  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.07));
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.sonn-entry__head {
-  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  margin: 9px 2px 4px;
 }
 
-/* The install command. Wrapping rather than scrolling: it is read once and pasted into a terminal on
-   another machine, so all of it has to be visible at once. */
-.sonn-install {
-  display: block;
-  margin-top: 10px;
-  padding: 9px 12px;
-  border: 1px solid var(--border-soft, rgba(255, 255, 255, 0.08));
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.28);
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.74rem;
+.sonn-group__label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.sonn-group__empty {
+  padding: 4px 2px 12px;
+  font-size: 12px;
+  color: var(--text-dim);
   line-height: 1.5;
-  color: var(--text-muted, #b4b4b4);
+}
+
+.sonn-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 2px;
+  text-align: left;
+}
+
+.sonn-row + .sonn-row {
+  border-top: 1px solid var(--border-faint);
+}
+
+.sonn-row--drill {
+  background: none;
+  border: none;
+  font-family: inherit;
+  color: inherit;
+  cursor: pointer;
+  min-height: 0;
+  transition: opacity 0.12s;
+}
+
+.sonn-row--drill:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.sonn-row--block {
+  display: block;
+  padding: 12px 2px;
+}
+
+.sonn-row__icon {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.sonn-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sonn-row__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.sonn-row__desc {
+  font-size: 11px;
+  line-height: 1.4;
+  color: var(--text-dim);
+}
+
+.sonn-row__sum {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.sonn-row__sum--muted {
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.sonn-row__control {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sonn-row.is-disabled {
+  opacity: 0.45;
+}
+
+/* A note that belongs to the group above it rather than to a row. */
+.sonn-note {
+  margin: 0;
+  padding: 2px 2px 12px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.sonn-note strong {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.sonn-select {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  max-width: 320px;
+  padding: 9px 32px 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  min-height: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  transition: border-color 0.15s;
+}
+
+.sonn-select:focus {
+  border-color: var(--border-accent);
+}
+
+.sonn-select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sonn-select option,
+.sonn-select optgroup {
+  background: var(--bg-card);
+  color: var(--text);
+}
+
+/* On a phone a row cannot be label-left / control-right: the label ends up one word per line and a
+   dropdown wider than the dialog. The control drops to its own line instead — except a toggle, which
+   is narrow enough to stay where it is. */
+@media (max-width: 620px) {
+  .sonn-modal-backdrop {
+    padding: 12px;
+  }
+
+  .sonn-modal {
+    max-height: calc(100vh - 24px);
+  }
+
+  .sonn-modal__head {
+    padding: 18px 16px 14px;
+  }
+
+  .sonn-modal__body {
+    padding: 14px 16px 20px;
+  }
+
+  .sonn-modal__foot {
+    padding: 14px 16px;
+  }
+
+  .sonn-group {
+    padding: 6px 12px;
+  }
+
+  .sonn-row {
+    flex-wrap: wrap;
+  }
+
+  .sonn-row__text {
+    flex: 1 1 180px;
+  }
+
+  .sonn-row__control {
+    width: 100%;
+  }
+
+  .sonn-row__control:has(.setup-toggle) {
+    width: auto;
+  }
+
+  .sonn-row__control .setup-input,
+  .sonn-select {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+/* ---- Live readout: what the device reports about one speaker or input ---- */
+
+.sonn-readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 2px 2px 12px;
+}
+
+.sonn-readout--head {
+  padding-top: 10px;
+}
+
+/* A value the device told us and nobody can type over — an id, an address, a build. */
+.sonn-mono {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  overflow-wrap: anywhere;
+}
+
+.sonn-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Read-only identity, as a dense key/value band. */
+.sonn-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  margin: 4px 0 10px;
+  border: 1px solid var(--border-faint);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sonn-facts__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 13px;
+  min-width: 0;
+}
+
+/* Hairlines drawn on the item rather than as grid gaps: the column count follows the width, so a
+   last row that does not fill would otherwise leave the gap colour showing as an empty tile. */
+.sonn-facts__item + .sonn-facts__item::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: var(--border-faint);
+}
+
+.sonn-facts__label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.sonn-facts__value {
+  font-size: 12px;
+  color: var(--text);
   overflow-wrap: anywhere;
 }

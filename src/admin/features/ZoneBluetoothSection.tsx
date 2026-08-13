@@ -117,29 +117,36 @@ export default function ZoneBluetoothSection({
   };
 
   return (
-    <div className="zones-hub__section">
-      <div className="zones-hub__row">
-        <div className="zones-hub__row-text">
-          <span className="zones-hub__row-title">
-            <BluetoothGlyph /> {t('zones.bluetooth.useTitle')}
+    /* Same vocabulary as the rest of the zone dialog: a group per question, a row per answer. The
+       markup here used to reach for `zones-hub__row` classes that were never written, which is why
+       the title and its explanation ran together and the switch fell through to its own line. */
+    <div className="zset">
+      <div className="zset-group">
+        <div className="zset-row">
+          <span className="zset-row__icon" aria-hidden="true">
+            <BluetoothGlyph />
           </span>
-          <span className="zones-hub__row-desc">{t('zones.bluetooth.useCopy')}</span>
+          <div className="zset-row__text">
+            <span className="zset-row__title">{t('zones.bluetooth.useTitle')}</span>
+            <span className="zset-row__desc">{t('zones.bluetooth.useCopy')}</span>
+          </div>
+          <button
+            type="button"
+            className={`zones-hub__toggle${enabled ? ' is-on' : ''}`}
+            aria-label={t('zones.bluetooth.useTitle')}
+            aria-pressed={enabled}
+            disabled={saving}
+            onClick={() => (enabled ? onChange(null) : onChange({ enabled: true }))}
+          />
         </div>
-        <button
-          type="button"
-          className={`zones-hub__toggle${enabled ? ' is-on' : ''}`}
-          aria-label={t('zones.bluetooth.useTitle')}
-          aria-pressed={enabled}
-          disabled={saving}
-          onClick={() => (enabled ? onChange(null) : onChange({ enabled: true, publishName: zoneName }))}
-        />
       </div>
 
       {enabled && (
         <>
-          {/* Which radio. Pairing happens on that device; this is where the room claims it. */}
+          {/* Which radio. Pairing happens on that device; this is where the room claims it.
+              One row, so no label — and no row for the name a phone sees, because that is the
+              room's name and reading it back here told nobody anything. */}
           <div className="zset-group">
-            <p className="zset-group__head">{t('zones.bluetooth.groupDevice')}</p>
             <div className="zset-row">
               <div className="zset-row__text">
                 <span className="zset-row__title">{t('zones.bluetooth.deviceTitle')}</span>
@@ -156,7 +163,10 @@ export default function ZoneBluetoothSection({
                 <option value="">{t('zones.bluetooth.devicePick')}</option>
                 {devices.map((entry) => (
                   <option key={entry.deviceId} value={entry.deviceId}>
-                    {entry.config?.name?.trim() || entry.registration?.hostname || entry.deviceId}
+                    {entry.config?.name?.trim() ||
+                      entry.registration?.hostname?.trim() ||
+                      entry.config?.hostname?.trim() ||
+                      entry.deviceId}
                   </option>
                 ))}
                 {config?.deviceId && !devices.some((entry) => entry.deviceId === config.deviceId) ? (
@@ -166,20 +176,6 @@ export default function ZoneBluetoothSection({
                 ) : null}
               </select>
             </div>
-
-            <div className="zset-row">
-              <div className="zset-row__text">
-                <span className="zset-row__title">{t('zones.bluetooth.nameTitle')}</span>
-                <span className="zset-row__desc">{t('zones.bluetooth.nameCopy')}</span>
-              </div>
-              <input
-                className="zones-hub__input"
-                value={config?.publishName ?? ''}
-                placeholder={zoneName}
-                disabled={saving}
-                onChange={(event) => update({ publishName: event.target.value || undefined })}
-              />
-            </div>
           </div>
 
           {/* Pairing: a window that opens and closes again. */}
@@ -187,10 +183,28 @@ export default function ZoneBluetoothSection({
             <p className="zset-group__head">{t('zones.bluetooth.groupPairing')}</p>
             <div className="zset-row">
               <div className="zset-row__text">
+                <span className="zset-row__title">{t('zones.bluetooth.pairTitle')}</span>
+                <span className="zset-row__desc">
+                  {status?.discoverable
+                    ? t('zones.bluetooth.pairOpen', { name: status.name ?? zoneName })
+                    : t('zones.bluetooth.pairCopy')}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="zones-modal__btn"
+                disabled={saving || pairing || !config?.deviceId}
+                onClick={() => void openWindow()}
+              >
+                {pairing ? t('zones.bluetooth.pairing') : t('zones.bluetooth.pair')}
+              </button>
+            </div>
+            <div className="zset-row">
+              <div className="zset-row__text">
                 <span className="zset-row__title">{t('zones.bluetooth.windowTitle')}</span>
                 <span className="zset-row__desc">{t('zones.bluetooth.windowCopy')}</span>
               </div>
-              <div className="zones-hub__num-wrap">
+              <span className="zones-hub__num">
                 <input
                   type="number"
                   inputMode="numeric"
@@ -207,9 +221,8 @@ export default function ZoneBluetoothSection({
                   }
                 />
                 <span className="zones-hub__num-suffix">s</span>
-              </div>
+              </span>
             </div>
-
             <div className="zset-row">
               <div className="zset-row__text">
                 <span className="zset-row__title">{t('zones.bluetooth.pinTitle')}</span>
@@ -223,7 +236,6 @@ export default function ZoneBluetoothSection({
                 onChange={(event) => update({ pin: event.target.value || undefined })}
               />
             </div>
-
             <div className="zset-row">
               <div className="zset-row__text">
                 <span className="zset-row__title">{t('zones.bluetooth.controlTitle')}</span>
@@ -232,33 +244,15 @@ export default function ZoneBluetoothSection({
               <button
                 type="button"
                 className={`zones-hub__toggle${config?.control !== false ? ' is-on' : ''}`}
+                aria-label={t('zones.bluetooth.controlTitle')}
                 aria-pressed={config?.control !== false}
                 disabled={saving}
                 onClick={() => update({ control: config?.control === false })}
               />
             </div>
-
-            <div className="zset-row">
-              <div className="zset-row__text">
-                <span className="zset-row__title">{t('zones.bluetooth.pairTitle')}</span>
-                <span className="zset-row__desc">
-                  {status?.discoverable
-                    ? t('zones.bluetooth.pairOpen', { name: status.name ?? zoneName })
-                    : t('zones.bluetooth.pairCopy')}
-                </span>
-              </div>
-              <button
-                type="button"
-                className="setup-btn"
-                disabled={saving || pairing || !config?.deviceId}
-                onClick={() => void openWindow()}
-              >
-                {pairing ? t('zones.bluetooth.pairing') : t('zones.bluetooth.pair')}
-              </button>
-            </div>
           </div>
 
-          {/* What the device reports back: known phones, and what is playing. */}
+          {/* What the device reports back: which phones it knows, and what is playing. */}
           <div className="zset-group">
             <p className="zset-group__head">{t('zones.bluetooth.groupPhones')}</p>
             {phones.length === 0 ? (
@@ -268,19 +262,23 @@ export default function ZoneBluetoothSection({
                 <div className="zset-row" key={phone.address}>
                   <div className="zset-row__text">
                     <span className="zset-row__title">{phone.name}</span>
-                    <span className="zset-row__desc">
-                      {phone.streaming
-                        ? t('zones.bluetooth.phoneStreaming')
-                        : phone.connected
-                          ? t('zones.bluetooth.phoneConnected')
-                          : t('zones.bluetooth.phonePaired')}
-                      {' · '}
-                      {phone.address}
-                    </span>
+                    <span className="zset-row__desc">{phone.address}</span>
                   </div>
+                  <span
+                    className={`zones-card__status-pill${
+                      phone.streaming || phone.connected ? ' is-ok' : ' is-muted'
+                    }`}
+                  >
+                    <span className="zones-card__status-dot" />
+                    {phone.streaming
+                      ? t('zones.bluetooth.phoneStreaming')
+                      : phone.connected
+                        ? t('zones.bluetooth.phoneConnected')
+                        : t('zones.bluetooth.phonePaired')}
+                  </span>
                   <button
                     type="button"
-                    className="setup-btn"
+                    className="zones-modal__btn"
                     disabled={saving}
                     onClick={() => void forget(phone.address)}
                   >
@@ -289,13 +287,24 @@ export default function ZoneBluetoothSection({
                 </div>
               ))
             )}
-            {playing?.title || playing?.artist ? (
-              <p className="zset-group__empty">
-                {t('zones.bluetooth.nowPlaying', {
-                  artist: playing.artist ?? '—',
-                  title: playing.title ?? '—',
-                })}
-              </p>
+            {/* Only while something is actually coming in: a title left over from an hour ago
+                reads as a claim that the room is playing. */}
+            {playing?.title && phones.some((phone) => phone.streaming) ? (
+              <div className="zset-row">
+                <span className="zset-row__icon" aria-hidden="true">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="6 4 20 12 6 20 6 4" />
+                  </svg>
+                </span>
+                <div className="zset-row__text">
+                  <span className="zset-row__title">{playing.title}</span>
+                  <span className="zset-row__desc">
+                    {[playing.artist, playing.album === playing.title ? '' : playing.album]
+                      .filter(Boolean)
+                      .join(' — ')}
+                  </span>
+                </div>
+              </div>
             ) : null}
           </div>
 
