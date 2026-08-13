@@ -135,7 +135,6 @@ export default function ZoneDeviceSection({
         </select>
       </div>
 
-      <p className="zset-group__empty">{t('zones.device.elsewhere')}</p>
       {error ? <p className="linein-modal__error">{error}</p> : null}
     </div>
   );

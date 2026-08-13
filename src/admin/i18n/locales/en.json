@@ -1466,8 +1466,7 @@
       "volumeAuto": "The sound card, if it has volume",
       "volumeCard": "Always the sound card",
       "volumeSoftware": "Always in software",
-      "volumeHook": "Run the volume script",
-      "elsewhere": "The name, updates and diagnostics for this Sonn Client live on its own page, under Setup."
+      "volumeHook": "Run the volume script"
     }
   },
   "access": {

@@ -1464,8 +1464,7 @@
       "volumeAuto": "Die Soundkarte, wenn sie Lautstärke kann",
       "volumeCard": "Immer die Soundkarte",
       "volumeSoftware": "Immer in Software",
-      "volumeHook": "Das Lautstärke-Skript ausführen",
-      "elsewhere": "Name, Updates und Diagnose dieses Sonn Clients stehen auf seiner eigenen Seite unter Setup."
+      "volumeHook": "Das Lautstärke-Skript ausführen"
     }
   },
   "access": {
