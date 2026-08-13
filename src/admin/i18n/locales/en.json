@@ -1772,6 +1772,14 @@
       "standalone": "Stands on its own",
       "standaloneDesc": "Wire up what it does one at a time — for a box serving two rooms, or one at a turntable whose input any room can play.",
       "claimedDesc": "It plays this room, a phone pairs with this room, and its remote drives it. Set once here instead of three times on the room."
+    },
+    "log": {
+      "title": "Log",
+      "fetch": "Fetch log",
+      "fetching": "Fetching…",
+      "taken": "Taken {{when}}",
+      "none": "No log fetched yet.",
+      "noAnswer": "The speaker did not send its log. It may be offline."
     }
   }
 }

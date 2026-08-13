@@ -9,6 +9,8 @@ import {
   saveSonnClient,
   forgetSonnClient,
   setSonnClientVersion,
+  sendSonnClientCommand,
+  fetchSonnClientLogs,
   CLIENT_COMPONENT,
   nextClientId,
   cardLabel,
@@ -24,6 +26,7 @@ import {
   type SonnSourceConfig,
   type SonnSourceStatus,
   type SonnBeoremoteConfig,
+  type SonnDeviceLogs,
 } from '../services/sonnClientsApi';
 import { getConfig } from '../services/setupApi';
 import { useGlobalAlert } from '../components/GlobalAlert';
@@ -1843,6 +1846,10 @@ function RemotePanel({
 }
 
 /** What the device is, as it reported itself. Nothing here can be typed over. */
+/** How long the screen waits for a log after asking: the device polls every few seconds. */
+const LOG_WAIT_MS = 1500;
+const LOG_WAIT_ATTEMPTS = 12;
+
 function AboutPanel({ device }: { device: SonnDeviceView }): JSX.Element {
   const { t } = useTranslation();
   const registration = device.registration;
@@ -1913,7 +1920,79 @@ function AboutPanel({ device }: { device: SonnDeviceView }): JSX.Element {
           </div>
         </div>
       ) : null}
+
+      <DeviceLog device={device} />
     </>
+  );
+}
+
+/**
+ * The device's own last words, on request.
+ *
+ * Two steps, because that is what actually happens: the ask rides the device's next poll and the
+ * lines come back on the one after, so this asks, then reads until something newer than what it
+ * started with turns up. It gives up after a while rather than spinning: a device that is not
+ * polling has nothing to say and the screen should admit it.
+ */
+function DeviceLog({ device }: { device: SonnDeviceView }): JSX.Element {
+  const { t } = useTranslation();
+  const [logs, setLogs] = React.useState<SonnDeviceLogs | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+
+  // What is already there, so a log fetched a minute ago is on screen without asking again.
+  React.useEffect(() => {
+    let cancelled = false;
+    void fetchSonnClientLogs(device.deviceId)
+      .then((next) => {
+        if (!cancelled) setLogs(next);
+      })
+      .catch(() => {
+        // Nothing to show is the honest answer; the button says the rest.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [device.deviceId]);
+
+  const ask = async (): Promise<void> => {
+    setBusy(true);
+    setError(null);
+    const before = logs?.receivedAt ?? null;
+    try {
+      await sendSonnClientCommand(device.deviceId, 'send_logs');
+      for (let attempt = 0; attempt < LOG_WAIT_ATTEMPTS; attempt += 1) {
+        await new Promise((resolve) => window.setTimeout(resolve, LOG_WAIT_MS));
+        const next = await fetchSonnClientLogs(device.deviceId);
+        if (next.receivedAt && next.receivedAt !== before) {
+          setLogs(next);
+          setBusy(false);
+          return;
+        }
+      }
+      setError(t('sonnClients.log.noAnswer'));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+    setBusy(false);
+  };
+
+  return (
+    <div className="sonn-group">
+      <div className="sonn-group__head">
+        <span className="sonn-group__label">{t('sonnClients.log.title')}</span>
+        <button type="button" className="sonn-modal__btn" disabled={busy} onClick={() => void ask()}>
+          {busy ? t('sonnClients.log.fetching') : t('sonnClients.log.fetch')}
+        </button>
+      </div>
+      <p className="sonn-note" style={{ padding: 0 }}>
+        {logs?.receivedAt
+          ? t('sonnClients.log.taken', { when: new Date(logs.receivedAt).toLocaleString() })
+          : t('sonnClients.log.none')}
+      </p>
+      {logs?.lines.length ? <pre className="sonn-log">{logs.lines.join('\n')}</pre> : null}
+      {error ? <p className="sonn-note sonn-note--warn" style={{ padding: 0 }}>{error}</p> : null}
+    </div>
   );
 }
 

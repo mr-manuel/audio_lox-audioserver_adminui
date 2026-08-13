@@ -1076,3 +1076,27 @@
   color: var(--text);
   overflow-wrap: anywhere;
 }
+
+/* The device's own log. Monospaced and scrolling in place: these are lines someone reads to find
+   one word in, and the panel around them must not grow to whatever the device had to say. */
+.sonn-log {
+  margin: 0 0 12px;
+  padding: 11px 13px;
+  max-height: 320px;
+  overflow: auto;
+  border: 1px solid var(--border-soft);
+  border-radius: 9px;
+  background: rgba(0, 0, 0, 0.28);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  /* Wrapped rather than scrolled sideways: a log line here is long and the panel is not wide, and
+     nobody drags a bar back and forth to read the end of a sentence. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.sonn-note--warn {
+  color: var(--warn, #e0a458);
+}

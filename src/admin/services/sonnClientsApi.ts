@@ -278,6 +278,29 @@ export async function sendSonnClientCommand(
   if (!res.ok) await parseError(res);
 }
 
+/** The last log a device handed over. `receivedAt` is null when it has not sent one yet. */
+export type SonnDeviceLogs = {
+  lines: string[];
+  receivedAt: string | null;
+};
+
+/**
+ * Read the last log a device sent.
+ *
+ * Reading and asking are two steps on purpose: the device only sends when told (`send_logs`), and
+ * it sends on its next poll, so the screen asks and then reads until something newer turns up.
+ */
+export async function fetchSonnClientLogs(deviceId: string): Promise<SonnDeviceLogs> {
+  const data = await requestJson<SonnDeviceLogs>(
+    `${API_BASE}/sonnclients/${encodeURIComponent(deviceId)}/logs`,
+    { errorMessage: 'Could not load the log' },
+  );
+  return {
+    lines: Array.isArray(data.lines) ? data.lines : [],
+    receivedAt: typeof data.receivedAt === 'string' ? data.receivedAt : null,
+  };
+}
+
 /** Catalogue name under which the client's own build is published. */
 export const CLIENT_COMPONENT = 'sonn-client';
 
