@@ -25,6 +25,7 @@ import SelectMenu from '../components/SelectMenu';
 import ZoneBeoremoteSection from './ZoneBeoremoteSection';
 import ZoneBluetoothSection from './ZoneBluetoothSection';
 import ZoneDeviceSection from './ZoneDeviceSection';
+import ZoneEssenceSection from './ZoneEssenceSection';
 import ZoneRemoteModelList from './ZoneRemoteModelList';
 import {
   getTransportDefinitions,
@@ -1639,7 +1640,14 @@ function ZoneModal({
       effectiveTransportId(currentTransport)
     : null;
 
-  type SettingsView = 'main' | 'power' | 'eq' | 'remote' | 'remote-one' | 'bluetooth';
+  type SettingsView =
+    | 'main'
+    | 'power'
+    | 'eq'
+    | 'remote'
+    | 'remote-one'
+    | 'remote-essence'
+    | 'bluetooth';
   const [settingsView, setSettingsView] = React.useState<SettingsView>('main');
 
   const powerCfg = zone.powerManager ?? null;
@@ -1650,16 +1658,13 @@ function ZoneModal({
       powerCfg?.crelay?.enabled,
   );
   /**
-   * One line for the folded row. It now covers three models, so the summary names
-   * the one that is actually in use rather than just saying "on".
+   * One line for the folded row. It cannot name a model: one switch serves the room and which
+   * remotes are paired is a fact about the speaker, read a screen further in.
    */
-  const beoremoteSummary = (() => {
-    const cfg = deriveZoneInputs(zone).beoremote;
-    if (cfg?.enabled !== true) {
-      return t('zones.beoremote.summaryNone');
-    }
-    return t('zones.beoremote.models.one');
-  })();
+  const beoremoteSummary =
+    deriveZoneInputs(zone).beoremote?.enabled === true
+      ? t('zones.beoremote.summaryOn')
+      : t('zones.beoremote.summaryNone');
 
   // Whether the room takes Bluetooth at all, in the same words as the switches beside it. Naming
   // the room here was noise: it is the room whose settings are open.
@@ -1722,6 +1727,7 @@ function ZoneModal({
     }
     if (settingsView === 'remote') return t('zones.beoremote.groupTitle');
     if (settingsView === 'remote-one') return t('zones.beoremote.models.one');
+    if (settingsView === 'remote-essence') return t('zones.beoremote.models.essence');
     if (settingsView === 'bluetooth') return t('zones.bluetooth.useTitle');
     if (settingsView === 'power') return t('zones.modal.powerStateSub');
     if (settingsView === 'eq') return t('zones.modal.eqSub');
@@ -1739,7 +1745,9 @@ function ZoneModal({
   }, []);
 
   const handleBackToMain = (): void =>
-    setSettingsView(settingsView === 'remote-one' ? 'remote' : 'main');
+    setSettingsView(
+      settingsView === 'remote-one' || settingsView === 'remote-essence' ? 'remote' : 'main',
+    );
 
   const handleSubViewSave = async (): Promise<void> => {
     if (settingsView === 'power' && powerSaveRef.current) {
@@ -2014,10 +2022,18 @@ function ZoneModal({
             <ZoneRemoteModelList
               config={deriveZoneInputs(zone).beoremote}
               onOpenOne={() => setSettingsView('remote-one')}
+              onOpenEssence={() => setSettingsView('remote-essence')}
             />
           ) : settingsView === 'remote-one' ? (
             <ZoneBeoremoteSection
               zoneId={zone.id}
+              outputClientId={sendspinOutputClientId(zone)}
+              config={deriveZoneInputs(zone).beoremote}
+              saving={saving}
+              onChange={onBeoremoteChange}
+            />
+          ) : settingsView === 'remote-essence' ? (
+            <ZoneEssenceSection
               outputClientId={sendspinOutputClientId(zone)}
               config={deriveZoneInputs(zone).beoremote}
               saving={saving}

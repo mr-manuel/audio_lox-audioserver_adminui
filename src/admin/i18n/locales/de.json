@@ -1375,7 +1375,7 @@
     },
     "beoremote": {
       "title": "Bang & Olufsen Fernbedienung",
-      "copy": "Diesen Raum mit einer Beoremote One steuern.",
+      "copy": "Ein Schalter für diesen Raum. Er gilt für jede Bang & Olufsen Fernbedienung, die mit diesem Lautsprecher gekoppelt ist.",
       "submenuTitle": "Zusatzliste auf der Fernbedienung",
       "submenuCopy": "Eine Quelle kann eine zweite Liste öffnen. Wähle, was darin steht.",
       "submenuNone": "Nichts",
@@ -1413,7 +1413,7 @@
         "one": "Beoremote One",
         "halo": "Beoremote Halo"
       },
-      "useTitle": "Beoremote One hier verwenden",
+      "useTitle": "Bang & Olufsen Fernbedienung hier verwenden",
       "summaryOff": "Aus",
       "summaryOn": "Ein",
       "groupDevice": "Fernbedienung",
@@ -1431,7 +1431,11 @@
       "pair": "Koppeln",
       "pairing": "Koppelt…",
       "forget": "Vergessen",
-      "forgetting": "Wird vergessen…"
+      "forgetting": "Wird vergessen…",
+      "groupButtons": "Was die Tasten tun",
+      "essenceButtons": "Wiedergabe und Pause, vor und zurück, Lautstärke und Stumm — fünf feste Tasten und ein Rad, hier gibt es also nichts einzustellen. Koppeln genügt.",
+      "pairCopyEssence": "Hier drücken, dann die Ein/Aus-Taste der Fernbedienung halten, bis ein grünes Licht blinkt.",
+      "pairLooking": "Suche nach der Fernbedienung…"
     },
     "bluetooth": {
       "useTitle": "Bluetooth",

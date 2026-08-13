@@ -1377,7 +1377,7 @@
     },
     "beoremote": {
       "title": "Bang & Olufsen remote",
-      "copy": "Control this room with a Beoremote One.",
+      "copy": "One switch for this room. It covers every Bang & Olufsen remote paired to this speaker.",
       "submenuTitle": "Extra list on the remote",
       "submenuCopy": "One source can open a second list. Pick what goes in it.",
       "submenuNone": "Nothing",
@@ -1415,7 +1415,7 @@
         "one": "Beoremote One",
         "halo": "Beoremote Halo"
       },
-      "useTitle": "Use a Beoremote One here",
+      "useTitle": "Use a Bang & Olufsen remote here",
       "summaryOff": "Off",
       "summaryOn": "On",
       "groupDevice": "Remote",
@@ -1433,7 +1433,11 @@
       "pair": "Pair",
       "pairing": "Pairing…",
       "forget": "Forget",
-      "forgetting": "Forgetting…"
+      "forgetting": "Forgetting…",
+      "groupButtons": "What the buttons do",
+      "essenceButtons": "Play and pause, skip forward and back, volume and mute — five fixed buttons and a wheel, so there is nothing to set. Pair it and it works.",
+      "pairCopyEssence": "Press this, then hold the power button on the remote until a green light blinks.",
+      "pairLooking": "Looking for the remote…"
     },
     "bluetooth": {
       "useTitle": "Bluetooth",

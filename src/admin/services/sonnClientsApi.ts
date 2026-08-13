@@ -89,8 +89,17 @@ export type SonnStatus = {
     zone_id?: number;
     menu_revision?: string;
     hid_connected?: boolean;
-    /** The remotes paired to this device, in the room or not. */
-    devices?: Array<{ address: string; name: string; connected?: boolean }>;
+    /**
+     * The remotes paired to this device, in the room or not. `kind` is which model it is, as the
+     * device itself recognised it: a Beoremote One has a display and assignable keys, an Essence
+     * has five fixed buttons and neither. Older clients do not send it.
+     */
+    devices?: Array<{
+      address: string;
+      name: string;
+      connected?: boolean;
+      kind?: 'one' | 'essence';
+    }>;
     last_error?: string;
   };
 };
