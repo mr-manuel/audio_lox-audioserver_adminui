@@ -1454,7 +1454,7 @@
       "summaryOn": "Aktiviert"
     },
     "device": {
-      "group": "Die Kiste in diesem Raum — {{name}}",
+      "group": "Sonn Client — {{name}}",
       "cardTitle": "Soundkarte",
       "cardCopy": "Der Ausgang, an dem der Lautsprecher hängt.",
       "cardDefault": "Was das Gerät standardmäßig nutzt",
@@ -1465,9 +1465,7 @@
       "volumeCard": "Immer die Soundkarte",
       "volumeSoftware": "Immer in Software",
       "volumeHook": "Das Lautstärke-Skript ausführen",
-      "delayTitle": "Verzögerung",
-      "delayCopy": "Diesen Raum zurückhalten, um ihn auf die anderen auszurichten. Bei null lassen, solange du nichts hörst.",
-      "elsewhere": "Name, Updates und Diagnose dieser Kiste stehen auf ihrer eigenen Seite unter Setup."
+      "elsewhere": "Name, Updates und Diagnose dieses Sonn Clients stehen auf seiner eigenen Seite unter Setup."
     }
   },
   "access": {

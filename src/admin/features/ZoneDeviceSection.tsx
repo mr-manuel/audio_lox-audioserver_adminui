@@ -16,16 +16,21 @@ type ZoneDeviceSectionProps = {
 };
 
 /**
- * The box in this room, settled from the room.
+ * The Sonn Client that plays this room, settled from the room.
  *
- * Which sound card a speaker is wired to, where it turns the volume down and how far ahead of the
- * clock it plays are questions about the hardware — but they are asked while setting up a room, and
- * sending someone to another screen for three rows is how a simple job comes to feel like an
- * installation. So the few that come up in practice are answered here, and the device's own page
- * keeps everything that is genuinely about the box: its name, its updates, what it reports.
+ * Which sound card a speaker is wired to and where it turns the volume down are questions about the
+ * hardware — but they are asked while setting up a room, and sending someone to another screen for
+ * two rows is how a simple job comes to feel like an installation. So the ones that come up in
+ * practice are answered here, and the device's own page keeps everything that is genuinely about the
+ * box: its name, its updates, what it reports.
+ *
+ * Delay is deliberately not here. The room's output already has one, and it is the one that counts:
+ * the server writes it to the client as `set_static_delay`. The number on the speaker is what the
+ * device itself persisted, which the server then writes over — so a second box here would look like
+ * a setting and behave like a suggestion.
  *
  * It appears only when a Sonn Client actually plays this room. A room on a Sonos or an AirPlay
- * speaker has no such box, and an empty group explaining that would be noise.
+ * speaker has none, and an empty group explaining that would be noise.
  */
 export default function ZoneDeviceSection({
   zoneId,
@@ -128,29 +133,6 @@ export default function ZoneDeviceSection({
           <option value="software">{t('zones.device.volumeSoftware')}</option>
           <option value="hook">{t('zones.device.volumeHook')}</option>
         </select>
-      </div>
-
-      <div className="zset-row">
-        <div className="zset-row__text">
-          <span className="zset-row__title">{t('zones.device.delayTitle')}</span>
-          <span className="zset-row__desc">{t('zones.device.delayCopy')}</span>
-        </div>
-        <div className="zones-hub__num-wrap">
-          <input
-            type="number"
-            inputMode="numeric"
-            className="zones-hub__input"
-            value={player.delayMs ?? ''}
-            placeholder="0"
-            disabled={saving}
-            onChange={(event) =>
-              void update({
-                delayMs: event.target.value ? Number(event.target.value) : undefined,
-              })
-            }
-          />
-          <span className="zones-hub__num-suffix">ms</span>
-        </div>
       </div>
 
       <p className="zset-group__empty">{t('zones.device.elsewhere')}</p>

@@ -1456,7 +1456,7 @@
       "summaryOn": "Enabled"
     },
     "device": {
-      "group": "The box in this room — {{name}}",
+      "group": "Sonn Client — {{name}}",
       "cardTitle": "Sound card",
       "cardCopy": "The output the speaker is wired to.",
       "cardDefault": "Whatever the device uses by default",
@@ -1467,9 +1467,7 @@
       "volumeCard": "Always the sound card",
       "volumeSoftware": "Always in software",
       "volumeHook": "Run the volume script",
-      "delayTitle": "Delay",
-      "delayCopy": "Hold this room back to line it up with the others. Leave at zero unless you can hear it.",
-      "elsewhere": "The name, updates and diagnostics for this box live on its own page, under Setup."
+      "elsewhere": "The name, updates and diagnostics for this Sonn Client live on its own page, under Setup."
     }
   },
   "access": {
