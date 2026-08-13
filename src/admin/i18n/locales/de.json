@@ -1575,8 +1575,6 @@
       "noCards": "Dieses Gerät hat noch keine Soundkarten gemeldet.",
       "card": "Soundkarte",
       "cardDesc": "Der Ausgang, an dem der Lautsprecher hängt.",
-      "delay": "Verzögerung",
-      "delayDesc": "Wie viel später der Ton an diesem Lautsprecher ankommt als an den anderen — für Verstärker oder Aktivlautsprecher mit eigener Verzögerung.",
       "volumeControl": "Lautstärke",
       "volumeControlDesc": "Wo der Lautsprecher leiser wird. Die eigene Soundkarte ist besser, wenn sie eine eigene Lautstärke hat — in Software leiser zu drehen verschenkt Details, die der Lautsprecher behalten hätte.",
       "volumeAuto": "Die Soundkarte, wenn sie Lautstärke kann",
@@ -1590,8 +1588,6 @@
       "volumeScaleOwn": "Eigene Skala des Lautsprechers",
       "volumeHook": "Lautstärke-Skript",
       "volumeHookDesc": "Für Lautsprecher mit eigener Lautstärkeregelung. Leer lassen, damit das Gerät die Lautstärke selbst macht.",
-      "enabled": "In Benutzung",
-      "enabledDesc": "Ausschalten, um die Einstellungen zu behalten, aber nicht zu spielen.",
       "eyebrow": "Lautsprecher",
       "removeTitle": "Diesen Lautsprecher entfernen",
       "removeDesc": "Das Gerät spielt dann nicht mehr über diese Karte. Am Gerät selbst ändert sich nichts.",
@@ -1696,12 +1692,11 @@
       "control": "Steuerung",
       "identity": "Was dieses Gerät ist",
       "speaker": "Dieser Lautsprecher",
-      "room": "Welcher Raum ihn spielt",
-      "fine": "Feinabstimmung",
       "input": "Dieser Eingang",
       "use": "Wo er genutzt wird",
       "remoteState": "Gerade jetzt",
-      "remoteSetup": "Einrichten"
+      "remoteSetup": "Einrichten",
+      "volume": "Lautstärke"
     },
     "usage": {
       "inRoom": "Spielt in {{room}}",
@@ -1710,8 +1705,6 @@
       "noLineIn": "Noch von keinem Line-In genutzt",
       "drivesRoom": "Steuert {{room}}",
       "forRoom": "Wird von {{room}} genutzt",
-      "playerRoomNote": "{{room}} spielt über diesen Lautsprecher. Welchen Lautsprecher ein Raum nutzt, wird im Bereich Zonen beim Raum selbst festgelegt.",
-      "playerFreeNote": "Noch kein Raum spielt über diesen Lautsprecher. Wähle ihn im Bereich Zonen als Ausgang eines Raums — dort steht er unter dieser ID:",
       "sourceLineInNote": "Dieser Eingang speist den Line-In „{{name}}“ und lässt sich damit in jedem Raum spielen. Line-Ins liegen im Bereich Inhalte.",
       "sourceFreeNote": "Diesen Eingang spielt noch nichts. Lege im Bereich Inhalte einen Line-In an und richte ihn auf diese ID:"
     },
@@ -1732,6 +1725,7 @@
     "about": {
       "eyebrow": "Gerät",
       "title": "Was dieses Gerät ist",
+      "software": "Software auf dem Gerät",
       "model": "Modell",
       "host": "Hostname",
       "address": "Adresse",

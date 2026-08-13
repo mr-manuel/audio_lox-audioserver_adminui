@@ -2944,7 +2944,13 @@ function ZoneOutputEditor({
     setDiscoveringSendspin(true);
     setSendspinError(null);
     try {
-      const clients = await discoverSendspinClients();
+      // Only things that can *play*. A device may also offer sources -- a line-in, a phone over
+      // Bluetooth -- and those arrive in the same list; offering them here would invite someone to
+      // pick a turntable as a room's loudspeaker. Clients found over mDNS carry no roles yet, and
+      // they stay: a device that is advertising but not connected is exactly what this is for.
+      const clients = (await discoverSendspinClients()).filter(
+        (client) => !client.roles?.length || client.roles.includes('player@v1'),
+      );
       setSendspinClients(clients);
       if (!clients.length) {
         setSendspinError(t('zones.output.noSendspin'));

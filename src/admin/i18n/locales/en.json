@@ -1577,8 +1577,6 @@
       "noCards": "This device has not reported any sound cards yet.",
       "card": "Sound card",
       "cardDesc": "The output the speaker is wired to.",
-      "delay": "Delay",
-      "delayDesc": "How much later the sound arrives at this speaker than at the others — for an amplifier or active speaker that adds its own delay.",
       "volumeControl": "Volume",
       "volumeControlDesc": "Where the speaker turns the volume down. Its own sound card is best when it has a volume of its own — turning it down in software throws away detail the speaker would have kept.",
       "volumeAuto": "The sound card, if it has volume",
@@ -1592,8 +1590,6 @@
       "volumeScaleOwn": "The speaker's own scale",
       "volumeHook": "Volume script",
       "volumeHookDesc": "For a speaker with its own volume control. Leave empty to let the device do the volume itself.",
-      "enabled": "In use",
-      "enabledDesc": "Switch off to keep the settings but stop this speaker playing.",
       "eyebrow": "Speaker",
       "removeTitle": "Remove this speaker",
       "removeDesc": "The device stops playing through this card. Nothing on the device itself changes.",
@@ -1694,12 +1690,11 @@
       "control": "Control",
       "identity": "What this device is",
       "speaker": "This speaker",
-      "room": "Which room plays it",
-      "fine": "Fine tuning",
       "input": "This input",
       "use": "Where it is used",
       "remoteState": "Right now",
-      "remoteSetup": "Set up"
+      "remoteSetup": "Set up",
+      "volume": "Volume"
     },
     "usage": {
       "inRoom": "Plays in {{room}}",
@@ -1708,8 +1703,6 @@
       "noLineIn": "Not used by a line-in yet",
       "drivesRoom": "Controls {{room}}",
       "forRoom": "Used by {{room}}",
-      "playerRoomNote": "{{room}} plays through this speaker. Which speaker a room uses is set on the Zones screen, beside the room itself.",
-      "playerFreeNote": "No room plays through this speaker yet. Pick it as a room's output on the Zones screen — it is listed under this id:",
       "sourceLineInNote": "This input feeds the “{{name}}” line-in, so it can be played in any room. Line-ins live on the Content screen.",
       "sourceFreeNote": "Nothing plays this input yet. Add a line-in on the Content screen and point it at this id:"
     },
@@ -1730,6 +1723,7 @@
     "about": {
       "eyebrow": "Device",
       "title": "What this device is",
+      "software": "Software on the device",
       "model": "Model",
       "host": "Hostname",
       "address": "Address",

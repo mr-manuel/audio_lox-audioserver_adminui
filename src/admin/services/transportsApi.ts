@@ -57,6 +57,13 @@ export interface SendspinClient {
   id: string;
   name: string;
   clientId: string;
+  /**
+   * What this client offers: `player@v1`, `source@v1`, or both.
+   *
+   * Absent for a client found over mDNS that has not connected yet — the server knows its address
+   * and nothing else about it.
+   */
+  roles?: string[];
   host?: string;
   address?: string;
   port?: number;

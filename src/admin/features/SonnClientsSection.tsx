@@ -120,14 +120,6 @@ function draftFrom(device: SonnDeviceView): Draft {
   };
 }
 
-/** Numbers come out of inputs as strings; an empty field means "unset", not zero. */
-function numberOrUndefined(value: string): number | undefined {
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  const parsed = Number(trimmed);
-  return Number.isFinite(parsed) ? parsed : undefined;
-}
-
 /**
  * What to send as the device's own remote entry.
  *
@@ -1521,55 +1513,11 @@ function PlayerPanel({
             />
           </span>
         </div>
-        <div className="sonn-row">
-          <span className="sonn-row__text">
-            <span className="sonn-row__title">{t('sonnClients.players.enabled')}</span>
-            <span className="sonn-row__desc">{t('sonnClients.players.enabledDesc')}</span>
-          </span>
-          <span className="sonn-row__control">
-            <button
-              type="button"
-              className={`setup-toggle${player.enabled !== false ? ' is-on' : ''}`}
-              aria-pressed={player.enabled !== false}
-              aria-label={t('sonnClients.players.enabled')}
-              onClick={() => update({ enabled: player.enabled === false })}
-            />
-          </span>
-        </div>
       </div>
 
       <div className="sonn-group">
         <div className="sonn-group__head">
-          <span className="sonn-group__label">{t('sonnClients.group.room')}</span>
-        </div>
-        {zone ? (
-          <p className="sonn-note">{t('sonnClients.usage.playerRoomNote', { room: zone.name })}</p>
-        ) : (
-          <ClientIdRow clientId={player.clientId} hint={t('sonnClients.usage.playerFreeNote')} />
-        )}
-      </div>
-
-      <div className="sonn-group">
-        <div className="sonn-group__head">
-          <span className="sonn-group__label">{t('sonnClients.group.fine')}</span>
-        </div>
-        <div className="sonn-row">
-          <span className="sonn-row__text">
-            <span className="sonn-row__title">{t('sonnClients.players.delay')}</span>
-            <span className="sonn-row__desc">{t('sonnClients.players.delayDesc')}</span>
-          </span>
-          <span className="sonn-row__control">
-            <div className="setup-input" style={{ width: 130 }}>
-              <input
-                type="number"
-                min={0}
-                max={5000}
-                value={player.delayMs ?? ''}
-                onChange={(event) => update({ delayMs: numberOrUndefined(event.target.value) })}
-              />
-              <span className="setup-input__suffix">ms</span>
-            </div>
-          </span>
+          <span className="sonn-group__label">{t('sonnClients.group.volume')}</span>
         </div>
         <div className="sonn-row">
           <span className="sonn-row__text">
