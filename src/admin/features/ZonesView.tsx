@@ -4736,6 +4736,16 @@ function ZoneSpotifyOffloadSection({
   );
 }
 
+const POWER_URL_METHODS = ['GET', 'POST', 'PUT'] as const;
+
+function powerUrlMethodOptions(value: unknown): string[] {
+  const current = typeof value === 'string' ? value.trim().toUpperCase() : '';
+  if (!current || POWER_URL_METHODS.includes(current as (typeof POWER_URL_METHODS)[number])) {
+    return [...POWER_URL_METHODS];
+  }
+  return [...POWER_URL_METHODS, current];
+}
+
 function ZonePowerManagerSection({
   zone,
   config,
@@ -5050,23 +5060,33 @@ function ZonePowerManagerSection({
                 </label>
                 <label className="zone-output-field">
                   <span>{t('zones.power.url.onMethod')}</span>
-                  <input
-                    type="text"
-                    value={draft.url?.onMethod ?? ''}
+                  <select
+                    className="zone-power-switching-select"
+                    value={(draft.url?.onMethod ?? '').trim().toUpperCase() || 'GET'}
                     onChange={(event) => setString('url.onMethod', event.target.value)}
                     disabled={saving}
-                    placeholder="GET"
-                  />
+                  >
+                    {powerUrlMethodOptions(draft.url?.onMethod).map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="zone-output-field">
                   <span>{t('zones.power.url.offMethod')}</span>
-                  <input
-                    type="text"
-                    value={draft.url?.offMethod ?? ''}
+                  <select
+                    className="zone-power-switching-select"
+                    value={(draft.url?.offMethod ?? '').trim().toUpperCase() || 'GET'}
                     onChange={(event) => setString('url.offMethod', event.target.value)}
                     disabled={saving}
-                    placeholder="GET"
-                  />
+                  >
+                    {powerUrlMethodOptions(draft.url?.offMethod).map((option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                 </label>
                 <label className="zone-output-field">
                   <span>{t('zones.power.url.onBody')}</span>
@@ -5376,9 +5396,9 @@ function PowerGroupEditorCard({
           </label>
           <label className="zone-output-field">
             <span>{t('zones.power.url.onMethod')}</span>
-            <input
-              type="text"
-              value={draft.powerManager?.url?.onMethod ?? ''}
+            <select
+              className="zone-power-switching-select"
+              value={(draft.powerManager?.url?.onMethod ?? '').trim().toUpperCase() || 'GET'}
               onChange={(event) =>
                 updatePowerManager({
                   url: {
@@ -5389,14 +5409,19 @@ function PowerGroupEditorCard({
                 })
               }
               disabled={saving}
-              placeholder="GET"
-            />
+            >
+              {powerUrlMethodOptions(draft.powerManager?.url?.onMethod).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="zone-output-field">
             <span>{t('zones.power.url.offMethod')}</span>
-            <input
-              type="text"
-              value={draft.powerManager?.url?.offMethod ?? ''}
+            <select
+              className="zone-power-switching-select"
+              value={(draft.powerManager?.url?.offMethod ?? '').trim().toUpperCase() || 'GET'}
               onChange={(event) =>
                 updatePowerManager({
                   url: {
@@ -5407,8 +5432,13 @@ function PowerGroupEditorCard({
                 })
               }
               disabled={saving}
-              placeholder="GET"
-            />
+            >
+              {powerUrlMethodOptions(draft.powerManager?.url?.offMethod).map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="zone-output-field">
             <span>{t('zones.power.url.onBody')}</span>
