@@ -1696,7 +1696,8 @@
       "use": "Where it is used",
       "remoteState": "Right now",
       "remoteSetup": "Set up",
-      "volume": "Volume"
+      "volume": "Volume",
+      "room": "Where it belongs"
     },
     "usage": {
       "inRoom": "Plays in {{room}}",
@@ -1740,6 +1741,12 @@
     "speakerCount_one": "{{count}} speaker",
     "speakerCount_other": "{{count}} speakers",
     "inputCount_one": "{{count}} input",
-    "inputCount_other": "{{count}} inputs"
+    "inputCount_other": "{{count}} inputs",
+    "room": {
+      "title": "Room",
+      "standalone": "Stands on its own",
+      "standaloneDesc": "Wire up what it does one at a time — for a box serving two rooms, or one at a turntable whose input any room can play.",
+      "claimedDesc": "It plays this room, a phone pairs with this room, and its remote drives it. Set once here instead of three times on the room."
+    }
   }
 }

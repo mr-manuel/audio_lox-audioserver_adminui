@@ -142,6 +142,13 @@ export type SonnDeviceConfig = {
   deviceId: string;
   name?: string;
   enabled?: boolean;
+  /**
+   * The room this box serves, if it serves exactly one.
+   *
+   * Answering it once here is what saves naming the same device again as the room's speaker, as its
+   * Bluetooth and as its remote. Absent means the box stands on its own and is wired per role.
+   */
+  zoneId?: number | null;
   players?: SonnPlayerConfig[];
   sources?: SonnSourceConfig[];
   beoremote?: SonnBeoremoteConfig | null;
@@ -181,6 +188,8 @@ export type SonnClientsResponse = {
 export type SonnDeviceUpdate = {
   name?: string;
   enabled?: boolean;
+  /** The room this box serves; null hands it back its independence. */
+  zoneId?: number | null;
   players?: SonnPlayerConfig[];
   sources?: SonnSourceConfig[];
   beoremote?: SonnBeoremoteConfig | null;

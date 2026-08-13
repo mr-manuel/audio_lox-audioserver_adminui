@@ -1698,7 +1698,8 @@
       "use": "Wo er genutzt wird",
       "remoteState": "Gerade jetzt",
       "remoteSetup": "Einrichten",
-      "volume": "Lautstärke"
+      "volume": "Lautstärke",
+      "room": "Wohin es gehört"
     },
     "usage": {
       "inRoom": "Spielt in {{room}}",
@@ -1738,6 +1739,12 @@
       "uptimeValue": "{{minutes}} Min.",
       "heard": "Zuletzt gehört",
       "idHint": "Die eigene ID des Geräts, wie es sich angemeldet hat:"
+    },
+    "room": {
+      "title": "Raum",
+      "standalone": "Steht für sich",
+      "standaloneDesc": "Jede Aufgabe einzeln einrichten — für eine Kiste, die zwei Räume bedient, oder eine am Plattenspieler, dessen Eingang jeder Raum abspielen kann.",
+      "claimedDesc": "Sie spielt diesen Raum, ein Handy koppelt mit diesem Raum, und ihre Fernbedienung steuert ihn. Einmal hier statt dreimal am Raum."
     }
   }
 }

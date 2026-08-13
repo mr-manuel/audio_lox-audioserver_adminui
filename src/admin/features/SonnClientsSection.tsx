@@ -66,6 +66,8 @@ import { copyText } from '../utils/clipboard';
 
 type Draft = {
   name: string;
+  /** The room this box serves, or null when it stands on its own. */
+  zoneId: number | null;
   players: SonnPlayerConfig[];
   sources: SonnSourceConfig[];
   beoremote: SonnBeoremoteConfig;
@@ -113,6 +115,7 @@ function draftFrom(device: SonnDeviceView): Draft {
   const config = device.config;
   return {
     name: config?.name ?? '',
+    zoneId: typeof config?.zoneId === 'number' ? config.zoneId : null,
     players: (config?.players ?? []).map((player) => ({ ...player })),
     sources: (config?.sources ?? []).map((source) => ({ ...source })),
     beoremote: { ...(config?.beoremote ?? {}) },
@@ -362,6 +365,16 @@ function BoxGlyph(): JSX.Element {
   );
 }
 
+/** A room: four walls, which is what a device is being asked to belong to. */
+function RoomGlyph(): JSX.Element {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z" />
+      <path d="M9.5 21v-6h5v6" />
+    </svg>
+  );
+}
+
 function Chevron(): JSX.Element {
   return (
     <svg className="sonn-chev" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -483,6 +496,7 @@ export default function SonnClientsSection(): JSX.Element {
     try {
       await saveSonnClient(device.deviceId, {
         name: draft.name.trim() || undefined,
+        zoneId: draft.zoneId,
         players: draft.players,
         sources: draft.sources,
         beoremote: remotePayload(draft.beoremote),
@@ -1159,6 +1173,46 @@ function MainPanel({
 
   return (
     <>
+      {/* The first question, because answering it answers three others: a box that says which room
+          it is becomes that room's speaker, its Bluetooth and its remote in one go. Standing on its
+          own stays available for the two cases that need it — one box serving two rooms, and one at
+          a turntable whose input any room can play. */}
+      <div className="sonn-group">
+        <div className="sonn-group__head">
+          <span className="sonn-group__label">{t('sonnClients.group.room')}</span>
+        </div>
+        <div className="sonn-row">
+          <span className="sonn-row__icon" aria-hidden="true">
+            <RoomGlyph />
+          </span>
+          <span className="sonn-row__text">
+            <span className="sonn-row__title">{t('sonnClients.room.title')}</span>
+            <span className="sonn-row__desc">
+              {draft.zoneId === null
+                ? t('sonnClients.room.standaloneDesc')
+                : t('sonnClients.room.claimedDesc')}
+            </span>
+          </span>
+          <span className="sonn-row__control">
+            <select
+              className="sonn-select"
+              aria-label={t('sonnClients.room.title')}
+              value={draft.zoneId === null ? '' : String(draft.zoneId)}
+              onChange={(event) =>
+                onChange({ zoneId: event.target.value ? Number(event.target.value) : null })
+              }
+            >
+              <option value="">{t('sonnClients.room.standalone')}</option>
+              {Object.entries(usage.zones).map(([id, name]) => (
+                <option key={id} value={id}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </span>
+        </div>
+      </div>
+
       <div className="sonn-group">
         <div className="sonn-group__head">
           <span className="sonn-group__label">{t('sonnClients.group.device')}</span>
