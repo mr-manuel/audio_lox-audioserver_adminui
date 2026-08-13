@@ -136,13 +136,10 @@ type LineInFormState = {
   autoPlayZoneId: string;
   draftId: string;
   sendspinClientId: string;
-  bridgeId: string;
-  captureDeviceId: string;
   ingestSampleRate: string;
   ingestChannels: string;
   ingestBitDepth: string;
   ingestCodec: string;
-  ingestResampler: string;
   vadThresholdDb: string;
   vadHoldMs: string;
 };
@@ -170,7 +167,7 @@ const LINEIN_ICON_OPTIONS: Array<{ value: LineInIconType; labelKey: string }> = 
   { value: LineInIconType.TurnTable, labelKey: 'content.linein.iconOptions.turntable' },
 ];
 
-type LineInSourceType = 'bridge' | 'ingest' | 'sendspin' | 'lox-beolink';
+type LineInSourceType = 'ingest' | 'sendspin';
 
 function describeLineInIcon(iconType: LineInIconType): string {
   switch (iconType) {
@@ -198,34 +195,11 @@ function describeLineInIcon(iconType: LineInIconType): string {
 }
 
 function describeLineInSource(sourceType: LineInSourceType): string {
-  if (sourceType === 'bridge') return 'Lox-linein-bridge';
   if (sourceType === 'ingest') return 'Ingest (streamed input)';
   if (sourceType === 'sendspin') return 'Sendspin';
-  if (sourceType === 'lox-beolink') return 'Lox BeoLink';
   return sourceType;
 }
 
-type LineInBridgeStatus = {
-  linein_id: string;
-  bridge_id?: string | null;
-  connected: boolean;
-  state: string | null;
-  received_at: string | null;
-  device?: string | null;
-};
-
-type LineInBridgeSummary = {
-  bridge_id: string;
-  hostname?: string;
-  version?: string;
-  ip?: string;
-  mac?: string;
-  assigned_input_id?: string | null;
-  last_seen?: string | null;
-  capture_devices?: Array<{ id: string; name?: string }>;
-};
-
-const LINEIN_STATUS_POLL_MS = 5000;
 const SENDSPIN_STATUS_POLL_MS = 5000;
 function hashSeed(input: string): number {
   let hash = 0;
@@ -277,50 +251,6 @@ function parseNumberOrNull(value: string): number | null {
   return typeof parsed === 'number' ? parsed : null;
 }
 
-function formatLineInState(state?: string | null): string | null {
-  if (!state) return null;
-  return state
-    .toLowerCase()
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase());
-}
-
-async function fetchLineInBridgeStatus(inputId: string): Promise<LineInBridgeStatus | null> {
-  try {
-    const res = await fetch(`${API_BASE}/linein/${encodeURIComponent(inputId)}/bridge-status`, {
-      credentials: credentialsMode(),
-      headers: { ...authHeaders() },
-    });
-    if (res.status === 401) {
-      emitAuthReset();
-      return null;
-    }
-    if (!res.ok) {
-      return null;
-    }
-    return (await res.json()) as LineInBridgeStatus;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchLineInBridges(signal?: AbortSignal): Promise<LineInBridgeSummary[]> {
-  const res = await fetch(`${API_BASE}/linein/bridges`, {
-    signal,
-    credentials: credentialsMode(),
-    headers: { ...authHeaders() },
-  });
-  if (res.status === 401) {
-    emitAuthReset();
-    throw new Error('Authentication required.');
-  }
-  if (!res.ok) {
-    throw new Error('Failed to load line-in bridges.');
-  }
-  const payload = (await res.json()) as LineInBridgeSummary[];
-  return Array.isArray(payload) ? payload : [];
-}
-
 function resolveLineInIconUrl(iconType: LineInIconType): string {
   const base = (import.meta as { env?: { BASE_URL?: string } }).env?.BASE_URL ?? '/';
   const prefix = base.endsWith('/') ? base : `${base}/`;
@@ -367,15 +297,6 @@ function getLineInIngestWsUrl(baseUrl: string): string {
 function getLineInIngestTcpHost(): string {
   if (typeof window === 'undefined') return '<audioserver-host>';
   return window.location.hostname || '<audioserver-host>';
-}
-
-function getLineInBridgeServerUrl(configuredIp?: string | null): string {
-  const host = configuredIp?.trim();
-  if (host) {
-    return `http://${host}:7090`;
-  }
-  if (typeof window === 'undefined') return 'http://<lox-host>:7090';
-  return `http://${window.location.hostname || '<lox-host>'}:7090`;
 }
 
 type FileSystemEntry = {
@@ -579,13 +500,10 @@ const createEmptyLineInForm = (): LineInFormState => ({
   autoPlayZoneId: '',
   draftId: createLineInId(),
   sendspinClientId: '',
-  bridgeId: '',
-  captureDeviceId: '',
   ingestSampleRate: '',
   ingestChannels: '',
   ingestBitDepth: '',
   ingestCodec: '',
-  ingestResampler: 'sinc-fast',
   vadThresholdDb: '-45',
   vadHoldMs: '2000',
 });
@@ -602,7 +520,7 @@ const normalizeLineInInputs = (inputs: LineInInputConfig[]): LineInInputConfig[]
         ? Math.floor(entry.autoPlayZoneId)
         : undefined,
     source: {
-      type: entry.source?.type ?? 'bridge',
+      type: entry.source?.type ?? 'ingest',
       ...(entry.source ?? {}),
     },
   }));
@@ -891,9 +809,6 @@ export default function ContentView(): JSX.Element {
   const [lineInSubmitting, setLineInSubmitting] = React.useState(false);
   const [lineInEditingId, setLineInEditingId] = React.useState<string | null>(null);
   const [lineInForm, setLineInForm] = React.useState<LineInFormState>(() => createEmptyLineInForm());
-  const [lineInStatuses, setLineInStatuses] = React.useState<Record<string, LineInBridgeStatus>>({});
-  const [lineInBridges, setLineInBridges] = React.useState<LineInBridgeSummary[]>([]);
-  const [lineInBridgesError, setLineInBridgesError] = React.useState<string | null>(null);
   const [audioServerIp, setAudioServerIp] = React.useState<string>('');
   const [sendspinClients, setSendspinClients] = React.useState<SendspinClient[]>([]);
   const [sendspinLoading, setSendspinLoading] = React.useState(false);
@@ -974,18 +889,6 @@ export default function ContentView(): JSX.Element {
     () => resolveBridgeLogoUrl(bridgeForm.provider),
     [bridgeForm.provider],
   );
-  const availableLineInBridges = React.useMemo(() => {
-    return lineInBridges.filter((bridge) => {
-      const assigned = bridge.assigned_input_id ?? null;
-      if (!assigned) return true;
-      return assigned === lineInEditingId;
-    });
-  }, [lineInBridges, lineInEditingId]);
-  const activeLineInBridge = React.useMemo(() => {
-    if (!lineInForm.bridgeId) return null;
-    return lineInBridges.find((bridge) => bridge.bridge_id === lineInForm.bridgeId) ?? null;
-  }, [lineInBridges, lineInForm.bridgeId]);
-  const activeLineInBridgeDevices = activeLineInBridge?.capture_devices ?? [];
   const sendspinClientMap = React.useMemo(() => {
     const map = new Map<string, SendspinClient>();
     for (const client of sendspinClients) {
@@ -1512,8 +1415,6 @@ export default function ContentView(): JSX.Element {
       const rawSource = input.source ?? {};
       const sourceRecord = rawSource as Record<string, unknown>;
       const sendspinClientId = typeof sourceRecord.clientId === 'string' ? sourceRecord.clientId : '';
-      const bridgeId = typeof sourceRecord.bridge_id === 'string' ? sourceRecord.bridge_id : '';
-      const captureDeviceId = typeof sourceRecord.capture_device === 'string' ? sourceRecord.capture_device : '';
       const ingestCodec =
         typeof sourceRecord.codec === 'string'
           ? sourceRecord.codec
@@ -1550,8 +1451,6 @@ export default function ContentView(): JSX.Element {
               : typeof sourceRecord.ingest_sample_rate === 'string'
                 ? sourceRecord.ingest_sample_rate
                 : '';
-      const ingestResampler =
-        typeof sourceRecord.ingest_resampler === 'string' ? sourceRecord.ingest_resampler : 'sinc-fast';
       const vadThresholdDb =
         typeof sourceRecord.vad_threshold_db === 'number' ? String(sourceRecord.vad_threshold_db) : '';
       const vadHoldMs =
@@ -1570,13 +1469,10 @@ export default function ContentView(): JSX.Element {
         autoPlayZoneId,
         draftId: input.id ?? createLineInId(),
         sendspinClientId,
-        bridgeId,
-        captureDeviceId,
         ingestSampleRate,
         ingestChannels,
         ingestBitDepth,
         ingestCodec,
-        ingestResampler,
         vadThresholdDb,
         vadHoldMs,
       };
@@ -2170,55 +2066,11 @@ export default function ContentView(): JSX.Element {
     [],
   );
 
-  const lineInBridgeRefreshInFlight = React.useRef(false);
-
-  const refreshLineInBridges = React.useCallback(async (): Promise<void> => {
-    if (lineInBridgeRefreshInFlight.current) return;
-    lineInBridgeRefreshInFlight.current = true;
-    setLineInBridgesError(null);
-    const controller = new AbortController();
-    let timedOut = false;
-    const watchdog = window.setTimeout(() => {
-      timedOut = true;
-      controller.abort();
-      lineInBridgeRefreshInFlight.current = false;
-      setLineInBridgesError(t('content.linein.feedback.bridgeRefreshTimeout'));
-    }, 5000);
-    try {
-      const bridges = await fetchLineInBridges(controller.signal);
-      if (!timedOut) {
-        setLineInBridges(bridges);
-      }
-    } catch (err) {
-      if (!timedOut) {
-        setLineInBridges([]);
-        if (err instanceof Error && err.name === 'AbortError') {
-          setLineInBridgesError(t('content.linein.feedback.bridgeRefreshTimeout'));
-        } else {
-          setLineInBridgesError(err instanceof Error ? err.message : t('content.linein.feedback.bridgeLoadFailed'));
-        }
-      }
-    } finally {
-      if (!timedOut) {
-        window.clearTimeout(watchdog);
-        lineInBridgeRefreshInFlight.current = false;
-      }
-    }
-  }, [t]);
-
   const handleLineInSave = React.useCallback(async (): Promise<void> => {
     if (lineInSubmitting) return;
     const name = lineInForm.name.trim();
     if (!name) return;
     if (lineInForm.sourceType === 'sendspin' && !lineInForm.sendspinClientId.trim()) return;
-    if (lineInForm.sourceType === 'bridge' && !lineInForm.bridgeId.trim()) {
-      pushAlert({
-        tone: 'error',
-        title: t('content.linein.feedback.updateFailedTitle'),
-        message: t('content.linein.feedback.selectBridge'),
-      });
-      return;
-    }
     setLineInSubmitting(true);
     try {
       const parsedAutoPlayZoneId = parseNumberOrNull(lineInForm.autoPlayZoneId);
@@ -2254,9 +2106,6 @@ export default function ContentView(): JSX.Element {
           } else {
             delete nextSource.vad_hold_ms;
           }
-          delete nextSource.bridge_id;
-          delete nextSource.capture_device;
-          delete nextSource.ingest_resampler;
           delete nextSource.ingest_sample_rate;
           delete nextSource.ingest_channels;
           delete nextSource.ingest_bit_depth;
@@ -2264,39 +2113,10 @@ export default function ContentView(): JSX.Element {
         } else if ('clientId' in nextSource) {
           delete nextSource.clientId;
         }
-        if (lineInForm.sourceType === 'bridge') {
-          const threshold = parseNumberOrDefault(lineInForm.vadThresholdDb, -45);
-          const holdMs = parseNumberOrDefault(lineInForm.vadHoldMs, 2000);
-          const ingestSampleRate = parseNumberOrDefault(lineInForm.ingestSampleRate, 0);
-          nextSource.bridge_id = lineInForm.bridgeId.trim();
-          if (lineInForm.captureDeviceId.trim()) {
-            nextSource.capture_device = lineInForm.captureDeviceId.trim();
-          } else {
-            delete nextSource.capture_device;
-          }
-          if (ingestSampleRate > 0) {
-            nextSource.ingest_sample_rate = ingestSampleRate;
-          } else {
-            delete nextSource.ingest_sample_rate;
-          }
-          if (lineInForm.ingestResampler.trim()) {
-            nextSource.ingest_resampler = lineInForm.ingestResampler.trim();
-          } else {
-            delete nextSource.ingest_resampler;
-          }
-          nextSource.vad_threshold_db = threshold;
-          nextSource.vad_hold_ms = holdMs;
-          delete nextSource.sample_rate;
-          delete nextSource.channels;
-          delete nextSource.bit_depth;
-          delete nextSource.codec;
-        } else if (lineInForm.sourceType !== 'sendspin') {
+        if (lineInForm.sourceType !== 'sendspin') {
           delete nextSource.vad_threshold_db;
           delete nextSource.vad_hold_ms;
-          delete nextSource.bridge_id;
-          delete nextSource.capture_device;
           delete nextSource.ingest_sample_rate;
-          delete nextSource.ingest_resampler;
           delete nextSource.sample_rate;
           delete nextSource.channels;
           delete nextSource.bit_depth;
@@ -2345,23 +2165,6 @@ export default function ContentView(): JSX.Element {
           if (holdMs != null) {
             nextSource.vad_hold_ms = holdMs;
           }
-        }
-        if (lineInForm.sourceType === 'bridge') {
-          const threshold = parseNumberOrDefault(lineInForm.vadThresholdDb, -45);
-          const holdMs = parseNumberOrDefault(lineInForm.vadHoldMs, 2000);
-          const ingestSampleRate = parseNumberOrDefault(lineInForm.ingestSampleRate, 0);
-          nextSource.bridge_id = lineInForm.bridgeId.trim();
-          if (lineInForm.captureDeviceId.trim()) {
-            nextSource.capture_device = lineInForm.captureDeviceId.trim();
-          }
-          if (ingestSampleRate > 0) {
-            nextSource.ingest_sample_rate = ingestSampleRate;
-          }
-          if (lineInForm.ingestResampler.trim()) {
-            nextSource.ingest_resampler = lineInForm.ingestResampler.trim();
-          }
-          nextSource.vad_threshold_db = threshold;
-          nextSource.vad_hold_ms = holdMs;
         }
         nextInputs.push({
           id: nextId,
@@ -2414,47 +2217,6 @@ export default function ContentView(): JSX.Element {
     }, SENDSPIN_STATUS_POLL_MS);
     return () => window.clearInterval(timer);
   }, [contentFilter, lineInModalOpen, lineInForm.sourceType, lineInInputs, handleSendspinDiscovery]);
-
-  React.useEffect(() => {
-    if (contentFilter !== 'linein' && !lineInModalOpen) return;
-    void refreshLineInBridges();
-    const timer = window.setInterval(() => {
-      void refreshLineInBridges();
-    }, 10000);
-    return () => window.clearInterval(timer);
-  }, [contentFilter, lineInModalOpen, refreshLineInBridges]);
-
-  React.useEffect(() => {
-    if (contentFilter !== 'linein' || !lineInInputs.length) {
-      return;
-    }
-    let isActive = true;
-    const pollStatus = async () => {
-      const results = await Promise.all(
-        lineInInputs.map(async (input) => {
-          const inputId = input.id ?? '';
-          if (!inputId) return null;
-          return await fetchLineInBridgeStatus(inputId);
-        }),
-      );
-      if (!isActive) return;
-      setLineInStatuses((prev) => {
-        const next = { ...prev };
-        for (const item of results) {
-          if (item?.linein_id) {
-            next[item.linein_id] = item;
-          }
-        }
-        return next;
-      });
-    };
-    void pollStatus();
-    const timer = window.setInterval(pollStatus, LINEIN_STATUS_POLL_MS);
-    return () => {
-      isActive = false;
-      window.clearInterval(timer);
-    };
-  }, [contentFilter, lineInInputs]);
 
   const handleLineInRemove = React.useCallback(
     async (inputId: string, inputName?: string): Promise<void> => {
@@ -3236,9 +2998,6 @@ export default function ContentView(): JSX.Element {
                 <div className="content-list">
                   {lineInInputs.map((input, idx) => {
                     const inputId = input.id ?? `linein-${idx}`;
-                    const bridgeRef = input.source && typeof (input.source as { bridgeId?: unknown }).bridgeId === 'string'
-                      ? ((input.source as { bridgeId?: string }).bridgeId as string)
-                      : null;
                     return (
                       <div key={inputId} className="content-list-row">
                         <div className="content-list-row__icon">
@@ -3254,7 +3013,6 @@ export default function ContentView(): JSX.Element {
                           <div className="content-list-row__title">{input.name ?? '—'}</div>
                           <div className="content-list-row__meta">
                             {input.source?.type ?? 'ingest'}
-                            {bridgeRef ? ` · ${bridgeRef}` : ''}
                           </div>
                         </div>
                         <div className="content-list-row__actions">
@@ -4552,8 +4310,7 @@ export default function ContentView(): JSX.Element {
         const saveDisabled =
           !lineInForm.name.trim() ||
           lineInSubmitting ||
-          (lineInForm.sourceType === 'sendspin' && !lineInForm.sendspinClientId.trim()) ||
-          (lineInForm.sourceType === 'bridge' && !lineInForm.bridgeId.trim());
+          (lineInForm.sourceType === 'sendspin' && !lineInForm.sendspinClientId.trim());
         return (
           <Modal
             open
@@ -4645,10 +4402,8 @@ export default function ContentView(): JSX.Element {
                         }))
                       }
                     >
-                      <option value="bridge">{t('content.linein.sourceLabels.bridge')}</option>
                       <option value="ingest">{t('content.linein.sourceLabels.ingestOption')}</option>
                       <option value="sendspin">{t('content.linein.sourceLabels.sendspin')}</option>
-                      <option value="lox-beolink">{t('content.linein.sourceLabels.loxBeolink')}</option>
                     </select>
                     <span className="linein-modal__help">{t('content.linein.modal.inputMethodHelp')}</span>
                   </div>
@@ -4688,142 +4443,6 @@ export default function ContentView(): JSX.Element {
 
                 {/* RIGHT COLUMN — source-specific */}
                 <div className="linein-modal__col">
-                  {lineInForm.sourceType === 'bridge' && (
-                    <>
-                      <div className="linein-modal__group-label">{t('content.linein.modal.bridgeSetup')}</div>
-                      <div className="linein-modal__field">
-                        <label className="linein-modal__field-label" htmlFor="linein-bridge-select">{t('content.linein.modal.bridge')}</label>
-                        <select
-                          id="linein-bridge-select"
-                          className="linein-modal__select"
-                          value={lineInForm.bridgeId}
-                          onChange={(e) =>
-                            setLineInForm((prev) => ({
-                              ...prev,
-                              bridgeId: e.target.value,
-                              captureDeviceId: '',
-                            }))
-                          }
-                        >
-                          <option value="">{t('content.linein.modal.selectBridge')}</option>
-                          {lineInForm.bridgeId &&
-                            !availableLineInBridges.some((b) => b.bridge_id === lineInForm.bridgeId) && (
-                              <option value={lineInForm.bridgeId}>{t('content.linein.modal.unregistered', { id: lineInForm.bridgeId })}</option>
-                            )}
-                          {availableLineInBridges.map((bridge) => (
-                            <option key={bridge.bridge_id} value={bridge.bridge_id}>
-                              {bridge.hostname ? `${bridge.hostname} · ${bridge.bridge_id}` : bridge.bridge_id}
-                            </option>
-                          ))}
-                        </select>
-                        <span className="linein-modal__help">{t('content.linein.modal.bridgeHelp')}</span>
-                      </div>
-                      {lineInBridgesError && <p className="linein-modal__error">{lineInBridgesError}</p>}
-                      {activeLineInBridge && (
-                        <div className="linein-modal__meta-grid">
-                          <div>
-                            <span className="linein-modal__meta-label">{t('content.linein.modal.hostname')}</span>
-                            <span className="linein-modal__meta-value">
-                              {activeLineInBridge.hostname ?? activeLineInBridge.bridge_id}
-                            </span>
-                          </div>
-                          <div>
-                            <span className="linein-modal__meta-label">{t('content.linein.modal.lastSeen')}</span>
-                            <span className="linein-modal__meta-value">{activeLineInBridge.last_seen ?? '—'}</span>
-                          </div>
-                          <div>
-                            <span className="linein-modal__meta-label">{t('content.linein.modal.devices')}</span>
-                            <span className="linein-modal__meta-value">{activeLineInBridgeDevices.length || '—'}</span>
-                          </div>
-                        </div>
-                      )}
-                      <div className="linein-modal__field">
-                        <label className="linein-modal__field-label" htmlFor="linein-capture-device">{t('content.linein.modal.captureDevice')}</label>
-                        <select
-                          id="linein-capture-device"
-                          className="linein-modal__select"
-                          value={lineInForm.captureDeviceId}
-                          onChange={(e) => setLineInForm((prev) => ({ ...prev, captureDeviceId: e.target.value }))}
-                          disabled={!activeLineInBridge}
-                        >
-                          <option value="">{activeLineInBridge ? t('content.linein.modal.defaultDevice') : t('content.linein.modal.selectBridgeFirst')}</option>
-                          {activeLineInBridgeDevices.map((device) => (
-                            <option key={device.id} value={device.id}>
-                              {device.name ? `${device.name} · ${device.id}` : device.id}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      <div className="linein-modal__group-label">{t('content.linein.modal.ingestSettings')}</div>
-                      <div className="linein-modal__row-2">
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-sample-rate">{t('content.linein.modal.sampleRate')}</label>
-                          <div className="linein-modal__num-wrap">
-                            <input
-                              id="linein-sample-rate"
-                              type="number"
-                              inputMode="numeric"
-                              value={lineInForm.ingestSampleRate}
-                              onChange={(e) => setLineInForm((prev) => ({ ...prev, ingestSampleRate: e.target.value }))}
-                              placeholder="44100"
-                            />
-                            <span className="linein-modal__num-suffix">Hz</span>
-                          </div>
-                        </div>
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-resampler">{t('content.linein.modal.resampler')}</label>
-                          <select
-                            id="linein-resampler"
-                            className="linein-modal__select"
-                            value={lineInForm.ingestResampler}
-                            onChange={(e) => setLineInForm((prev) => ({ ...prev, ingestResampler: e.target.value }))}
-                          >
-                            <option value="linear">{t('content.linein.modal.resamplerLinear')}</option>
-                            <option value="sinc-fast">{t('content.linein.modal.resamplerSincFast')}</option>
-                            <option value="sinc/rubato">{t('content.linein.modal.resamplerSincRubato')}</option>
-                          </select>
-                        </div>
-                      </div>
-                      <span className="linein-modal__help">
-                        {t('content.linein.modal.ingestHelp')}
-                      </span>
-
-                      <div className="linein-modal__group-label">{t('content.linein.modal.vadSettings')}</div>
-                      <div className="linein-modal__row-2">
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-vad-threshold">{t('content.linein.modal.threshold')}</label>
-                          <div className="linein-modal__num-wrap">
-                            <input
-                              id="linein-vad-threshold"
-                              type="number"
-                              inputMode="decimal"
-                              value={lineInForm.vadThresholdDb}
-                              onChange={(e) => setLineInForm((prev) => ({ ...prev, vadThresholdDb: e.target.value }))}
-                              placeholder="-45"
-                            />
-                            <span className="linein-modal__num-suffix">dB</span>
-                          </div>
-                        </div>
-                        <div className="linein-modal__field">
-                          <label className="linein-modal__field-label" htmlFor="linein-vad-hold">{t('content.linein.modal.hold')}</label>
-                          <div className="linein-modal__num-wrap">
-                            <input
-                              id="linein-vad-hold"
-                              type="number"
-                              inputMode="numeric"
-                              value={lineInForm.vadHoldMs}
-                              onChange={(e) => setLineInForm((prev) => ({ ...prev, vadHoldMs: e.target.value }))}
-                              placeholder="2000"
-                            />
-                            <span className="linein-modal__num-suffix">ms</span>
-                          </div>
-                        </div>
-                      </div>
-                      <span className="linein-modal__help">{t('content.linein.modal.vadHelp')}</span>
-                    </>
-                  )}
-
                   {lineInForm.sourceType === 'sendspin' && (
                     <>
                       <div className="linein-modal__group-label">{t('content.linein.modal.sendspin')}</div>
@@ -4927,14 +4546,6 @@ export default function ContentView(): JSX.Element {
                     </>
                   )}
 
-                  {lineInForm.sourceType === 'lox-beolink' && (
-                    <>
-                      <div className="linein-modal__group-label">{t('content.linein.modal.loxBeolink')}</div>
-                      <p className="linein-modal__copy">
-                        {t('content.linein.modal.loxBeolinkCopy')}
-                      </p>
-                    </>
-                  )}
                 </div>
               </div>
             </div>

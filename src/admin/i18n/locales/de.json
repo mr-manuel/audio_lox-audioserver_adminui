@@ -336,10 +336,8 @@
         "turntable": "Plattenspieler"
       },
       "sourceLabels": {
-        "bridge": "Lox-linein-bridge",
         "ingest": "Ingest (gestreamter Eingang)",
         "sendspin": "Sendspin",
-        "loxBeolink": "Lox BeoLink",
         "ingestOption": "Manueller Ingest"
       },
       "modal": {
@@ -362,28 +360,8 @@
         "preferences": "Einstellungen",
         "fingerprintTitle": "Akustische Erkennung aktivieren",
         "fingerprintHelp": "Versucht, Titel-Metadaten für diesen Eingang zu erkennen.",
-        "bridgeSetup": "Bridge-Einrichtung",
-        "bridge": "Bridge",
-        "selectBridge": "Bridge auswählen",
-        "unregistered": "{{id}} (nicht registriert)",
-        "bridgeHelp": "Eine registrierte Bridge binden und das Aufnahmegerät wählen.",
-        "hostname": "Hostname",
-        "lastSeen": "Zuletzt gesehen",
-        "devices": "Geräte",
-        "captureDevice": "Aufnahmegerät",
-        "defaultDevice": "Standardgerät",
-        "selectBridgeFirst": "Bridge auswählen, um Aufnahmegeräte anzuzeigen",
-        "ingestSettings": "Ingest-Einstellungen",
-        "sampleRate": "Abtastrate",
-        "resampler": "Resampler",
-        "resamplerLinear": "Linear (am schnellsten)",
-        "resamplerSincFast": "Sinc-fast (ausgewogen)",
-        "resamplerSincRubato": "Sinc (beste Qualität)",
-        "ingestHelp": "Die Abtastrate muss mit der Aufnahmerate der Bridge übereinstimmen. Der Resampler bestimmt die Qualität (linear → sinc-fast → sinc).",
-        "vadSettings": "VAD-Einstellungen",
         "threshold": "Schwellwert",
         "hold": "Haltezeit",
-        "vadHelp": "Steuert, wann das Streaming bei Stille startet und stoppt.",
         "sendspin": "Sendspin",
         "sendspinClient": "Sendspin-Client",
         "selectClient": "Client auswählen",
@@ -403,8 +381,6 @@
         "wsIngest": "WebSocket-Ingest",
         "tcpIngest": "TCP-Ingest",
         "manualHelp": "Nur für manuelle Tests. Line-in-ID als erste Zeile (mit Zeilenumbruch) senden, dann rohes Audio streamen.",
-        "loxBeolink": "Lox BeoLink",
-        "loxBeolinkCopy": "Lox BeoLink-Line-in nimmt Audio über eine BeoLink-Gateway-Integration auf.",
         "footHint": "Wird Loxone als Quelle angeboten",
         "cancel": "Abbrechen",
         "save": "Line-in speichern",
@@ -414,12 +390,9 @@
         "controllableHelp": "Für Geräte, die Befehle annehmen – etwa ein CD-Player am MasterLink-Bus. Der Server startet es bei Auswahl der Quelle, stoppt es beim Wechsel und leitet Fernbedienungstasten weiter. Er sendet diese an den on_command-Hook der Bridge, das Skript auf jenem Rechner entscheidet also, was damit an der Hardware geschieht. Bei Plattenspielern oder einfachen Eingängen aus lassen – dann wird nichts gesendet."
       },
       "feedback": {
-        "selectBridge": "Vor dem Speichern eine Bridge für diesen Line-in-Eingang auswählen.",
         "updateFailedTitle": "Line-in-Aktualisierung fehlgeschlagen",
         "updateFailedDefault": "Line-in-Eingänge konnten nicht aktualisiert werden.",
-        "removeFailedDefault": "Line-in-Eingang konnte nicht entfernt werden.",
-        "bridgeRefreshTimeout": "Bridge-Aktualisierung hat das Zeitlimit überschritten.",
-        "bridgeLoadFailed": "Bridges konnten nicht geladen werden."
+        "removeFailedDefault": "Line-in-Eingang konnte nicht entfernt werden."
       },
       "sendspin": {
         "discoveryFailed": "Suche fehlgeschlagen",

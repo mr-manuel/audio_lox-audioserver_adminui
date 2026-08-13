@@ -336,10 +336,8 @@
         "turntable": "Turntable"
       },
       "sourceLabels": {
-        "bridge": "Lox-linein-bridge",
         "ingest": "Ingest (streamed input)",
         "sendspin": "Sendspin",
-        "loxBeolink": "Lox BeoLink",
         "ingestOption": "Manual ingest"
       },
       "modal": {
@@ -362,28 +360,8 @@
         "preferences": "Preferences",
         "fingerprintTitle": "Enable acoustic fingerprinting",
         "fingerprintHelp": "Tries to identify track metadata for this input.",
-        "bridgeSetup": "Bridge setup",
-        "bridge": "Bridge",
-        "selectBridge": "Select a bridge",
-        "unregistered": "{{id}} (unregistered)",
-        "bridgeHelp": "Bind a registered bridge and choose its capture device.",
-        "hostname": "Hostname",
-        "lastSeen": "Last seen",
-        "devices": "Devices",
-        "captureDevice": "Capture device",
-        "defaultDevice": "Default device",
-        "selectBridgeFirst": "Select a bridge to view capture devices",
-        "ingestSettings": "Ingest settings",
-        "sampleRate": "Sample rate",
-        "resampler": "Resampler",
-        "resamplerLinear": "Linear (fastest)",
-        "resamplerSincFast": "Sinc-fast (balanced)",
-        "resamplerSincRubato": "Sinc (best)",
-        "ingestHelp": "Sample rate must match the bridge capture rate. Resampler sets quality (linear → sinc-fast → sinc).",
-        "vadSettings": "VAD settings",
         "threshold": "Threshold",
         "hold": "Hold",
-        "vadHelp": "Control when streaming starts and stops on silence.",
         "sendspin": "Sendspin",
         "sendspinClient": "Sendspin client",
         "selectClient": "Select a client",
@@ -403,8 +381,6 @@
         "wsIngest": "WebSocket ingest",
         "tcpIngest": "TCP ingest",
         "manualHelp": "For manual testing only. Send the line-in ID as the first line (ending with newline), then stream raw audio.",
-        "loxBeolink": "Lox BeoLink",
-        "loxBeolinkCopy": "Lox BeoLink line-in ingests audio from a BeoLink gateway integration.",
         "footHint": "Exposed to Loxone as a source",
         "cancel": "Cancel",
         "save": "Save line-in",
@@ -414,12 +390,9 @@
         "controllableHelp": "For gear that takes commands, like a CD player on a MasterLink bus. The server starts it when the source is picked, stops it when the room moves on, and passes remote buttons through. It sends these to the bridge's on_command hook, so the script on that machine decides what each one does to the hardware. Leave off for a turntable or a plain input — nothing will be sent."
       },
       "feedback": {
-        "selectBridge": "Select a bridge before saving this line-in input.",
         "updateFailedTitle": "Line-in update failed",
         "updateFailedDefault": "Unable to update line-in inputs.",
-        "removeFailedDefault": "Unable to remove line-in input.",
-        "bridgeRefreshTimeout": "Bridge refresh timed out.",
-        "bridgeLoadFailed": "Unable to load bridges."
+        "removeFailedDefault": "Unable to remove line-in input."
       },
       "sendspin": {
         "discoveryFailed": "Discovery failed",
