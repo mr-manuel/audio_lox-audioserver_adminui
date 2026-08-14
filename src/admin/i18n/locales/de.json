@@ -634,9 +634,9 @@
         "expired": "Diese Version läuft nicht mehr. Lade eine neuere herunter, dann gilt sie wieder 90 Tage."
       },
       "key": {
-        "title": "Dein API-Schlüssel",
+        "title": "Dein Soloist-API-Schlüssel",
         "desc": "Im Spotify-Entwickler-Dashboard mit deinem Premium-Konto erstellen.",
-        "placeholder": "API-Schlüssel einfügen",
+        "placeholder": "Soloist-API-Schlüssel einfügen",
         "save": "Schlüssel speichern",
         "saved": "API-Schlüssel gespeichert",
         "replace": "Ersetzen",

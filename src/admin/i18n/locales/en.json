@@ -634,9 +634,9 @@
         "expired": "This build has stopped working. Download a newer one and it is good for another 90 days."
       },
       "key": {
-        "title": "Your API key",
+        "title": "Your Soloist API key",
         "desc": "Create one in the Spotify developer dashboard with your Premium account.",
-        "placeholder": "Paste your API key",
+        "placeholder": "Paste your Soloist API key",
         "save": "Save key",
         "saved": "API key saved",
         "replace": "Replace",
