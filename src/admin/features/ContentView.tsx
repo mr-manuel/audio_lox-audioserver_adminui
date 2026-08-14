@@ -3178,17 +3178,6 @@ export default function ContentView(): JSX.Element {
                           </button>
                           <button
                             type="button"
-                            className="content-btn"
-                            onClick={() => accountKey && void handlePairSpotifyAccount(accountKey)}
-                            disabled={Boolean(pairingAccountId)}
-                            title={t('content.spotify.pair.hint')}
-                          >
-                            {pairingAccountId === accountKey
-                              ? t('content.spotify.pair.pairing')
-                              : t('content.spotify.pair.action')}
-                          </button>
-                          <button
-                            type="button"
                             className="content-btn content-btn--danger"
                             onClick={() => accountKey && void handleDeleteSpotifyAccount(accountKey)}
                             disabled={deletingAccountId === accountKey}
@@ -3452,6 +3441,82 @@ export default function ContentView(): JSX.Element {
                 </button>
               </div>
             ) : null}
+            {/* The linked accounts also appear in the unified services list, where Spotify is one
+                provider among many. They are repeated here because this screen offers to add one
+                and says so in its subtitle — without the list you cannot see whether that worked,
+                and someone opening "Spotify setup" because playback stopped finds nothing to act
+                on. This is where the pair action belongs for the same reason. */}
+            <div className="source-card" style={{ marginTop: 14 }}>
+              <div>
+                <h3 className="source-card__title">{t('content.spotify.accountsTitle')}</h3>
+                <p className="source-card__desc">{t('content.spotify.accountsDesc')}</p>
+              </div>
+              {spotifyAccounts.length === 0 ? (
+                <div className="content-empty-info">
+                  <span className="content-empty-info__icon">i</span>
+                  <div className="content-empty-info__text">
+                    <div className="content-empty-info__title">{t('content.spotify.noAccountsTitle')}</div>
+                    <div className="content-empty-info__sub">{t('content.spotify.noAccountsSub')}</div>
+                  </div>
+                </div>
+              ) : (
+                <div className="content-list">
+                  {spotifyAccounts.map((account) => {
+                    const accountKey =
+                      account.id ?? account.user ?? account.email ?? account.displayName ?? account.name ?? '';
+                    const accountLabel =
+                      account.displayName ?? account.name ?? account.user ?? account.email ?? accountKey;
+                    return (
+                      <div key={`spotify-setup:${accountKey}`} className="content-list-row">
+                        <div className="content-list-row__main">
+                          <div className="content-list-row__title">{accountLabel}</div>
+                          {account.email && account.email !== accountLabel ? (
+                            <div className="content-list-row__meta">{account.email}</div>
+                          ) : null}
+                        </div>
+                        <div className="content-list-row__actions">
+                          <button
+                            type="button"
+                            className="content-btn"
+                            onClick={() => accountKey && void handlePairSpotifyAccount(accountKey)}
+                            disabled={Boolean(pairingAccountId)}
+                            title={t('content.spotify.pair.hint')}
+                          >
+                            {pairingAccountId === accountKey
+                              ? t('content.spotify.pair.pairing')
+                              : t('content.spotify.pair.action')}
+                          </button>
+                          <button
+                            type="button"
+                            className="content-btn content-btn--danger"
+                            onClick={() => accountKey && void handleDeleteSpotifyAccount(accountKey)}
+                            disabled={deletingAccountId === accountKey}
+                          >
+                            {deletingAccountId === accountKey
+                              ? t('content.spotify.removingAccount')
+                              : t('content.spotify.removeAccount')}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+              {pairingDeviceName ? (
+                <p className="source-card__action-reason">
+                  {t('content.spotify.pair.waiting', { deviceName: pairingDeviceName })}
+                </p>
+              ) : null}
+              {spotifyFeedback ? (
+                <p
+                  className={`source-card__action-reason${
+                    spotifyFeedback.type === 'error' ? ' is-error' : ''
+                  }`}
+                >
+                  {spotifyFeedback.message}
+                </p>
+              ) : null}
+            </div>
             <div className="source-card__action-block" style={{ marginTop: 14 }}>
               <button
                 type="button"
