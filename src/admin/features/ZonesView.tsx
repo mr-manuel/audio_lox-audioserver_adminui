@@ -1336,10 +1336,10 @@ export default function ZonesView(): JSX.Element {
 
                           {/* Only what this room actually accepts. Listing the rest greyed out
                               filled the card with things that are not true of it, and made the
-                              ones that are harder to pick out. */}
+                              ones that are harder to pick out — and with only the active ones
+                              left, a heading costs a line to say what the chips already say. */}
                           {airplayOn || spotifyOn || dlnaOn ? (
                             <div className="zones-card__inputs">
-                              <span className="zones-card__inputs-label">{t('zones.card.inputs')}</span>
                               <div className="zones-card__chips">
                                 {airplayOn ? (
                                   <span className="zones-card__chip is-on">
