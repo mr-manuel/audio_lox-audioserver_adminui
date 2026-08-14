@@ -20,6 +20,9 @@ const EXPIRY_WARN_DAYS = 21;
 const SOLOIST_DOWNLOAD_URL =
   'https://developer.spotify.com/documentation/soloist/reference/downloads-and-updates';
 
+/** Where a key is made. Premium account required, and it is made per person, not per install. */
+const SOLOIST_KEY_URL = 'https://developer.spotify.com/dashboard/soloist';
+
 type Props = {
   /** Linked Spotify accounts, for the built-in player's playback credentials. */
   accounts: Array<{ key: string; label: string }>;
@@ -278,7 +281,17 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
 
           <div className="spotify-players__field">
             <h3 className="content-toggle-card__title">{t('content.soloist.key.title')}</h3>
-            <p className="content-toggle-card__desc">{t('content.soloist.key.desc')}</p>
+            <p className="content-toggle-card__desc">
+              {t('content.soloist.key.desc')}{' '}
+              <a
+                className="content-link"
+                href={SOLOIST_KEY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {t('content.soloist.key.getIt')}
+              </a>
+            </p>
             {/* A saved key is never shown, so an empty box has to be told apart from an unset one —
                 otherwise it reads as "nothing here" and someone pastes a second key over a working
                 one, or goes looking for where it is really kept. */}

@@ -634,11 +634,12 @@
       },
       "key": {
         "title": "Dein API-Schlüssel",
-        "desc": "Im Spotify-Entwickler-Dashboard mit deinem Premium-Konto erstellen. Er ist persönlich und kann daher nicht mitgeliefert werden.",
+        "desc": "Im Spotify-Entwickler-Dashboard mit deinem Premium-Konto erstellen.",
         "placeholder": "API-Schlüssel einfügen",
         "save": "Schlüssel speichern",
         "saved": "API-Schlüssel gespeichert",
-        "replace": "Ersetzen"
+        "replace": "Ersetzen",
+        "getIt": "Schlüssel erstellen →"
       }
     },
     "players": {

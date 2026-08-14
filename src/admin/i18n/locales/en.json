@@ -634,11 +634,12 @@
       },
       "key": {
         "title": "Your API key",
-        "desc": "Create one in the Spotify developer dashboard with your Premium account. It is personal, so it cannot be supplied for you.",
+        "desc": "Create one in the Spotify developer dashboard with your Premium account.",
         "placeholder": "Paste your API key",
         "save": "Save key",
         "saved": "API key saved",
-        "replace": "Replace"
+        "replace": "Replace",
+        "getIt": "Create a key →"
       }
     },
     "players": {
