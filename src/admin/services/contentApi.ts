@@ -245,6 +245,39 @@ export async function deleteSpotifyAccount(accountId: string): Promise<void> {
   });
 }
 
+export type SpotifyPairingStatus = {
+  state: 'idle' | 'pairing' | 'paired' | 'failed';
+  deviceName?: string;
+  expiresAt?: number;
+  username?: string;
+  error?: string;
+};
+
+/**
+ * Ask the server to show up in the Spotify app as a device to pick.
+ *
+ * Returns as soon as it is advertising — the handshake only completes once someone
+ * selects it, so the caller polls {@link fetchSpotifyPairingStatus} from there.
+ */
+export async function startSpotifyPairing(
+  accountId: string,
+  deviceName?: string,
+): Promise<SpotifyPairingStatus> {
+  return requestJson(`${API_BASE}/spotify/librespot/zeroconf`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accountId, deviceName }),
+    errorMessage: 'Failed to start Spotify pairing',
+  });
+}
+
+export async function fetchSpotifyPairingStatus(accountId: string): Promise<SpotifyPairingStatus> {
+  return requestJson(
+    `${API_BASE}/spotify/librespot/zeroconf?accountId=${encodeURIComponent(accountId)}`,
+    { errorMessage: 'Failed to read Spotify pairing status' },
+  );
+}
+
 export type SpotifyBridgeConfig = {
   id: string;
   label: string;

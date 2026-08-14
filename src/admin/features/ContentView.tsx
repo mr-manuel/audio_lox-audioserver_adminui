@@ -14,6 +14,8 @@ import {
   deleteLibraryAlbum,
   deleteSpotifyAccount,
   fetchSpotifyAuthLink,
+  fetchSpotifyPairingStatus,
+  startSpotifyPairing,
   fetchLibraryStorages,
   createLibraryStorage,
   deleteLibraryStorage,
@@ -634,6 +636,8 @@ type SpotifyState = {
   accounts: SpotifyAccountConfig[];
   deletingAccountId: string | null;
   addingAccount: boolean;
+  pairingAccountId: string | null;
+  pairingDeviceName: string | null;
   refreshPending: boolean;
   bridges: SpotifyBridgeConfig[];
   bridgeModalOpen: boolean;
@@ -662,6 +666,8 @@ const initialSpotifyState: SpotifyState = {
   accounts: [],
   deletingAccountId: null,
   addingAccount: false,
+  pairingAccountId: null,
+  pairingDeviceName: null,
   refreshPending: false,
   bridges: [],
   bridgeModalOpen: false,
@@ -748,6 +754,8 @@ export default function ContentView(): JSX.Element {
     accounts: spotifyAccounts,
     deletingAccountId,
     addingAccount: addingSpotifyAccount,
+    pairingAccountId,
+    pairingDeviceName,
     refreshPending: spotifyRefreshPending,
     bridges: spotifyBridges,
     bridgeModalOpen,
@@ -1657,6 +1665,57 @@ export default function ContentView(): JSX.Element {
       });
     } finally {
       setSpotifyState({ deletingAccountId: null });
+    }
+  };
+
+  /**
+   * Hand the server a set of playback credentials from the Spotify app.
+   *
+   * Spotify only accepts credentials that came out of a real handshake, so the server advertises
+   * itself as a device and someone has to pick it. Nothing happens until they do, which is why this
+   * polls rather than waiting on the request.
+   */
+  const handlePairSpotifyAccount = async (accountKey: string): Promise<void> => {
+    if (!accountKey || pairingAccountId) return;
+    setSpotifyState({ pairingAccountId: accountKey, pairingDeviceName: null, feedback: null });
+    try {
+      const started = await startSpotifyPairing(accountKey);
+      const deviceName = started.deviceName ?? t('content.spotify.pair.defaultDeviceName');
+      setSpotifyState({
+        pairingDeviceName: deviceName,
+        feedback: { type: 'success', message: t('content.spotify.pair.waiting', { deviceName }) },
+      });
+
+      const deadline = started.expiresAt ?? Date.now() + 120_000;
+      while (Date.now() < deadline + 2_000) {
+        await new Promise((resolve) => setTimeout(resolve, 2_000));
+        const status = await fetchSpotifyPairingStatus(accountKey);
+        if (status.state === 'paired') {
+          setSpotifyState({
+            feedback: { type: 'success', message: t('content.spotify.pair.paired') },
+          });
+          scheduleSpotifyAccountRefresh();
+          return;
+        }
+        if (status.state === 'failed' || status.state === 'idle') {
+          setSpotifyState({
+            feedback: { type: 'error', message: t('content.spotify.pair.notPicked') },
+          });
+          return;
+        }
+      }
+      setSpotifyState({
+        feedback: { type: 'error', message: t('content.spotify.pair.notPicked') },
+      });
+    } catch (err) {
+      setSpotifyState({
+        feedback: {
+          type: 'error',
+          message: err instanceof Error ? err.message : t('content.spotify.pair.failed'),
+        },
+      });
+    } finally {
+      setSpotifyState({ pairingAccountId: null, pairingDeviceName: null });
     }
   };
 
@@ -3116,6 +3175,17 @@ export default function ContentView(): JSX.Element {
                             onClick={() => setSpotifySetupOpen(true)}
                           >
                             {t('content.custom.edit')}
+                          </button>
+                          <button
+                            type="button"
+                            className="content-btn"
+                            onClick={() => accountKey && void handlePairSpotifyAccount(accountKey)}
+                            disabled={Boolean(pairingAccountId)}
+                            title={t('content.spotify.pair.hint')}
+                          >
+                            {pairingAccountId === accountKey
+                              ? t('content.spotify.pair.pairing')
+                              : t('content.spotify.pair.action')}
                           </button>
                           <button
                             type="button"

@@ -442,6 +442,16 @@
       "addAccount": "+ Spotify-Konto hinzufügen",
       "addingAccount": "Hinzufügen…",
       "setClientIdFirst": "Zuerst Client-ID setzen",
+      "pair": {
+        "action": "Für Wiedergabe koppeln",
+        "pairing": "Warten…",
+        "hint": "Spotify verlangt jetzt, dass die Wiedergabe einmal in der Spotify-App bestätigt wird. Nutze das, wenn du Spotify durchsuchen kannst, aber nichts abgespielt wird.",
+        "defaultDeviceName": "Sonn (pairing)",
+        "waiting": "Öffne Spotify auf dem Handy oder Computer und wähle „{{deviceName}}“ in der Geräteliste. Lass diese Seite offen.",
+        "paired": "Fertig — dieses Konto kann wieder abspielen.",
+        "notPicked": "Das Gerät wurde nicht rechtzeitig ausgewählt. Starte erneut, wenn du es in Spotify auswählen kannst.",
+        "failed": "Das Koppeln hat nicht geklappt. Bitte erneut versuchen."
+      },
       "cache": {
         "title": "Titel-Cache",
         "desc": "Dekodierte Titel auf der Festplatte zwischenspeichern. Wiederholte Wiedergabe spart CDN-Downloads und vermeidet Dekodierfehler durch unvollständige Übertragungen.",
