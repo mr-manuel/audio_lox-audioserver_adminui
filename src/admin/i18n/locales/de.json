@@ -419,7 +419,7 @@
       "edit": "Bearbeiten",
       "clientIdTitle": "Client-ID",
       "oneTimeTag": "Einmalige Einrichtung",
-      "clientIdDesc": "Eine Spotify-App anlegen und die Client-ID unten einfügen — kein Client-Secret nötig. Erstellen unter <1>developer.spotify.com/dashboard/create</1> mit diesen Daten.",
+      "clientIdDesc": "Erstelle eine Spotify-App und füge die Client-ID unten ein — ein Client Secret ist nicht nötig. Nutze beim Erstellen die Angaben unten.",
       "spec": {
         "appName": "App-Name",
         "redirectUri": "Weiterleitungs-URI",
@@ -471,7 +471,8 @@
       "tabs": {
         "accounts": "Konten",
         "engine": "Wiedergabe-Engine"
-      }
+      },
+      "clientIdLink": "Dashboard öffnen →"
     },
     "custom": {
       "title": "Streaming-Dienste",

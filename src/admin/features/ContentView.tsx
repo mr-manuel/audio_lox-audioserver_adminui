@@ -3334,13 +3334,18 @@ export default function ContentView(): JSX.Element {
                       <span className="source-card__tag">{t('content.spotify.oneTimeTag')}</span>
                     </h3>
                     <p className="source-card__desc">
-                      <Trans i18nKey="content.spotify.clientIdDesc">
-                        Create a Spotify app, then paste the Client ID below — no client secret needed. Create one at{' '}
-                        <a href="https://developer.spotify.com/dashboard/create" target="_blank" rel="noreferrer">
-                          developer.spotify.com/dashboard/create
-                        </a>{' '}
-                        using these details.
-                      </Trans>
+                      {/* Plain text and a link, not a Trans slot: the `{' '}` between the children
+                          shifted the indices, so the placeholder resolved to a space and the link
+                          never rendered — leaving "Create one at using these details." */}
+                      {t('content.spotify.clientIdDesc')}{' '}
+                      <a
+                        className="content-link"
+                        href="https://developer.spotify.com/dashboard"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {t('content.spotify.clientIdLink')}
+                      </a>
                     </p>
                   </div>
                 </div>

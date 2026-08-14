@@ -419,7 +419,7 @@
       "edit": "Edit",
       "clientIdTitle": "Client ID",
       "oneTimeTag": "One-time setup",
-      "clientIdDesc": "Create a Spotify app, then paste the Client ID below — no client secret needed. Create one at <1>developer.spotify.com/dashboard/create</1> using these details.",
+      "clientIdDesc": "Create a Spotify app, then paste the Client ID below — no client secret needed. Use the details below when you create it.",
       "spec": {
         "appName": "App name",
         "redirectUri": "Redirect URI",
@@ -471,7 +471,8 @@
       "tabs": {
         "accounts": "Accounts",
         "engine": "Playback engine"
-      }
+      },
+      "clientIdLink": "Open the dashboard →"
     },
     "custom": {
       "title": "Streaming services",
