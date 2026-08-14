@@ -659,7 +659,8 @@
       "roomsWaiting": "Each room shows up in the Spotify app on its own. Pick one there once and it stays signed in.",
       "roomsReady": "Every room is signed in and shows up in the Spotify app.",
       "roomReady": "signed in",
-      "roomWaiting": "pick it in Spotify"
+      "roomWaiting": "pick it in Spotify",
+      "roomsDesc": "Soloist gets its credentials over Zeroconf: each room appears in your Spotify app by itself. Connect to it there once and its credentials are stored — after that it stays signed in."
     }
   },
   "hero": {

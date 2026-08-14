@@ -346,14 +346,11 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
 
       {usingSoloist ? (
         <div className="spotify-players__field">
-          {/* Not an action: a zone's Soloist advertises itself and waits, so what is missing is
-              someone picking it once in the Spotify app. Saying that is the whole of it. */}
+          {/* Not an action: a zone's Soloist advertises itself over Zeroconf and waits, so what
+              is missing is someone connecting to it once in the Spotify app — which is what
+              hands it the credentials it then keeps. Saying that is the whole of it. */}
           <h3 className="spotify-players__heading">{t('content.players.roomsTitle')}</h3>
-          <p className="content-toggle-card__desc">
-            {unpaired.length > 0
-              ? t('content.players.roomsWaiting')
-              : t('content.players.roomsReady')}
-          </p>
+          <p className="content-toggle-card__desc">{t('content.players.roomsDesc')}</p>
           <div className="content-list">
             {zones.map((zone) => (
               <div key={zone.zoneId} className="content-list-row">

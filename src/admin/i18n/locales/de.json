@@ -659,7 +659,8 @@
       "roomsWaiting": "Jeder Raum erscheint von selbst in der Spotify-App. Einmal dort auswählen, dann bleibt er angemeldet.",
       "roomsReady": "Alle Räume sind angemeldet und erscheinen in der Spotify-App.",
       "roomReady": "angemeldet",
-      "roomWaiting": "in Spotify auswählen"
+      "roomWaiting": "in Spotify auswählen",
+      "roomsDesc": "Soloist holt seine Anmeldedaten über Zeroconf: jeder Raum erscheint von selbst in der Spotify-App. Dort einmal verbinden, dann sind die Anmeldedaten gespeichert und der Raum bleibt angemeldet."
     }
   },
   "hero": {
