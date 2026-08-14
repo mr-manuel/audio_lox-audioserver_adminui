@@ -627,11 +627,11 @@
         "upload": "Upload",
         "replace": "Replace",
         "stored": "Program stored.",
-        "expiring": "Download a newer build from Spotify and upload it here.",
+        "expiring": "Download a newer build and upload it here; that starts the 90 days again.",
         "getIt": "Download it from Spotify →",
         "accepts": "Upload the .tar.gz as downloaded, or the unpacked soloist file.",
-        "expiresIn": "Stops working in {{days}} days.",
-        "expired": "This build has stopped working."
+        "expiresIn": "Good for another {{days}} days — each new download is good for 90 again.",
+        "expired": "This build has stopped working. Download a newer one and it is good for another 90 days."
       },
       "key": {
         "title": "Your API key",

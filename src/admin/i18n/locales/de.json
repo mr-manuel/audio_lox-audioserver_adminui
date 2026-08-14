@@ -627,11 +627,11 @@
         "upload": "Hochladen",
         "replace": "Ersetzen",
         "stored": "Programm gespeichert.",
-        "expiring": "Lade eine neuere Version bei Spotify herunter und hier hoch.",
+        "expiring": "Lade eine neuere Version herunter und hier hoch; damit beginnen die 90 Tage von vorn.",
         "getIt": "Bei Spotify herunterladen →",
         "accepts": "Lade die .tar.gz so hoch, wie sie heruntergeladen wurde, oder die entpackte Datei soloist.",
-        "expiresIn": "Läuft in {{days}} Tagen ab.",
-        "expired": "Diese Version läuft nicht mehr."
+        "expiresIn": "Noch {{days}} Tage gültig — jeder neue Download gilt wieder 90 Tage.",
+        "expired": "Diese Version läuft nicht mehr. Lade eine neuere herunter, dann gilt sie wieder 90 Tage."
       },
       "key": {
         "title": "Dein API-Schlüssel",
