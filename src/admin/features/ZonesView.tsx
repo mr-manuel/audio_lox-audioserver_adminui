@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation, Trans } from 'react-i18next';
 import './ZonesView.css';
+import { fetchSoloistStatus } from '../services/contentApi';
 import { getConfig, updateGroupsConfig, updateManagedPlayers, setLoxoneConnection } from '../services/setupApi';
 import {
   createZone,
@@ -178,6 +179,13 @@ function LoxoneIcon(): JSX.Element {
 }
 
 export default function ZonesView(): JSX.Element {
+  // Which Spotify player is in use, so the Connect switch can say it is not a choice here.
+  const [soloistInUse, setSoloistInUse] = React.useState(false);
+  React.useEffect(() => {
+    void fetchSoloistStatus()
+      .then((status) => setSoloistInUse(status.enabled === true))
+      .catch(() => setSoloistInUse(false));
+  }, []);
   const { t } = useTranslation();
   const [zoneGroups, setZoneGroups] = React.useState<ZoneGroup[]>([]);
   const [baseSerial, setBaseSerial] = React.useState<string>('');
@@ -1414,6 +1422,7 @@ export default function ZonesView(): JSX.Element {
             next.dlna = { ...(next.dlna ?? { publishName: modalZone.name }), enabled };
             void handleInputChange(modalZone.id, next);
           }}
+          soloistInUse={soloistInUse}
           onSpotifyConnectToggle={(enabled) => handleSpotifyConnectToggle(modalZone, enabled)}
           onSpotifyOffloadToggle={(enabled) => handleSpotifyOffloadToggle(modalZone, enabled)}
           hasSpotifyAccounts={hasSpotifyAccounts}
@@ -1584,6 +1593,7 @@ type ZoneModalProps = {
   onOutputLatency: (clientId: string | null, latencyMs: number) => void;
   onAirplayToggle: (enabled: boolean) => void;
   onDlnaToggle: (enabled: boolean) => void;
+  soloistInUse: boolean;
   onSpotifyConnectToggle: (enabled: boolean) => void;
   onSpotifyOffloadToggle: (enabled: boolean) => void;
   hasSpotifyAccounts: boolean;
@@ -1617,6 +1627,7 @@ function ZoneModal({
   onSpotifyConnectToggle,
   onSpotifyOffloadToggle,
   hasSpotifyAccounts,
+  soloistInUse,
   onSpotifyDiscover,
   onSpotifyDeviceApply,
   onBeoremoteChange,
@@ -1911,6 +1922,7 @@ function ZoneModal({
                   discovery={spotifyDiscovery}
                   saving={saving}
                   hasAccount={hasSpotifyAccounts}
+                  soloistInUse={soloistInUse}
                   onConnectToggle={onSpotifyConnectToggle}
                   onToggle={onSpotifyOffloadToggle}
                   onDiscover={onSpotifyDiscover}
@@ -2253,6 +2265,8 @@ type ZoneSpotifyOffloadProps = {
   // Spotify Connect can't be enabled without at least one linked Spotify account.
   hasAccount: boolean;
   // Spotify Connect input enable (like AirPlay).
+  /** True while Spotify Soloist is the player, where being a Connect target cannot be declined. */
+  soloistInUse: boolean;
   onConnectToggle: (enabled: boolean) => void;
   // Hardware offload — the extra Spotify Connect has on top of being an input.
   onToggle: (enabled: boolean) => void;
@@ -4636,6 +4650,7 @@ function ZoneSpotifyOffloadSection({
   discovery,
   saving,
   hasAccount,
+  soloistInUse,
   onConnectToggle,
   onToggle,
   onDiscover,
@@ -4643,7 +4658,10 @@ function ZoneSpotifyOffloadSection({
 }: ZoneSpotifyOffloadProps): JSX.Element {
   const { t } = useTranslation();
   const effectiveConfig = config ?? { enabled: true, publishName: zone.name };
-  const inputEnabled = hasAccount && effectiveConfig.enabled !== false;
+  // Soloist has no way not to advertise: running at all puts the room in the device list, and
+  // `deactivate` only gives up being the active one. So while it is the player, this is not a
+  // choice — shown on and locked, rather than a switch that quietly does nothing.
+  const inputEnabled = soloistInUse || (hasAccount && effectiveConfig.enabled !== false);
   const offloadEnabled = effectiveConfig.offload === true;
   const selectedDeviceId = effectiveConfig.deviceId ?? '';
   const selectedDevice =
@@ -4671,16 +4689,26 @@ function ZoneSpotifyOffloadSection({
         <div className="zset-row__text">
           <span className="zset-row__title">{t('zones.spotify.connectTitle')}</span>
           <span className="zset-row__desc">
-            {hasAccount ? t('zones.spotify.connectCopy') : t('zones.spotify.needAccount')}
+            {soloistInUse
+              ? t('zones.spotify.connectAlways')
+              : hasAccount
+                ? t('zones.spotify.connectCopy')
+                : t('zones.spotify.needAccount')}
           </span>
         </div>
         <button
           type="button"
           className={`zones-hub__toggle${inputEnabled ? ' is-on' : ''}`}
           aria-label={t('zones.spotify.connectTitle')}
-          disabled={saving || !hasAccount}
-          title={hasAccount ? undefined : t('zones.spotify.needAccount')}
-          onClick={() => onConnectToggle(!inputEnabled)}
+          disabled={saving || !hasAccount || soloistInUse}
+          title={
+            soloistInUse
+              ? t('zones.spotify.connectAlways')
+              : hasAccount
+                ? undefined
+                : t('zones.spotify.needAccount')
+          }
+          onClick={() => !soloistInUse && onConnectToggle(!inputEnabled)}
         />
       </div>
       {/* Extra Spotify Connect has over AirPlay: hand playback to a hardware Connect device. */}

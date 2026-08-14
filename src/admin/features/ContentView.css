@@ -3130,3 +3130,221 @@
   padding: 10px 14px;
   gap: 10px;
 }
+
+/* Which player handles Spotify — a choice between two, not a list of settings. */
+.spotify-players {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.spotify-players__heading {
+  margin: 0;
+  font-size: var(--text-sm);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.spotify-players__choice {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+@media (max-width: 620px) {
+  .spotify-players__choice {
+    grid-template-columns: 1fr;
+  }
+}
+
+.player-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: var(--space-3);
+  text-align: left;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface-soft);
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.player-card:hover {
+  background: var(--surface);
+}
+
+.player-card.is-selected {
+  border-color: var(--accent, #4ade80);
+  background: var(--surface);
+}
+
+.player-card__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.player-card__tag {
+  padding: 0.1rem 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.player-card__desc {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+.player-card__rooms {
+  margin-top: 0.15rem;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  opacity: 0.75;
+}
+
+.spotify-players__panel,
+.spotify-players__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.spotify-players__field-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Per room: which of the two, shown as the two-way thing it is. */
+.player-switch {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.player-switch__option {
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.player-switch__option:hover:not(:disabled) {
+  color: var(--text);
+}
+
+.player-switch__option.is-on {
+  background: var(--accent, #4ade80);
+  color: #0b0f0c;
+  font-weight: 600;
+}
+
+.player-switch__option:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* The Spotify screen answers two unrelated questions; a tab each keeps them apart. */
+.bridge-modal__tabs {
+  display: flex;
+  gap: var(--space-2);
+  padding: 0 var(--space-4) var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.bridge-modal__tab {
+  padding: 0.55rem 0.15rem;
+  margin-bottom: -1px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.bridge-modal__tab + .bridge-modal__tab {
+  margin-left: var(--space-3);
+}
+
+.bridge-modal__tab:hover {
+  color: var(--text);
+}
+
+.bridge-modal__tab.is-on {
+  color: var(--text);
+  border-bottom-color: var(--accent, #4ade80);
+}
+
+/* One player is in use; the other is a card you can read before switching to it. */
+.player-card.is-in-use {
+  border-color: var(--accent, #4ade80);
+  background: var(--surface);
+}
+
+.player-card.is-viewing:not(.is-in-use) {
+  border-color: var(--text-muted);
+}
+
+.player-card__badge {
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--accent, #4ade80);
+  color: #0b0f0c;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* The in-use badge belongs to the card, not inside its title — it was squeezing the name. */
+.player-card {
+  position: relative;
+}
+
+.player-card__badge {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+}
+
+/* The program cannot be fetched for the user, only pointed at — so the pointer has to read as one. */
+.content-link {
+  color: var(--accent, #4ade80);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.content-link:hover {
+  border-bottom-color: currentColor;
+}
+
+/* A build with weeks left is worth noticing without shouting; one that has died is an error. */
+.content-warn {
+  color: var(--warning, #fbbf24);
+}
+
+.content-ok {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}

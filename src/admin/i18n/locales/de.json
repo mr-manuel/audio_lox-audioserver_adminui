@@ -467,6 +467,10 @@
         "loginFlow": "Spotify-Login-Flow abschließen, um das Konto zu verknüpfen.",
         "loginFailed": "Spotify-Login konnte nicht gestartet werden",
         "noLink": "Kein Auth-Link verfügbar"
+      },
+      "tabs": {
+        "accounts": "Konten",
+        "engine": "Wiedergabe-Engine"
       }
     },
     "custom": {
@@ -612,6 +616,49 @@
         "removed": "Bridge entfernt",
         "removeFailed": "Bridge konnte nicht entfernt werden"
       }
+    },
+    "soloist": {
+      "experimental": "experimentell",
+      "binary": {
+        "title": "Das Soloist-Programm",
+        "present": "Version {{version}}, gebaut für {{arch}}.",
+        "missing": "Noch nicht hochgeladen. Hol die {{arch}}-Version und lade sie hier hoch — die .tar.gz genügt, Entpacken ist nicht nötig.",
+        "upload": "Hochladen",
+        "replace": "Ersetzen",
+        "stored": "Programm gespeichert.",
+        "expiring": "Lade eine neuere Version bei Spotify herunter und hier hoch.",
+        "getIt": "Bei Spotify herunterladen →",
+        "accepts": "Lade die .tar.gz so hoch, wie sie heruntergeladen wurde, oder die entpackte Datei soloist.",
+        "expiresIn": "Läuft in {{days}} Tagen ab.",
+        "expired": "Diese Version läuft nicht mehr."
+      },
+      "key": {
+        "title": "Dein API-Schlüssel",
+        "desc": "Im Spotify-Entwickler-Dashboard mit deinem Premium-Konto erstellen. Er ist persönlich und kann daher nicht mitgeliefert werden.",
+        "placeholder": "API-Schlüssel einfügen",
+        "save": "Schlüssel speichern",
+        "saved": "API-Schlüssel gespeichert",
+        "replace": "Ersetzen"
+      }
+    },
+    "players": {
+      "heading": "Player",
+      "builtin": {
+        "name": "librespot",
+        "desc": "Der eingebaute Open-Source-Client für Spotify, sofort einsatzbereit. Spielt bis zu 320 kbps.",
+        "credentials": "Wiedergabe-Anmeldung",
+        "credentialsDesc": "Spotify akzeptiert die Anmeldungen, die dieser Server selbst erzeugen kann, nicht mehr. librespot braucht daher einmal pro Konto eine Anmeldung aus der Spotify-App."
+      },
+      "soloist": {
+        "name": "Spotify Soloist",
+        "desc": "Spotifys eigener Terminal-Client für Headless-Setups. Unterstützt verlustfreies Audio und funktioniert auch mit neueren Spotify-Premium-Konten, die mit librespot nicht mehr laufen."
+      },
+      "inUse": "aktiv",
+      "roomsTitle": "Räume",
+      "roomsWaiting": "Jeder Raum erscheint von selbst in der Spotify-App. Einmal dort auswählen, dann bleibt er angemeldet.",
+      "roomsReady": "Alle Räume sind angemeldet und erscheinen in der Spotify-App.",
+      "roomReady": "angemeldet",
+      "roomWaiting": "in Spotify auswählen"
     }
   },
   "hero": {
@@ -1299,7 +1346,8 @@
       "rescan": "Neu suchen",
       "scanning": "Suche…",
       "selected": "Ausgewählt",
-      "device": "Gerät"
+      "device": "Gerät",
+      "connectAlways": "Immer aktiv, solange Spotify Soloist der Player ist — er kann nicht laufen, ohne in der Spotify-App zu erscheinen."
     },
     "power": {
       "sharedEyebrow": "Gemeinsame Energie",

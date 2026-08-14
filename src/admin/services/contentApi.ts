@@ -278,6 +278,64 @@ export async function fetchSpotifyPairingStatus(accountId: string): Promise<Spot
   );
 }
 
+/**
+ * Spotify Soloist — the opt-in second playback backend.
+ *
+ * Everything here is per installation: the API key is personal to whoever generated it and the
+ * program itself is downloaded by the user, because Spotify allows neither to be shipped.
+ */
+export type SoloistZoneStatus = {
+  zoneId: number;
+  name?: string;
+  backend: 'librespot' | 'soloist';
+  paired: boolean;
+};
+
+export type SoloistStatus = {
+  enabled: boolean;
+  hasApiKey: boolean;
+  hostArch: string;
+  expiry: { daysAtCheck: number; checkedAt: number } | null;
+  binary: {
+    present: boolean;
+    executable: boolean;
+    version?: string;
+    /** Days until this build stops working, from its own build stamp. Can be negative. */
+    expiresInDays?: number;
+    expiresAt?: number;
+    error?: string;
+  };
+  zones: SoloistZoneStatus[];
+};
+
+export async function fetchSoloistStatus(): Promise<SoloistStatus> {
+  return requestJson(`${API_BASE}/spotify/soloist/status`, {
+    errorMessage: 'Failed to read Soloist status',
+  });
+}
+
+export async function saveSoloistSettings(payload: {
+  enabled?: boolean;
+  apiKey?: string;
+}): Promise<SoloistStatus> {
+  return requestJson(`${API_BASE}/spotify/soloist/settings`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+    errorMessage: 'Failed to save Soloist settings',
+  });
+}
+
+/** The program is uploaded, never fetched — Spotify does not allow it to be redistributed. */
+export async function uploadSoloistBinary(file: File): Promise<SoloistStatus> {
+  return requestJson(`${API_BASE}/spotify/soloist/binary`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    body: file,
+    errorMessage: 'Failed to upload the Soloist program',
+  });
+}
+
 export type SpotifyBridgeConfig = {
   id: string;
   label: string;

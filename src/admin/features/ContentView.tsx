@@ -43,6 +43,7 @@ import {
 import { useGlobalAlert } from '../components/GlobalAlert';
 import { useConfirm } from '../components/ConfirmDialog';
 import InlineState from '../components/InlineState';
+import { SpotifyPlayers } from '../components/SpotifyPlayers';
 import { InlineForm, InlineFormField } from '../components/InlineForm';
 import LibraryBrowser from './content/LibraryBrowser';
 import SubTabs from '../components/SubTabs';
@@ -692,6 +693,8 @@ export default function ContentView(): JSX.Element {
 
   const [addPickerOpen, setAddPickerOpen] = React.useState(false);
   const [spotifySetupOpen, setSpotifySetupOpen] = React.useState(false);
+  /** The Spotify screen answers two unrelated questions; they get a tab each. */
+  const [spotifyTab, setSpotifyTab] = React.useState<'accounts' | 'engine'>('accounts');
   // The "+ Add service" picker already chose the provider, so the wizard skips
   // its own provider step (no redundant, Spotify-less second provider screen).
   const [bridgeProviderLocked, setBridgeProviderLocked] = React.useState(false);
@@ -3259,8 +3262,41 @@ export default function ContentView(): JSX.Element {
               </svg>
             </button>
           </header>
+          <div className="bridge-modal__tabs">
+            <button
+              type="button"
+              className={`bridge-modal__tab${spotifyTab === 'accounts' ? ' is-on' : ''}`}
+              onClick={() => setSpotifyTab('accounts')}
+            >
+              {t('content.spotify.tabs.accounts')}
+            </button>
+            <button
+              type="button"
+              className={`bridge-modal__tab${spotifyTab === 'engine' ? ' is-on' : ''}`}
+              onClick={() => setSpotifyTab('engine')}
+            >
+              {t('content.spotify.tabs.engine')}
+            </button>
+          </div>
           <div className="bridge-modal__body">
-            {hasSpotifyClientId && !spotifyClientIdEditing ? (
+            {spotifyTab === 'engine' ? (
+              <SpotifyPlayers
+                accounts={spotifyAccounts.map((account) => ({
+                  key: account.id ?? account.user ?? account.email ?? account.displayName ?? account.name ?? '',
+                  label: account.displayName ?? account.name ?? account.user ?? account.email ?? '',
+                }))}
+                pairingAccountId={pairingAccountId}
+                onPairAccount={(key) => void handlePairSpotifyAccount(key)}
+                cacheEnabled={spotifyCacheEnabled}
+                cacheSizeMb={spotifyCacheSizeMb}
+                onCacheChange={(patch) => dispatchSpotify({ type: 'update', payload: patch })}
+                onSaveCache={() => void handleSaveSpotify()}
+                cacheDirty={spotifyDirty && hasSpotifyClientId && !spotifyClientIdEditing}
+                cacheSaving={spotifySaving}
+              />
+            ) : null}
+            {spotifyTab === 'accounts' ? (
+            hasSpotifyClientId && !spotifyClientIdEditing ? (
               <div className="spotify-configured-strip">
                 <span className="spotify-configured-strip__chip" aria-hidden="true">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -3390,57 +3426,14 @@ export default function ContentView(): JSX.Element {
                   ) : null}
                 </div>
               </div>
-            )}
+            )) : null}
 
             {/* Spotify accounts appear in the unified list above; add via the
                 "+ Add service" picker. Only Spotify's app client-ID + cache
                 remain here as Spotify-specific settings. */}
 
-            <div className="content-toggle-card">
-              <div className="content-toggle-card__info">
-                <h3 className="content-toggle-card__title">{t('content.spotify.cache.title')}</h3>
-                <p className="content-toggle-card__desc">
-                  {t('content.spotify.cache.desc')}
-                </p>
-              </div>
-              <div className="content-toggle-card__group">
-                <span className="content-toggle-card__group-label">{t('content.spotify.cache.size')}</span>
-                <div className="content-input content-input--inline" style={{ width: 120 }}>
-                  <input
-                    type="number"
-                    value={spotifyCacheSizeMb}
-                    onChange={(event) =>
-                      dispatchSpotify({
-                        type: 'update',
-                        payload: { cacheSizeMb: Number(event.target.value) || 0 },
-                      })
-                    }
-                  />
-                  <span className="content-input__suffix">MB</span>
-                </div>
-              </div>
-              <button
-                type="button"
-                className={`content-toggle${spotifyCacheEnabled ? ' is-on' : ''}`}
-                aria-label={t('content.spotify.cache.title')}
-                onClick={() =>
-                  dispatchSpotify({ type: 'update', payload: { cacheEnabled: !spotifyCacheEnabled } })
-                }
-              />
-            </div>
-
-            {spotifyDirty && hasSpotifyClientId && !spotifyClientIdEditing ? (
-              <div className="source-card__save-row" style={{ justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  className="content-btn content-btn--primary"
-                  onClick={() => void handleSaveSpotify()}
-                  disabled={spotifySaving}
-                >
-                  {spotifySaving ? t('content.spotify.saving') : t('content.spotify.cache.save')}
-                </button>
-              </div>
-            ) : null}
+            {spotifyTab === 'accounts' ? (
+            <>
             {/* The linked accounts also appear in the unified services list, where Spotify is one
                 provider among many. They are repeated here because this screen offers to add one
                 and says so in its subtitle — without the list you cannot see whether that worked,
@@ -3477,17 +3470,6 @@ export default function ContentView(): JSX.Element {
                         <div className="content-list-row__actions">
                           <button
                             type="button"
-                            className="content-btn"
-                            onClick={() => accountKey && void handlePairSpotifyAccount(accountKey)}
-                            disabled={Boolean(pairingAccountId)}
-                            title={t('content.spotify.pair.hint')}
-                          >
-                            {pairingAccountId === accountKey
-                              ? t('content.spotify.pair.pairing')
-                              : t('content.spotify.pair.action')}
-                          </button>
-                          <button
-                            type="button"
                             className="content-btn content-btn--danger"
                             onClick={() => accountKey && void handleDeleteSpotifyAccount(accountKey)}
                             disabled={deletingAccountId === accountKey}
@@ -3516,6 +3498,8 @@ export default function ContentView(): JSX.Element {
                 <span className="source-card__action-reason">{t('content.spotify.setClientIdFirst')}</span>
               ) : null}
             </div>
+            </>
+            ) : null}
           </div>
         </Modal>
       )}

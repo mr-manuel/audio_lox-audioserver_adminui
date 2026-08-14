@@ -467,6 +467,10 @@
         "loginFlow": "Follow the Spotify login flow to complete account linking.",
         "loginFailed": "Failed to start Spotify login",
         "noLink": "No auth link available"
+      },
+      "tabs": {
+        "accounts": "Accounts",
+        "engine": "Playback engine"
       }
     },
     "custom": {
@@ -612,6 +616,49 @@
         "removed": "Bridge removed",
         "removeFailed": "Failed to remove bridge"
       }
+    },
+    "soloist": {
+      "experimental": "experimental",
+      "binary": {
+        "title": "The Soloist program",
+        "present": "Version {{version}}, built for {{arch}}.",
+        "missing": "Not uploaded yet. Get the {{arch}} build and upload it here — the .tar.gz is fine, no need to unpack it.",
+        "upload": "Upload",
+        "replace": "Replace",
+        "stored": "Program stored.",
+        "expiring": "Download a newer build from Spotify and upload it here.",
+        "getIt": "Download it from Spotify →",
+        "accepts": "Upload the .tar.gz as downloaded, or the unpacked soloist file.",
+        "expiresIn": "Stops working in {{days}} days.",
+        "expired": "This build has stopped working."
+      },
+      "key": {
+        "title": "Your API key",
+        "desc": "Create one in the Spotify developer dashboard with your Premium account. It is personal, so it cannot be supplied for you.",
+        "placeholder": "Paste your API key",
+        "save": "Save key",
+        "saved": "API key saved",
+        "replace": "Replace"
+      }
+    },
+    "players": {
+      "heading": "Player",
+      "builtin": {
+        "name": "librespot",
+        "desc": "The open-source Spotify client, built in and ready to use. Plays up to 320 kbps.",
+        "credentials": "Playback credentials",
+        "credentialsDesc": "Spotify no longer accepts the logins this server can create on its own, so librespot needs credentials handed to it from the Spotify app once per account."
+      },
+      "soloist": {
+        "name": "Spotify Soloist",
+        "desc": "Spotify's own terminal client for headless setups. Supports lossless audio and also works with newer Spotify Premium accounts that no longer work with librespot."
+      },
+      "inUse": "in use",
+      "roomsTitle": "Rooms",
+      "roomsWaiting": "Each room shows up in the Spotify app on its own. Pick one there once and it stays signed in.",
+      "roomsReady": "Every room is signed in and shows up in the Spotify app.",
+      "roomReady": "signed in",
+      "roomWaiting": "pick it in Spotify"
     }
   },
   "hero": {
@@ -1301,7 +1348,8 @@
       "rescan": "Rescan",
       "scanning": "Scanning…",
       "selected": "Selected",
-      "device": "Device"
+      "device": "Device",
+      "connectAlways": "Always on while Spotify Soloist is the player — it cannot run without appearing in the Spotify app."
     },
     "power": {
       "sharedEyebrow": "Shared power",
