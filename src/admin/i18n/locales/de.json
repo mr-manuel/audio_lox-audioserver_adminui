@@ -1341,12 +1341,6 @@
       "connectTitle": "Spotify Connect",
       "connectCopy": "Diese Zone als Spotify-Connect-Ziel anzeigen.",
       "needAccount": "Zuerst ein Spotify-Konto hinzufügen (Tab Inhalte).",
-      "title": "Hardware-Player",
-      "copy": "Spotify-Connect-Gerät die Wiedergabe übernehmen lassen, statt des eingebauten Clients.",
-      "rescan": "Neu suchen",
-      "scanning": "Suche…",
-      "selected": "Ausgewählt",
-      "device": "Gerät",
       "connectAlways": "Immer aktiv, solange Spotify Soloist der Player ist — er kann nicht laufen, ohne in der Spotify-App zu erscheinen."
     },
     "power": {

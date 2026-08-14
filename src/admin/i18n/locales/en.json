@@ -1343,12 +1343,6 @@
       "connectTitle": "Spotify Connect",
       "connectCopy": "Show this zone as a Spotify Connect target.",
       "needAccount": "Add a Spotify account first (Content tab).",
-      "title": "Hardware player",
-      "copy": "Let a Spotify Connect device handle playback instead of the built-in client.",
-      "rescan": "Rescan",
-      "scanning": "Scanning…",
-      "selected": "Selected",
-      "device": "Device",
       "connectAlways": "Always on while Spotify Soloist is the player — it cannot run without appearing in the Spotify app."
     },
     "power": {

@@ -1867,12 +1867,6 @@ button.zones-hub__toggle:disabled {
   background: var(--surface-0);
 }
 
-.zone-quick-chip--service.is-offload {
-  background: var(--color-highlight);
-  border-color: var(--border);
-  box-shadow: none;
-}
-
 .zone-quick-chip__body {
   display: flex;
   flex-direction: column;
@@ -2691,82 +2685,7 @@ button.zones-hub__toggle:disabled {
   }
 }
 
-.zone-spotify-offload__summary {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 0.5rem;
-}
-
-.zone-spotify-offload__summary-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  padding: 0.55rem 0.7rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-soft);
-  background: var(--surface-0);
-}
-
-.zone-spotify-offload__summary-label {
-  font-size: 0.68rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-faint);
-}
-
-.zone-spotify-offload__summary-value {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.zone-spotify-offload__summary-meta {
-  font-size: 0.78rem;
-  color: var(--color-subtle);
-}
-
-.zone-spotify-offload__selected {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  padding: 0.55rem 0.65rem;
-  border-radius: 8px;
-  border: 1px solid var(--border-soft);
-  background: var(--surface-0);
-}
-
-.zone-spotify-offload__selected-label {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--color-faint);
-}
-
-.zone-spotify-offload__selected-value {
-  font-weight: 600;
-  color: var(--color-text);
-}
-
-.zone-spotify-offload__selected-meta {
-  font-size: 0.78rem;
-  color: var(--color-subtle);
-}
-
-.zone-spotify-offload__actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  padding-top: 0.15rem;
-}
-
-.zone-spotify-error {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--color-danger);
-}
-
-/* Shared device selection list used across output routing and Spotify offload. */
+/* Shared device selection list used by output routing. */
 .zone-device-list {
   display: flex;
   flex-direction: column;
@@ -2810,27 +2729,6 @@ button.zones-hub__toggle:disabled {
 
 .zone-device-row.is-active::before {
   content: none;
-}
-
-.zone-device-list--spotify {
-  border-radius: 12px;
-  background:
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--color-brand) 4%, var(--surface-0)) 0%,
-      var(--surface-0) 100%
-    );
-}
-
-.zone-device-list--spotify .zone-device-row {
-  padding: calc(var(--space-3) + 1px) var(--space-5);
-}
-
-.zone-device-list--spotify .zone-device-row.is-active {
-  background: color-mix(in srgb, var(--color-brand) 10%, var(--surface-0));
-  box-shadow:
-    inset 3px 0 0 var(--color-brand),
-    inset 0 0 0 1px color-mix(in srgb, var(--color-brand) 24%, transparent);
 }
 
 .zone-device-row--static {
@@ -4740,18 +4638,6 @@ button.zones-hub__toggle:disabled {
 .zset-drill__chev {
   flex: none;
   color: var(--text-dim);
-}
-.zset-row--block {
-  display: block;
-  padding: 10px 0 4px;
-}
-/* A sub-option nested under the row above (e.g. Spotify hardware offload under Spotify Connect). */
-.zset-subrow {
-  padding-left: 44px;
-}
-.zset-row.zset-subrow {
-  border-top: none;
-  padding-top: 4px;
 }
 /* A row for something this server cannot drive yet. Listed rather than hidden, so
    dimmed rather than absent — and not clickable, since there is nothing to set. */

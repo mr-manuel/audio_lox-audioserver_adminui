@@ -37,7 +37,6 @@ import {
   discoverSendspinClients,
   discoverSnapcastClients,
   discoverSqueezeliteClients,
-  discoverSpotifyDevices,
   discoverMusicAssistantPlayers,
   getMusicAssistantBridges,
   type AirplayDevice,
@@ -47,7 +46,6 @@ import {
   type SendspinClient,
   type SnapcastClient,
   type SqueezeliteClient,
-  type SpotifyDevice,
   type MusicAssistantPlayer,
   type MusicAssistantBridge,
 } from '../services/transportsApi';
@@ -215,7 +213,6 @@ export default function ZonesView(): JSX.Element {
   const modalCloseRef = React.useRef<HTMLButtonElement | null>(null);
   const [transportDefinitions, setTransportDefinitions] = React.useState<TransportConfigDefinition[]>([]);
   const [hasSpotifyAccounts, setHasSpotifyAccounts] = React.useState(false);
-  const [spotifyDiscovery, setSpotifyDiscovery] = React.useState<Record<number, SpotifyDiscoveryState>>({});
   const [tileOutputLatencyDrafts, setTileOutputLatencyDrafts] = React.useState<Record<number, string>>({});
   const [zoneQuery, setZoneQuery] = React.useState('');
   const [powerGroups, setPowerGroups] = React.useState<PowerGroupConfig[]>([]);
@@ -268,10 +265,7 @@ export default function ZonesView(): JSX.Element {
         const next: Zone = { ...zone };
         const inputs: ZoneInputConfig = { ...(zone.inputs ?? {}) };
         if (!hasAccounts) {
-          inputs.spotify = { ...(inputs.spotify ?? {}), enabled: false, offload: false };
-          if (inputs.spotify && 'deviceId' in inputs.spotify) {
-            delete (inputs.spotify as any).deviceId;
-          }
+          inputs.spotify = { ...(inputs.spotify ?? {}), enabled: false };
         }
         next.inputs = inputs;
         return next;
@@ -666,84 +660,17 @@ export default function ZonesView(): JSX.Element {
         current.airplay = { ...(current.airplay ?? {}), enabled: !badge.enabled };
       } else if (badge.type === 'spotify') {
         current.spotify = { ...(current.spotify ?? { publishName: zone.name }), enabled: !badge.enabled };
-        if (!current.spotify.enabled) {
-          current.spotify.offload = false;
-          delete current.spotify.deviceId;
-        }
       }
       void handleInputChange(zone.id, current);
     },
     [handleInputChange],
   );
 
-  async function handleSpotifyDiscovery(zoneId: number): Promise<void> {
-    setSpotifyDiscovery((prev) => ({
-      ...prev,
-      [zoneId]: {
-        devices: prev[zoneId]?.devices ?? [],
-        loading: true,
-        error: null,
-      },
-    }));
-    try {
-      const devices = await discoverSpotifyDevices();
-      setSpotifyDiscovery((prev) => ({
-        ...prev,
-        [zoneId]: {
-          devices,
-          loading: false,
-          error: devices.length ? null : 'No Spotify Connect devices found.',
-        },
-      }));
-    } catch (err) {
-      setSpotifyDiscovery((prev) => ({
-        ...prev,
-        [zoneId]: {
-          devices: prev[zoneId]?.devices ?? [],
-          loading: false,
-          error: err instanceof Error ? err.message : t('zones.output.discoveryFailed'),
-        },
-      }));
-    }
-  }
-
-  // Spotify Connect input enable (like AirPlay). Disabling it also clears the offload extras.
+  // Spotify Connect input enable, like AirPlay.
   function handleSpotifyConnectToggle(zone: Zone, enabled: boolean): void {
     const next = deriveZoneInputs(zone);
     const base = next.spotify ?? { publishName: zone.name };
-    const spotifyState: ZoneSpotifyConfig = { ...base, enabled };
-    if (!enabled) {
-      spotifyState.offload = false;
-      delete spotifyState.deviceId;
-    }
-    next.spotify = spotifyState;
-    void handleInputChange(zone.id, next);
-  }
-
-  function handleSpotifyOffloadToggle(zone: Zone, enabled: boolean): void {
-    const next = deriveZoneInputs(zone);
-    const base = next.spotify ?? { publishName: zone.name, enabled: true };
-    const spotifyState: ZoneSpotifyConfig = {
-      ...base,
-      enabled: true,
-      offload: enabled,
-    };
-    if (!enabled) {
-      delete spotifyState.deviceId;
-    }
-    next.spotify = spotifyState;
-    void handleInputChange(zone.id, next);
-  }
-
-  function handleSpotifyDeviceApply(zone: Zone, device: SpotifyDevice): void {
-    if (!device.deviceId) return;
-    const next = deriveZoneInputs(zone);
-    next.spotify = {
-      ...(next.spotify ?? { publishName: zone.name, enabled: true }),
-      enabled: true,
-      offload: true,
-      deviceId: device.deviceId,
-    };
+    next.spotify = { ...base, enabled } satisfies ZoneSpotifyConfig;
     void handleInputChange(zone.id, next);
   }
 
@@ -1421,7 +1348,6 @@ export default function ZonesView(): JSX.Element {
           transports={transportDefinitions}
           stateControllers={stateControllers}
           powerGroups={powerGroups}
-          spotifyDiscovery={spotifyDiscovery[modalZone.id]}
           onClose={closeZoneModal}
           onTransportChange={(transport) => handleTransportChange(modalZone, transport)}
           onStateControllerChange={(controller) => handleStateControllerChange(modalZone, controller)}
@@ -1438,10 +1364,7 @@ export default function ZonesView(): JSX.Element {
           }}
           soloistInUse={soloistInUse}
           onSpotifyConnectToggle={(enabled) => handleSpotifyConnectToggle(modalZone, enabled)}
-          onSpotifyOffloadToggle={(enabled) => handleSpotifyOffloadToggle(modalZone, enabled)}
           hasSpotifyAccounts={hasSpotifyAccounts}
-          onSpotifyDiscover={() => handleSpotifyDiscovery(modalZone.id)}
-          onSpotifyDeviceApply={(device) => handleSpotifyDeviceApply(modalZone, device)}
           onBeoremoteChange={(beoremote) => {
             const next = deriveZoneInputs(modalZone);
             next.beoremote = beoremote;
@@ -1600,7 +1523,6 @@ type ZoneModalProps = {
   /** Supported state controllers, as reported by the server. */
   stateControllers: StateControllerDefinition[];
   powerGroups: PowerGroupConfig[];
-  spotifyDiscovery?: SpotifyDiscoveryState;
   onClose: () => void;
   onTransportChange: (transport: ZoneTransportConfig | null) => Promise<void>;
   onStateControllerChange: (controller: string) => Promise<void>;
@@ -1609,10 +1531,7 @@ type ZoneModalProps = {
   onDlnaToggle: (enabled: boolean) => void;
   soloistInUse: boolean;
   onSpotifyConnectToggle: (enabled: boolean) => void;
-  onSpotifyOffloadToggle: (enabled: boolean) => void;
   hasSpotifyAccounts: boolean;
-  onSpotifyDiscover: () => void;
-  onSpotifyDeviceApply: (device: SpotifyDevice) => void;
   onBeoremoteChange: (config: ZoneBeoremoteConfig | null) => void;
   onBluetoothChange: (config: ZoneBluetoothConfig | null) => void;
   onPowerManagerChange: (config: ZonePowerManagerConfig | null) => Promise<boolean>;
@@ -1631,7 +1550,6 @@ function ZoneModal({
   transports,
   stateControllers,
   powerGroups,
-  spotifyDiscovery,
   onClose,
   onTransportChange,
   onStateControllerChange,
@@ -1639,11 +1557,8 @@ function ZoneModal({
   onAirplayToggle,
   onDlnaToggle,
   onSpotifyConnectToggle,
-  onSpotifyOffloadToggle,
   hasSpotifyAccounts,
   soloistInUse,
-  onSpotifyDiscover,
-  onSpotifyDeviceApply,
   onBeoremoteChange,
   onBluetoothChange,
   onPowerManagerChange,
@@ -1928,19 +1843,15 @@ function ZoneModal({
                     <polyline points="9 18 15 12 9 6" />
                   </svg>
                 </button>
-                <ZoneSpotifyOffloadSection
+                <ZoneSpotifyConnectSection
                   zone={zone}
                   config={
                     deriveZoneInputs(zone).spotify ?? { enabled: spotifyOn, publishName: zone.name }
                   }
-                  discovery={spotifyDiscovery}
                   saving={saving}
                   hasAccount={hasSpotifyAccounts}
                   soloistInUse={soloistInUse}
                   onConnectToggle={onSpotifyConnectToggle}
-                  onToggle={onSpotifyOffloadToggle}
-                  onDiscover={onSpotifyDiscover}
-                  onApply={onSpotifyDeviceApply}
                 />
               </div>
 
@@ -2214,12 +2125,6 @@ type InputBadge = {
   disabled?: boolean;
 };
 
-type SpotifyDiscoveryState = {
-  loading: boolean;
-  error: string | null;
-  devices: SpotifyDevice[];
-};
-
 export type SatelliteEntry = { clientId: string; latencyMs?: number };
 
 /**
@@ -2271,21 +2176,15 @@ type ZoneOutputEditorProps = {
   describe: (config: ZoneTransportConfig | null) => string;
 };
 
-type ZoneSpotifyOffloadProps = {
+type ZoneSpotifyConnectProps = {
   zone: Zone;
   config: ZoneInputConfig['spotify'] | null | undefined;
-  discovery?: SpotifyDiscoveryState;
   saving: boolean;
   // Spotify Connect can't be enabled without at least one linked Spotify account.
   hasAccount: boolean;
-  // Spotify Connect input enable (like AirPlay).
   /** True while Spotify Soloist is the player, where being a Connect target cannot be declined. */
   soloistInUse: boolean;
   onConnectToggle: (enabled: boolean) => void;
-  // Hardware offload — the extra Spotify Connect has on top of being an input.
-  onToggle: (enabled: boolean) => void;
-  onDiscover: () => void;
-  onApply: (device: SpotifyDevice) => void;
 };
 
 type ZonePowerManagerProps = {
@@ -4658,123 +4557,56 @@ function ZoneOutputEditor({
   );
 }
 
-function ZoneSpotifyOffloadSection({
+function ZoneSpotifyConnectSection({
   zone,
   config,
-  discovery,
   saving,
   hasAccount,
   soloistInUse,
   onConnectToggle,
-  onToggle,
-  onDiscover,
-  onApply,
-}: ZoneSpotifyOffloadProps): JSX.Element {
+}: ZoneSpotifyConnectProps): JSX.Element {
   const { t } = useTranslation();
   const effectiveConfig = config ?? { enabled: true, publishName: zone.name };
   // Soloist has no way not to advertise: running at all puts the room in the device list, and
   // `deactivate` only gives up being the active one. So while it is the player, this is not a
   // choice — shown on and locked, rather than a switch that quietly does nothing.
   const inputEnabled = soloistInUse || (hasAccount && effectiveConfig.enabled !== false);
-  const offloadEnabled = effectiveConfig.offload === true;
-  const selectedDeviceId = effectiveConfig.deviceId ?? '';
-  const selectedDevice =
-    selectedDeviceId && discovery?.devices
-      ? discovery.devices.find((device) => device.deviceId === selectedDeviceId)
-      : null;
-
-  React.useEffect(() => {
-    if (!offloadEnabled || discovery?.loading || (discovery?.devices?.length ?? 0) > 0) return;
-    onDiscover();
-  }, [offloadEnabled, discovery?.loading, discovery?.devices, onDiscover]);
 
   return (
-    <>
-      {/* Spotify Connect input — a plain enable toggle, like AirPlay. */}
-      <div className="zset-row">
-        <span className="zset-row__icon" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <path d="M7 9.5c3.2-1 6.8-.7 9.5 1" />
-            <path d="M7.5 13c2.6-.8 5.5-.5 7.7 1" />
-            <path d="M8 16c2-.6 4.2-.4 5.9.8" />
-          </svg>
+    <div className="zset-row">
+      <span className="zset-row__icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M7 9.5c3.2-1 6.8-.7 9.5 1" />
+          <path d="M7.5 13c2.6-.8 5.5-.5 7.7 1" />
+          <path d="M8 16c2-.6 4.2-.4 5.9.8" />
+        </svg>
+      </span>
+      <div className="zset-row__text">
+        <span className="zset-row__title">{t('zones.spotify.connectTitle')}</span>
+        <span className="zset-row__desc">
+          {soloistInUse
+            ? t('zones.spotify.connectAlways')
+            : hasAccount
+              ? t('zones.spotify.connectCopy')
+              : t('zones.spotify.needAccount')}
         </span>
-        <div className="zset-row__text">
-          <span className="zset-row__title">{t('zones.spotify.connectTitle')}</span>
-          <span className="zset-row__desc">
-            {soloistInUse
-              ? t('zones.spotify.connectAlways')
-              : hasAccount
-                ? t('zones.spotify.connectCopy')
-                : t('zones.spotify.needAccount')}
-          </span>
-        </div>
-        <button
-          type="button"
-          className={`zones-hub__toggle${inputEnabled ? ' is-on' : ''}`}
-          aria-label={t('zones.spotify.connectTitle')}
-          disabled={saving || !hasAccount || soloistInUse}
-          title={
-            soloistInUse
-              ? t('zones.spotify.connectAlways')
-              : hasAccount
-                ? undefined
-                : t('zones.spotify.needAccount')
-          }
-          onClick={() => !soloistInUse && onConnectToggle(!inputEnabled)}
-        />
       </div>
-      {/* Extra Spotify Connect has over AirPlay: hand playback to a hardware Connect device. */}
-      {inputEnabled && (
-        <div className="zset-row zset-subrow">
-          <div className="zset-row__text">
-            <span className="zset-row__title">{t('zones.spotify.title')}</span>
-            <span className="zset-row__desc">{t('zones.spotify.copy')}</span>
-          </div>
-          <button
-            type="button"
-            className={`zones-hub__toggle${offloadEnabled ? ' is-on' : ''}`}
-            aria-label={t('zones.spotify.title')}
-            disabled={saving}
-            onClick={() => onToggle(!offloadEnabled)}
-          />
-        </div>
-      )}
-      {inputEnabled && offloadEnabled && (
-        <div className="zset-row--block zset-subrow">
-          {discovery?.error && <p className="zone-spotify-error">{discovery.error}</p>}
-          {discovery?.devices && discovery.devices.length > 0 && (
-            <div className="zone-device-list zone-device-list--spotify list-dividers">
-              {discovery.devices.map((device) => {
-                const isSelected = device.deviceId === selectedDeviceId;
-                const meta = device.accountLabel
-                  ? `${device.accountLabel} · ${device.deviceId ?? device.id ?? 'id'}`
-                  : `ID: ${device.deviceId ?? device.id ?? 'n/a'}`;
-                return (
-                  <Row
-                    key={device.deviceId ?? device.id}
-                    as="button"
-                    type="button"
-                    className={`zone-device-row${isSelected ? ' is-active' : ''}`}
-                    onClick={() => onApply(device)}
-                    disabled={saving}
-                    title={<span className="row__name">{device.name ?? device.deviceId ?? t('zones.spotify.device')}</span>}
-                    subtitle={<span className="row__subtle">{meta}</span>}
-                    actions={isSelected ? <span className="chip chip--sm chip--static is-active">{t('zones.spotify.selected')}</span> : null}
-                  />
-                );
-              })}
-            </div>
-          )}
-          <div className="zone-spotify-offload__actions">
-            <button type="button" className="secondary" onClick={onDiscover} disabled={discovery?.loading || saving}>
-              {discovery?.loading ? t('zones.spotify.scanning') : t('zones.spotify.rescan')}
-            </button>
-          </div>
-        </div>
-      )}
-    </>
+      <button
+        type="button"
+        className={`zones-hub__toggle${inputEnabled ? ' is-on' : ''}`}
+        aria-label={t('zones.spotify.connectTitle')}
+        disabled={saving || !hasAccount || soloistInUse}
+        title={
+          soloistInUse
+            ? t('zones.spotify.connectAlways')
+            : hasAccount
+              ? undefined
+              : t('zones.spotify.needAccount')
+        }
+        onClick={() => !soloistInUse && onConnectToggle(!inputEnabled)}
+      />
+    </div>
   );
 }
 
@@ -6042,7 +5874,6 @@ function buildDefaultInputs(zone: Zone): ZoneInputConfig {
     spotify: {
       enabled: false,
       publishName: zone.name,
-      offload: false,
     },
     lineIn: null,
   };

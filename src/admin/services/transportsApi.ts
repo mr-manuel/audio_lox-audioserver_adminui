@@ -96,24 +96,6 @@ export interface SqueezeliteClient {
   latencyMs?: number;
 }
 
-export type SpotifyDeviceResponse = {
-  devices?: SpotifyDevice[];
-};
-
-export interface SpotifyDevice {
-  id: string;
-  name: string;
-  host?: string;
-  address?: string;
-  deviceId?: string;
-  accountLabel?: string;
-  origin?: string;
-  type?: string;
-  isActive?: boolean;
-  supportsVolume?: boolean;
-  volumePercent?: number;
-}
-
 export type MusicAssistantPlayerResponse = {
   devices?: MusicAssistantPlayer[];
   bridgeId?: string | null;
@@ -248,13 +230,6 @@ export async function discoverSqueezeliteClients(): Promise<SqueezeliteClient[]>
     },
   );
   return payload.clients ?? [];
-}
-
-export async function discoverSpotifyDevices(): Promise<SpotifyDevice[]> {
-  const payload = await requestJson<SpotifyDeviceResponse>(`${API_BASE}/transports/spotify/devices`, {
-    errorMessage: 'Failed to discover Spotify devices',
-  });
-  return payload.devices ?? [];
 }
 
 export async function discoverMusicAssistantPlayers(bridgeId?: string): Promise<MusicAssistantPlayerDiscovery> {
