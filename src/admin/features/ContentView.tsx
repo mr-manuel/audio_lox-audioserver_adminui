@@ -637,7 +637,6 @@ type SpotifyState = {
   deletingAccountId: string | null;
   addingAccount: boolean;
   pairingAccountId: string | null;
-  pairingDeviceName: string | null;
   refreshPending: boolean;
   bridges: SpotifyBridgeConfig[];
   bridgeModalOpen: boolean;
@@ -667,7 +666,6 @@ const initialSpotifyState: SpotifyState = {
   deletingAccountId: null,
   addingAccount: false,
   pairingAccountId: null,
-  pairingDeviceName: null,
   refreshPending: false,
   bridges: [],
   bridgeModalOpen: false,
@@ -755,7 +753,6 @@ export default function ContentView(): JSX.Element {
     deletingAccountId,
     addingAccount: addingSpotifyAccount,
     pairingAccountId,
-    pairingDeviceName,
     refreshPending: spotifyRefreshPending,
     bridges: spotifyBridges,
     bridgeModalOpen,
@@ -1677,12 +1674,11 @@ export default function ContentView(): JSX.Element {
    */
   const handlePairSpotifyAccount = async (accountKey: string): Promise<void> => {
     if (!accountKey || pairingAccountId) return;
-    setSpotifyState({ pairingAccountId: accountKey, pairingDeviceName: null, feedback: null });
+    setSpotifyState({ pairingAccountId: accountKey, feedback: null });
     try {
       const started = await startSpotifyPairing(accountKey);
       const deviceName = started.deviceName ?? t('content.spotify.pair.defaultDeviceName');
       setSpotifyState({
-        pairingDeviceName: deviceName,
         feedback: { type: 'success', message: t('content.spotify.pair.waiting', { deviceName }) },
       });
 
@@ -1719,7 +1715,7 @@ export default function ContentView(): JSX.Element {
         },
       });
     } finally {
-      setSpotifyState({ pairingAccountId: null, pairingDeviceName: null });
+      setSpotifyState({ pairingAccountId: null });
     }
   };
 
@@ -3506,20 +3502,6 @@ export default function ContentView(): JSX.Element {
                   })}
                 </div>
               )}
-              {pairingDeviceName ? (
-                <p className="source-card__action-reason">
-                  {t('content.spotify.pair.waiting', { deviceName: pairingDeviceName })}
-                </p>
-              ) : null}
-              {spotifyFeedback ? (
-                <p
-                  className={`source-card__action-reason${
-                    spotifyFeedback.type === 'error' ? ' is-error' : ''
-                  }`}
-                >
-                  {spotifyFeedback.message}
-                </p>
-              ) : null}
             </div>
             <div className="source-card__action-block" style={{ marginTop: 14 }}>
               <button
