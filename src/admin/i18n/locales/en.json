@@ -445,10 +445,10 @@
       "pair": {
         "action": "Pair for playback",
         "pairing": "Waiting…",
-        "hint": "Spotify now needs you to confirm playback once from the Spotify app. Use this if you can browse Spotify but nothing plays.",
+        "hint": "Confirm playback for this account once from the Spotify app. Needed before this account can play.",
         "defaultDeviceName": "Sonn (pairing)",
         "waiting": "Open Spotify on your phone or computer and pick \"{{deviceName}}\" from the device list. Keep this page open.",
-        "paired": "Done — this account can play again.",
+        "paired": "Paired — this account is ready to play.",
         "notPicked": "The device wasn't picked in time. Start again when you're ready to select it in Spotify.",
         "failed": "Pairing didn't work. Please try again."
       },

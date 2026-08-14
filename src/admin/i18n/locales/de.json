@@ -445,10 +445,10 @@
       "pair": {
         "action": "Für Wiedergabe koppeln",
         "pairing": "Warten…",
-        "hint": "Spotify verlangt jetzt, dass die Wiedergabe einmal in der Spotify-App bestätigt wird. Nutze das, wenn du Spotify durchsuchen kannst, aber nichts abgespielt wird.",
+        "hint": "Die Wiedergabe für dieses Konto einmal in der Spotify-App bestätigen. Erforderlich, bevor dieses Konto abspielen kann.",
         "defaultDeviceName": "Sonn (pairing)",
         "waiting": "Öffne Spotify auf dem Handy oder Computer und wähle „{{deviceName}}“ in der Geräteliste. Lass diese Seite offen.",
-        "paired": "Fertig — dieses Konto kann wieder abspielen.",
+        "paired": "Gekoppelt — dieses Konto ist bereit zum Abspielen.",
         "notPicked": "Das Gerät wurde nicht rechtzeitig ausgewählt. Starte erneut, wenn du es in Spotify auswählen kannst.",
         "failed": "Das Koppeln hat nicht geklappt. Bitte erneut versuchen."
       },
