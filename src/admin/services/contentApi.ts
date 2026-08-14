@@ -294,6 +294,8 @@ export type SoloistZoneStatus = {
 export type SoloistStatus = {
   enabled: boolean;
   hasApiKey: boolean;
+  /** Whether zones ask Spotify for lossless rather than letting it pick a bitrate. */
+  lossless: boolean;
   hostArch: string;
   expiry: { daysAtCheck: number; checkedAt: number } | null;
   binary: {
@@ -317,6 +319,7 @@ export async function fetchSoloistStatus(): Promise<SoloistStatus> {
 export async function saveSoloistSettings(payload: {
   enabled?: boolean;
   apiKey?: string;
+  lossless?: boolean;
 }): Promise<SoloistStatus> {
   return requestJson(`${API_BASE}/spotify/soloist/settings`, {
     method: 'POST',

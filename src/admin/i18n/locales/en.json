@@ -641,6 +641,10 @@
         "saved": "API key saved",
         "replace": "Replace",
         "getIt": "Create a key →"
+      },
+      "lossless": {
+        "title": "Lossless",
+        "desc": "Ask Spotify for lossless in every room. Off leaves it to Spotify, which picks a bitrate to suit the connection. Applies from the next track."
       }
     },
     "players": {

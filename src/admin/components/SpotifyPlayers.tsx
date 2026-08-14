@@ -279,6 +279,24 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
             </div>
           </div>
 
+          {/* Set per room in the Spotify app otherwise, one room at a time, in a screen most
+              people never open — so it is asked for here instead. */}
+          <div className="content-toggle-card">
+            <div className="content-toggle-card__info">
+              <h3 className="content-toggle-card__title">{t('content.soloist.lossless.title')}</h3>
+              <p className="content-toggle-card__desc">{t('content.soloist.lossless.desc')}</p>
+            </div>
+            <button
+              type="button"
+              className={`content-toggle${status?.lossless !== false ? ' is-on' : ''}`}
+              aria-label={t('content.soloist.lossless.title')}
+              disabled={busy || !status}
+              onClick={() =>
+                void run(() => saveSoloistSettings({ lossless: status?.lossless === false }))
+              }
+            />
+          </div>
+
           <div className="spotify-players__field">
             <h3 className="content-toggle-card__title">{t('content.soloist.key.title')}</h3>
             <p className="content-toggle-card__desc">

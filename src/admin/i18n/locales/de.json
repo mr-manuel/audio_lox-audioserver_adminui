@@ -641,6 +641,10 @@
         "saved": "API-Schlüssel gespeichert",
         "replace": "Ersetzen",
         "getIt": "Schlüssel erstellen →"
+      },
+      "lossless": {
+        "title": "Verlustfrei",
+        "desc": "In jedem Raum verlustfrei von Spotify anfordern. Aus überlässt es Spotify, das die Bitrate der Verbindung anpasst. Gilt ab dem nächsten Titel."
       }
     },
     "players": {
