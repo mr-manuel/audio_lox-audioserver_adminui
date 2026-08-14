@@ -168,11 +168,15 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
           {/* Only this player needs it. Spotify stopped accepting the logins the server can mint
               for itself, so the built-in player has to be handed credentials from the Spotify app
               once per account. Soloist has its own login and never sees this. */}
-          <div className="spotify-players__field">
-            <h3 className="content-toggle-card__title">{t('content.players.builtin.credentials')}</h3>
-            <p className="content-toggle-card__desc">
-              {t('content.players.builtin.credentialsDesc')}
-            </p>
+          <div className="spotify-players__tile">
+            <div>
+              <h3 className="content-toggle-card__title">
+                {t('content.players.builtin.credentials')}
+              </h3>
+              <p className="content-toggle-card__desc">
+                {t('content.players.builtin.credentialsDesc')}
+              </p>
+            </div>
             <div className="content-list">
               {props.accounts.map((account) => (
                 <div key={account.key} className="content-list-row">
