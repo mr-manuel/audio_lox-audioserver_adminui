@@ -3348,3 +3348,14 @@
   color: var(--text-muted);
   font-size: var(--text-sm);
 }
+
+/* A tile whose content is a list rather than one row, so it stacks instead of sitting side by side. */
+.spotify-players__tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: 18px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}

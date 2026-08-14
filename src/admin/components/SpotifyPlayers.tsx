@@ -297,78 +297,84 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
             />
           </div>
 
-          <div className="spotify-players__field">
-            <h3 className="content-toggle-card__title">{t('content.soloist.key.title')}</h3>
-            <p className="content-toggle-card__desc">
-              {t('content.soloist.key.desc')}{' '}
-              <a
-                className="content-link"
-                href={SOLOIST_KEY_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {t('content.soloist.key.getIt')}
-              </a>
-            </p>
-            {/* A saved key is never shown, so an empty box has to be told apart from an unset one —
-                otherwise it reads as "nothing here" and someone pastes a second key over a working
-                one, or goes looking for where it is really kept. */}
-            {status?.hasApiKey && !editingKey ? (
-              <div className="content-list-row">
-                <div className="content-list-row__main">
-                  <div className="content-list-row__title">{t('content.soloist.key.saved')}</div>
-                </div>
-                <div className="content-list-row__actions">
+          {/* A tile like the two above it: the key is a thing you have or have not, not a form
+              standing loose under a heading. */}
+          <div className="content-toggle-card">
+            <div className="content-toggle-card__info">
+              <h3 className="content-toggle-card__title">{t('content.soloist.key.title')}</h3>
+              <p className="content-toggle-card__desc">
+                {status?.hasApiKey && !editingKey
+                  ? t('content.soloist.key.saved')
+                  : t('content.soloist.key.desc')}{' '}
+                {status?.hasApiKey && !editingKey ? null : (
+                  <a
+                    className="content-link"
+                    href={SOLOIST_KEY_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {t('content.soloist.key.getIt')}
+                  </a>
+                )}
+              </p>
+              {status?.hasApiKey && !editingKey ? null : (
+                <div className="spotify-players__field-row">
+                  <div className="content-input" style={{ flex: 1 }}>
+                    <input
+                      type="password"
+                      value={apiKey}
+                      placeholder={t('content.soloist.key.placeholder')}
+                      onChange={(event) => setApiKey(event.target.value)}
+                    />
+                  </div>
                   <button
                     type="button"
-                    className="content-btn"
-                    onClick={() => setEditingKey(true)}
+                    className="content-btn content-btn--primary"
+                    disabled={busy || apiKey.trim().length === 0}
+                    onClick={() =>
+                      void run(() => saveSoloistSettings({ apiKey: apiKey.trim() })).then(() => {
+                        setApiKey('');
+                        setEditingKey(false);
+                      })
+                    }
                   >
-                    {t('content.soloist.key.replace')}
+                    {t('content.soloist.key.save')}
                   </button>
+                  {status?.hasApiKey ? (
+                    <button
+                      type="button"
+                      className="content-btn"
+                      onClick={() => {
+                        setApiKey('');
+                        setEditingKey(false);
+                      }}
+                    >
+                      {t('content.spotify.cancel')}
+                    </button>
+                  ) : null}
                 </div>
-              </div>
-            ) : (
-              <div className="spotify-players__field-row">
-                <div className="content-input" style={{ flex: 1 }}>
-                  <input
-                    type="password"
-                    value={apiKey}
-                    placeholder={t('content.soloist.key.placeholder')}
-                    onChange={(event) => setApiKey(event.target.value)}
-                  />
-                </div>
-                <button
-                  type="button"
-                  className="content-btn content-btn--primary"
-                  disabled={busy || apiKey.trim().length === 0}
-                  onClick={() =>
-                    void run(() => saveSoloistSettings({ apiKey: apiKey.trim() })).then(() => {
-                      setApiKey('');
-                      setEditingKey(false);
-                    })
-                  }
-                >
-                  {t('content.soloist.key.save')}
+              )}
+            </div>
+            {status?.hasApiKey && !editingKey ? (
+              <div className="content-toggle-card__group">
+                <button type="button" className="content-btn" onClick={() => setEditingKey(true)}>
+                  {t('content.soloist.key.replace')}
                 </button>
-                {status?.hasApiKey ? (
-                  <button type="button" className="content-btn" onClick={() => { setApiKey(''); setEditingKey(false); }}>
-                    {t('content.spotify.cancel')}
-                  </button>
-                ) : null}
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       )}
 
       {usingSoloist ? (
-        <div className="spotify-players__field">
+        <div className="spotify-players__tile">
           {/* Not an action: a zone's Soloist advertises itself over Zeroconf and waits, so what
               is missing is someone connecting to it once in the Spotify app — which is what
               hands it the credentials it then keeps. Saying that is the whole of it. */}
-          <h3 className="spotify-players__heading">{t('content.players.roomsTitle')}</h3>
-          <p className="content-toggle-card__desc">{t('content.players.roomsDesc')}</p>
+          <div>
+            <h3 className="content-toggle-card__title">{t('content.players.roomsTitle')}</h3>
+            <p className="content-toggle-card__desc">{t('content.players.roomsDesc')}</p>
+          </div>
           <div className="content-list">
             {zones.map((zone) => (
               <div key={zone.zoneId} className="content-list-row">
