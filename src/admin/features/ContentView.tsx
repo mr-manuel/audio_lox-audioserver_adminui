@@ -1686,8 +1686,12 @@ export default function ContentView(): JSX.Element {
         feedback: { type: 'success', message: t('content.spotify.pair.waiting', { deviceName }) },
       });
 
-      const deadline = started.expiresAt ?? Date.now() + 120_000;
-      while (Date.now() < deadline + 2_000) {
+      // Poll until the server reaches a verdict rather than counting down to `expiresAt`. When a
+      // handshake was already running, that timestamp belongs to the earlier attempt and can be in
+      // the past, which used to end the loop before it polled once — reporting "not picked" the
+      // instant the button was pressed. The server owns the timeout; here we only need a stop.
+      const giveUpAt = Date.now() + 6 * 60_000;
+      while (Date.now() < giveUpAt) {
         await new Promise((resolve) => setTimeout(resolve, 2_000));
         const status = await fetchSpotifyPairingStatus(accountKey);
         if (status.state === 'paired') {
