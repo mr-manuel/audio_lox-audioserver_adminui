@@ -623,15 +623,21 @@
       "binary": {
         "title": "Das Soloist-Programm",
         "present": "Version {{version}}, gebaut für {{arch}}.",
-        "missing": "Noch nicht hochgeladen. Hol die {{arch}}-Version und lade sie hier hoch — die .tar.gz genügt, Entpacken ist nicht nötig.",
+        "missing": "Noch nicht installiert.",
         "upload": "Hochladen",
-        "replace": "Ersetzen",
+        "replace": "Von Hand ersetzen",
         "stored": "Programm gespeichert.",
         "expiring": "Lade eine neuere Version herunter und hier hoch; damit beginnen die 90 Tage von vorn.",
         "getIt": "Bei Spotify herunterladen →",
         "accepts": "Lade die .tar.gz so hoch, wie sie heruntergeladen wurde, oder die entpackte Datei soloist.",
-        "expiresIn": "Noch {{days}} Tage gültig — jeder neue Download gilt wieder 90 Tage.",
-        "expired": "Diese Version läuft nicht mehr. Lade eine neuere herunter, dann gilt sie wieder 90 Tage."
+        "expiresIn": "Noch {{days}} Tage gültig.",
+        "expired": "Diese Version läuft nicht mehr. Lade eine neuere herunter, dann gilt sie wieder 90 Tage.",
+        "fetched": "Dieser Server hält es aktuell — er prüft täglich und installiert einen neuen Build, sobald Spotify einen veröffentlicht.",
+        "fetching": "Wird gerade von Spotify geholt. Beim ersten Mal dauert das einen Moment.",
+        "checkedAt": "Zuletzt geprüft {{when}}.",
+        "manualOnly": "Für {{arch}} veröffentlicht Spotify keinen Build, also muss dieser von Hand hochgeladen werden.",
+        "uploadInstead": "Stattdessen hochladen",
+        "expiringSelf": "Ein neuerer Build kommt lange vorher von selbst."
       },
       "key": {
         "title": "Dein Soloist-API-Schlüssel",

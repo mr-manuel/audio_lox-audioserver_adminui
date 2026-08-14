@@ -23,6 +23,20 @@ const SOLOIST_DOWNLOAD_URL =
 /** Where a key is made. Premium account required, and it is made per person, not per install. */
 const SOLOIST_KEY_URL = 'https://developer.spotify.com/dashboard/soloist';
 
+/**
+ * When the server last looked for a new build, in the reader's own words.
+ *
+ * A clock time is enough: this is reassurance that something is watching, not a figure anyone needs
+ * to the minute. Today shows the time, anything older shows the date it was.
+ */
+function formatWhen(at: number): string {
+  const when = new Date(at);
+  const today = new Date().toDateString() === when.toDateString();
+  return today
+    ? when.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+    : when.toLocaleDateString();
+}
+
 type Props = {
   /** Linked Spotify accounts, for the built-in player's playback credentials. */
   accounts: Array<{ key: string; label: string }>;
@@ -91,6 +105,10 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
   const expiresInDays = status?.binary.expiresInDays ?? status?.expiry?.daysAtCheck;
   const expired = typeof expiresInDays === 'number' && expiresInDays <= 0;
   const expiringSoon = typeof expiresInDays === 'number' && !expired && expiresInDays <= EXPIRY_WARN_DAYS;
+  // The server fetches the program itself wherever Spotify publishes one for this machine, so the
+  // 90 days stopped being anybody's problem — only a machine it has no build for still asks.
+  const selfUpdating = status?.autoUpdates === true;
+  const lookedAt = status?.build?.checkedAt;
 
   return (
     <div className="spotify-players">
@@ -214,95 +232,6 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
         </div>
       ) : (
         <div className="spotify-players__panel">
-          {/* Neither the program nor the key may be shipped, so both steps say who has to do it. */}
-          <div className="content-toggle-card">
-            <div className="content-toggle-card__info">
-              <h3 className="content-toggle-card__title">{t('content.soloist.binary.title')}</h3>
-              <p className="content-toggle-card__desc">
-                {status?.binary.present
-                  ? t('content.soloist.binary.present', {
-                      version: status.binary.version ?? '?',
-                      arch: status.hostArch,
-                    })
-                  : t('content.soloist.binary.missing', { arch: status?.hostArch ?? '' })}
-                {status?.binary.present && typeof expiresInDays === 'number' ? (
-                  <>
-                    {' '}
-                    <span className={expiringSoon || expired ? 'content-warn' : undefined}>
-                      {expired
-                        ? t('content.soloist.binary.expired')
-                        : t('content.soloist.binary.expiresIn', { days: expiresInDays })}
-                    </span>
-                  </>
-                ) : null}
-              </p>
-              {expiringSoon || expired ? (
-                <p className="source-card__action-reason is-error">
-                  {t('content.soloist.binary.expiring')}
-                </p>
-              ) : null}
-              {!status?.binary.present ? (
-                <p className="content-toggle-card__desc">{t('content.soloist.binary.accepts')}</p>
-              ) : null}
-              <p className="content-toggle-card__desc">
-                <a
-                  className="content-link"
-                  href={SOLOIST_DOWNLOAD_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {t('content.soloist.binary.getIt')}
-                </a>
-              </p>
-            </div>
-            <div className="content-toggle-card__group">
-              {/* No accept filter on purpose: the unpacked program has no extension, so any
-                  filter that let the .tar.gz through would grey the other one out. */}
-              <input
-                ref={fileInput}
-                type="file"
-                style={{ display: 'none' }}
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  event.target.value = '';
-                  if (file) {
-                    void run(() => uploadSoloistBinary(file), t('content.soloist.binary.stored'));
-                  }
-                }}
-              />
-              <button
-                type="button"
-                className="content-btn"
-                disabled={busy}
-                onClick={() => fileInput.current?.click()}
-              >
-                {status?.binary.present
-                  ? t('content.soloist.binary.replace')
-                  : t('content.soloist.binary.upload')}
-              </button>
-            </div>
-          </div>
-
-          {/* Set per room in the Spotify app otherwise, one room at a time, in a screen most
-              people never open — so it is asked for here instead. */}
-          <div className="content-toggle-card">
-            <div className="content-toggle-card__info">
-              <h3 className="content-toggle-card__title">{t('content.soloist.lossless.title')}</h3>
-              <p className="content-toggle-card__desc">{t('content.soloist.lossless.desc')}</p>
-            </div>
-            <button
-              type="button"
-              className={`content-toggle${status?.lossless !== false ? ' is-on' : ''}`}
-              aria-label={t('content.soloist.lossless.title')}
-              disabled={busy || !status}
-              onClick={() =>
-                void run(() => saveSoloistSettings({ lossless: status?.lossless === false }))
-              }
-            />
-          </div>
-
-          {/* A tile like the two above it: the key is a thing you have or have not, not a form
-              standing loose under a heading. */}
           <div className="content-toggle-card">
             <div className="content-toggle-card__info">
               <h3 className="content-toggle-card__title">{t('content.soloist.key.title')}</h3>
@@ -367,6 +296,113 @@ export function SpotifyPlayers(props: Props): React.ReactElement {
               </div>
             ) : null}
           </div>
+          {/* Neither the program nor the key may be shipped, so both steps say who has to do it. */}
+          <div className="content-toggle-card">
+            <div className="content-toggle-card__info">
+              <h3 className="content-toggle-card__title">{t('content.soloist.binary.title')}</h3>
+              <p className="content-toggle-card__desc">
+                {status?.binary.present
+                  ? t('content.soloist.binary.present', {
+                      version: status.binary.version ?? '?',
+                      arch: status.hostArch,
+                    })
+                  : selfUpdating
+                    ? t('content.soloist.binary.fetching')
+                    : t('content.soloist.binary.missing')}
+                {status?.binary.present && typeof expiresInDays === 'number' && !selfUpdating ? (
+                  <>
+                    {' '}
+                    <span className={expiringSoon || expired ? 'content-warn' : undefined}>
+                      {expired
+                        ? t('content.soloist.binary.expired')
+                        : t('content.soloist.binary.expiresIn', { days: expiresInDays })}
+                    </span>
+                  </>
+                ) : null}
+              </p>
+              {selfUpdating ? (
+                <p className="content-toggle-card__desc">
+                  {t('content.soloist.binary.fetched')}
+                  {lookedAt
+                    ? ` ${t('content.soloist.binary.checkedAt', { when: formatWhen(lookedAt) })}`
+                    : ''}
+                </p>
+              ) : (
+                <>
+                  <p className="content-toggle-card__desc">
+                    {t('content.soloist.binary.manualOnly', { arch: status?.hostArch ?? '' })}
+                  </p>
+                  {expiringSoon || expired ? (
+                    <p className="source-card__action-reason is-error">
+                      {t('content.soloist.binary.expiring')}
+                    </p>
+                  ) : null}
+                  <p className="content-toggle-card__desc">
+                    {t('content.soloist.binary.accepts')}
+                  </p>
+                  <p className="content-toggle-card__desc">
+                    <a
+                      className="content-link"
+                      href={SOLOIST_DOWNLOAD_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {t('content.soloist.binary.getIt')}
+                    </a>
+                  </p>
+                </>
+              )}
+            </div>
+            <div className="content-toggle-card__group">
+              {/* No accept filter on purpose: the unpacked program has no extension, so any
+                  filter that let the .tar.gz through would grey the other one out. */}
+              <input
+                ref={fileInput}
+                type="file"
+                style={{ display: 'none' }}
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  event.target.value = '';
+                  if (file) {
+                    void run(() => uploadSoloistBinary(file), t('content.soloist.binary.stored'));
+                  }
+                }}
+              />
+              <button
+                type="button"
+                className="content-btn"
+                disabled={busy}
+                onClick={() => fileInput.current?.click()}
+              >
+                {selfUpdating
+                  ? t('content.soloist.binary.uploadInstead')
+                  : status?.binary.present
+                    ? t('content.soloist.binary.replace')
+                    : t('content.soloist.binary.upload')}
+              </button>
+            </div>
+          </div>
+
+          {/* Set per room in the Spotify app otherwise, one room at a time, in a screen most
+              people never open — so it is asked for here instead. */}
+          <div className="content-toggle-card">
+            <div className="content-toggle-card__info">
+              <h3 className="content-toggle-card__title">{t('content.soloist.lossless.title')}</h3>
+              <p className="content-toggle-card__desc">{t('content.soloist.lossless.desc')}</p>
+            </div>
+            <button
+              type="button"
+              className={`content-toggle${status?.lossless !== false ? ' is-on' : ''}`}
+              aria-label={t('content.soloist.lossless.title')}
+              disabled={busy || !status}
+              onClick={() =>
+                void run(() => saveSoloistSettings({ lossless: status?.lossless === false }))
+              }
+            />
+          </div>
+
+          {/* A tile like the two above it: the key is a thing you have or have not, not a form
+              standing loose under a heading. */}
         </div>
       )}
 

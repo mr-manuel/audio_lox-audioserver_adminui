@@ -298,6 +298,10 @@ export type SoloistStatus = {
   lossless: boolean;
   hostArch: string;
   expiry: { daysAtCheck: number; checkedAt: number } | null;
+  /** Whether Spotify publishes a build for this machine, which is what makes it self-updating. */
+  autoUpdates: boolean;
+  /** What this server fetched and when it last looked. Null when it has never fetched one. */
+  build: { signature?: string; digest?: string; checkedAt?: number; installedAt?: number } | null;
   binary: {
     present: boolean;
     executable: boolean;
