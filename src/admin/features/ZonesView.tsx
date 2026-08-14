@@ -1188,7 +1188,10 @@ export default function ZonesView(): JSX.Element {
                       const hasOutput = transportId.length > 0;
                       // Receivers are opt-in per player, matching the server's gate.
                       const airplayOn = zone.inputs?.airplay?.enabled === true;
-                      const spotifyOn = zone.inputs?.spotify?.enabled === true;
+                      // Soloist cannot run without advertising, so while it is the player the
+                      // room is a Connect target whatever the stored switch says — and the card
+                      // has to show what is true, not what was last chosen.
+                      const spotifyOn = soloistInUse || zone.inputs?.spotify?.enabled === true;
                       const dlnaOn = Boolean(zone.inputs?.dlna?.enabled);
 
                       // Group role lookup — Loxone sync group (master/member)
@@ -1331,23 +1334,34 @@ export default function ZonesView(): JSX.Element {
                             </div>
                           </button>
 
-                          <div className="zones-card__inputs">
-                            <span className="zones-card__inputs-label">{t('zones.card.inputs')}</span>
-                            <div className="zones-card__chips">
-                              <span className={`zones-card__chip${airplayOn ? ' is-on' : ''}`}>
-                                <span className="zones-card__chip-dot" />
-                                {t('zones.card.airplay')}
-                              </span>
-                              <span className={`zones-card__chip${spotifyOn ? ' is-on' : ''}`}>
-                                <span className="zones-card__chip-dot" />
-                                {t('zones.card.spotifyConnect')}
-                              </span>
-                              <span className={`zones-card__chip${dlnaOn ? ' is-on' : ''}`}>
-                                <span className="zones-card__chip-dot" />
-                                {t('zones.card.dlna')}
-                              </span>
+                          {/* Only what this room actually accepts. Listing the rest greyed out
+                              filled the card with things that are not true of it, and made the
+                              ones that are harder to pick out. */}
+                          {airplayOn || spotifyOn || dlnaOn ? (
+                            <div className="zones-card__inputs">
+                              <span className="zones-card__inputs-label">{t('zones.card.inputs')}</span>
+                              <div className="zones-card__chips">
+                                {airplayOn ? (
+                                  <span className="zones-card__chip is-on">
+                                    <span className="zones-card__chip-dot" />
+                                    {t('zones.card.airplay')}
+                                  </span>
+                                ) : null}
+                                {spotifyOn ? (
+                                  <span className="zones-card__chip is-on">
+                                    <span className="zones-card__chip-dot" />
+                                    {t('zones.card.spotifyConnect')}
+                                  </span>
+                                ) : null}
+                                {dlnaOn ? (
+                                  <span className="zones-card__chip is-on">
+                                    <span className="zones-card__chip-dot" />
+                                    {t('zones.card.dlna')}
+                                  </span>
+                                ) : null}
+                              </div>
                             </div>
-                          </div>
+                          ) : null}
 
                           <div className="zones-card__foot">
                             <button
