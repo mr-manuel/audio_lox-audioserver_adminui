@@ -620,6 +620,20 @@
         "updateFailed": "Failed to update bridge",
         "removed": "Bridge removed",
         "removeFailed": "Failed to remove bridge"
+      },
+      "ytdlp": {
+        "title": "The yt-dlp program",
+        "installed": "Version {{version}}.",
+        "upToDate": "This is the newest version.",
+        "updateAvailable": "Version {{version}} is available.",
+        "unknown": "The newest version could not be looked up just now.",
+        "missing": "Not installed — YouTube cannot play without it.",
+        "desc": "YouTube offers no direct audio links, so every track is unlocked by this program. YouTube keeps changing how that works, and an out-of-date copy is the usual reason playback fails or sounds worse than it should.",
+        "shared": "Shared by every YouTube and YouTube Music account on this server.",
+        "update": "Update",
+        "updating": "Updating…",
+        "updated": "Updated to {{version}}.",
+        "failed": "Could not update: {{error}}"
       }
     },
     "soloist": {

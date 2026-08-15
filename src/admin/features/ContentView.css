@@ -3359,3 +3359,9 @@
   border: 1px solid var(--border);
   border-radius: 12px;
 }
+
+/* A tile that follows a field inside a wizard step needs the step's own breathing room;
+   the field it sits under has none of its own to give. */
+.bridge-modal__panel .content-toggle-card {
+  margin-top: 18px;
+}

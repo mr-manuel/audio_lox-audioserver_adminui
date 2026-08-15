@@ -620,6 +620,20 @@
         "updateFailed": "Bridge konnte nicht aktualisiert werden",
         "removed": "Bridge entfernt",
         "removeFailed": "Bridge konnte nicht entfernt werden"
+      },
+      "ytdlp": {
+        "title": "Das Programm yt-dlp",
+        "installed": "Version {{version}}.",
+        "upToDate": "Das ist die neueste Version.",
+        "updateAvailable": "Version {{version}} ist verfügbar.",
+        "unknown": "Die neueste Version konnte gerade nicht abgefragt werden.",
+        "missing": "Nicht installiert — ohne das Programm kann YouTube nicht abspielen.",
+        "desc": "YouTube bietet keine direkten Audio-Links, daher wird jeder Titel über dieses Programm abgerufen. YouTube ändert das immer wieder, und eine veraltete Kopie ist der häufigste Grund, warum die Wiedergabe fehlschlägt oder schlechter klingt.",
+        "shared": "Wird von allen YouTube- und YouTube-Music-Konten auf diesem Server verwendet.",
+        "update": "Aktualisieren",
+        "updating": "Wird aktualisiert…",
+        "updated": "Auf {{version}} aktualisiert.",
+        "failed": "Aktualisierung fehlgeschlagen: {{error}}"
       }
     },
     "soloist": {

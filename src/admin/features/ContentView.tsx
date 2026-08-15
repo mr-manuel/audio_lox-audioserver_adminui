@@ -26,8 +26,11 @@ import {
   createSpotifyBridge,
   deleteSpotifyBridge,
   updateInputsConfig,
+  fetchYtDlpStatus,
+  updateYtDlp,
 } from '../services/contentApi';
 import type {
+  YtDlpStatusResponse,
   LibraryStorage,
   CustomRadioEntry,
   LibraryCoverSample,
@@ -684,6 +687,77 @@ function spotifyReducer(state: SpotifyState, action: SpotifyAction): SpotifyStat
     return { ...state, ...patch };
   }
   return state;
+}
+
+/**
+ * The yt-dlp behind YouTube playback: which version is in use, and a way to move it on.
+ *
+ * It sits in the account modal because that is where someone lands when YouTube Music
+ * misbehaves, but the binary is the server's rather than the account's — hence the note.
+ * Only mounted while the panel is open, so nothing polls GitHub in the background.
+ */
+function YtDlpPanel(): JSX.Element {
+  const { t } = useTranslation();
+  const [status, setStatus] = React.useState<YtDlpStatusResponse | null>(null);
+  const [busy, setBusy] = React.useState(false);
+  const [note, setNote] = React.useState<{ kind: 'ok' | 'error'; text: string } | null>(null);
+
+  React.useEffect(() => {
+    let alive = true;
+    fetchYtDlpStatus()
+      .then((s) => { if (alive) setStatus(s); })
+      .catch(() => { if (alive) setStatus(null); });
+    return () => { alive = false; };
+  }, []);
+
+  const runUpdate = async (): Promise<void> => {
+    setBusy(true);
+    setNote(null);
+    try {
+      const next = await updateYtDlp();
+      setStatus(next);
+      setNote({ kind: 'ok', text: t('content.bridge.ytdlp.updated', { version: next.version ?? '' }) });
+    } catch (err) {
+      const text = err instanceof Error ? err.message : String(err);
+      setNote({ kind: 'error', text: t('content.bridge.ytdlp.failed', { error: text }) });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // Never call an unknown "up to date": failing to reach the release feed must not read
+  // as good news, so that case gets its own sentence rather than the reassuring one.
+  const state = !status || !status.version
+    ? { text: t('content.bridge.ytdlp.missing'), warn: true }
+    : status.updateAvailable === true
+      ? { text: t('content.bridge.ytdlp.updateAvailable', { version: status.latest ?? '' }), warn: true }
+      : status.updateAvailable === false
+        ? { text: t('content.bridge.ytdlp.upToDate'), warn: false }
+        : { text: t('content.bridge.ytdlp.unknown'), warn: false };
+
+  return (
+    <div className="content-toggle-card">
+      <div className="content-toggle-card__info">
+        <h3 className="content-toggle-card__title">{t('content.bridge.ytdlp.title')}</h3>
+        <p className="content-toggle-card__desc">
+          {status?.version ? t('content.bridge.ytdlp.installed', { version: status.version }) : null}{' '}
+          <span className={state.warn ? 'content-warn' : undefined}>{state.text}</span>
+        </p>
+        <p className="content-toggle-card__desc">{t('content.bridge.ytdlp.desc')}</p>
+        <p className="content-toggle-card__desc">{t('content.bridge.ytdlp.shared')}</p>
+        {note ? (
+          <p className={note.kind === 'error' ? 'source-card__action-reason is-error' : 'content-toggle-card__desc'}>
+            {note.text}
+          </p>
+        ) : null}
+      </div>
+      <div className="content-toggle-card__group">
+        <button type="button" className="content-btn" onClick={() => void runUpdate()} disabled={busy}>
+          {busy ? t('content.bridge.ytdlp.updating') : t('content.bridge.ytdlp.update')}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 export default function ContentView(): JSX.Element {
@@ -4245,6 +4319,7 @@ export default function ContentView(): JSX.Element {
                     rows={5}
                   />
                 </div>
+                <YtDlpPanel />
               </div>
             )}
 
@@ -4272,6 +4347,7 @@ export default function ContentView(): JSX.Element {
                     autoComplete="off"
                   />
                 </div>
+                <YtDlpPanel />
               </div>
             )}
 

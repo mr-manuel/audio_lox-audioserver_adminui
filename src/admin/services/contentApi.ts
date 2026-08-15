@@ -511,3 +511,29 @@ export async function deleteLibraryStorage(storageId: string): Promise<void> {
     errorMessage: 'Failed to remove library share',
   });
 }
+
+export type YtDlpStatusResponse = {
+  version: string | null;
+  source: string;
+  managed: boolean;
+  latest: string | null;
+  updateAvailable: boolean | null;
+  previous?: string | null;
+};
+
+/**
+ * The yt-dlp behind every YouTube and YouTube Music service — one binary, one state,
+ * so this is deliberately not scoped to the account whose modal happens to show it.
+ */
+export async function fetchYtDlpStatus(): Promise<YtDlpStatusResponse> {
+  return requestJson(`${API_BASE}/ytdlp/status`, {
+    errorMessage: 'Failed to read the yt-dlp version',
+  });
+}
+
+export async function updateYtDlp(): Promise<YtDlpStatusResponse> {
+  return requestJson(`${API_BASE}/ytdlp/update`, {
+    method: 'POST',
+    errorMessage: 'Failed to update yt-dlp',
+  });
+}
