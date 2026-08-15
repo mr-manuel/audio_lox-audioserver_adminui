@@ -1,0 +1,72 @@
+/*
+ * A full-bleed strip, not a card: it has to read as a property of the whole
+ * screen rather than a message inside it. Sticky, and with no dismiss control —
+ * the point is that it cannot be cleared away and then forgotten about.
+ */
+.build-notice {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(245, 158, 11, 0.16),
+    rgba(245, 158, 11, 0.09)
+  );
+  border-bottom: 1px solid rgba(245, 158, 11, 0.38);
+  color: var(--warn-bright, #fbbf24);
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  /* Above the hero, and readable over whatever scrolls beneath it. */
+  backdrop-filter: blur(8px);
+}
+
+.build-notice__icon {
+  flex-shrink: 0;
+  display: flex;
+}
+
+.build-notice__text {
+  min-width: 0;
+}
+
+.build-notice__label {
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+
+.build-notice__tag {
+  margin-left: 8px;
+  padding: 1px 7px;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+@media (max-width: 640px) {
+  .build-notice {
+    align-items: flex-start;
+    text-align: left;
+    padding: 10px 14px;
+  }
+
+  .build-notice__tag {
+    display: inline-block;
+    margin: 4px 0 0;
+  }
+}
+
+/* The warning is the one thing that must not fade in with the rest of the shell. */
+@media (prefers-reduced-motion: reduce) {
+  .build-notice {
+    animation: none;
+  }
+}

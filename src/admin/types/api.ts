@@ -1,5 +1,10 @@
 export type StatusResponse = {
   version?: string;
+  /**
+   * Which artifact the server is: `dev` and `testing` are built on every push and
+   * are not meant for a real system. Absent on servers older than this field.
+   */
+  buildChannel?: 'dev' | 'testing' | 'beta' | 'stable';
   uptime?: number;
   name?: string;
   serial?: string;

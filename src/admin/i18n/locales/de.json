@@ -2,6 +2,10 @@
   "alert": {
     "dismiss": "Schließen"
   },
+  "buildNotice": {
+    "title": "Kein Release.",
+    "message": "Dieser Build dient zum Testen einer bestimmten Korrektur oder Funktion. Nutzen Sie ihn nicht auf einem System, auf das Sie angewiesen sind — installieren Sie stattdessen ein Release."
+  },
   "confirm": {
     "eyebrow": "Bestätigen",
     "eyebrowDanger": "Aktion bestätigen",
