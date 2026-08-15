@@ -890,7 +890,8 @@
       "runtime": "Laufzeit",
       "configCrc": "Config-CRC",
       "runtimeDocker": "Docker",
-      "runtimeStandalone": "Nativ (git)"
+      "runtimeStandalone": "Nativ (git)",
+      "runtimeGitBranch": "Nativ (git: {{branch}})"
     },
     "tts": {
       "eyebrow": "Text-to-Speech",

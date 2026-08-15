@@ -890,7 +890,8 @@
       "runtime": "Runtime",
       "configCrc": "Config CRC",
       "runtimeDocker": "Docker",
-      "runtimeStandalone": "Native (git)"
+      "runtimeStandalone": "Native (git)",
+      "runtimeGitBranch": "Native (git: {{branch}})"
     },
     "tts": {
       "eyebrow": "Text-to-speech",

@@ -340,7 +340,18 @@ export default function SetupView(): JSX.Element {
         : 0;
   const extensionCount = Array.isArray(audioserver.extensions) ? audioserver.extensions.length : 0;
   const isContainerized = status?.containerized !== false;
-  const runtimeLabel = isContainerized ? t('setup.diagnostics.runtimeDocker') : t('setup.diagnostics.runtimeStandalone');
+  // What this build is, next to how it runs. Running from a working copy the
+  // channel is derived from the branch, so naming both would say it twice —
+  // the channel is appended only when it adds something the branch does not.
+  const buildChannel = status?.buildChannel;
+  const gitBranch = status?.gitBranch;
+  const runtimeBase = isContainerized
+    ? t('setup.diagnostics.runtimeDocker')
+    : gitBranch
+      ? t('setup.diagnostics.runtimeGitBranch', { branch: gitBranch })
+      : t('setup.diagnostics.runtimeStandalone');
+  const runtimeLabel =
+    buildChannel && buildChannel !== gitBranch ? `${runtimeBase} · ${buildChannel}` : runtimeBase;
   // The server-core update always swaps dist/ in place; the only difference is
   // whether the deployment restarts itself (containerized / supervised) or the
   // user has to restart the service to load the new code.

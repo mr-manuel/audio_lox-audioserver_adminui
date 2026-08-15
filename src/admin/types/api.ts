@@ -5,6 +5,11 @@ export type StatusResponse = {
    * are not meant for a real system. Absent on servers older than this field.
    */
   buildChannel?: 'dev' | 'testing' | 'beta' | 'stable';
+  /**
+   * Checked-out branch when the server runs from a working copy, and where its
+   * channel came from in that case. Null in a container, which carries no repository.
+   */
+  gitBranch?: string | null;
   uptime?: number;
   name?: string;
   serial?: string;
